@@ -1,5 +1,7 @@
 %include "macros_globales.asm"
 
+extern screen_pixeles
+
 global generarFondo
 
 section .text
@@ -22,12 +24,16 @@ generarFondo:
     jle seguir
 
     mov edx, ebx
-    sub edx, SCREEN_W   ; edx = coordenada posta
+    sub edx, SCREEN_W   ; edx = "coordenada posta"
 
 seguir:
-    xor ecx, ecx        ; ecx es la base en la pantalla
-    ; edx es la base en el fondo (empieza siendo la coordenada posta)
+    mov ecx, screen_pixeles     ; ecx es la base en la pantalla
+    mov ecx, [ecx]
 
+    mul edx, 3          ; edx es la base en el fondo
+    add edx, fondo
+
+   
 recorrer_y:
     xor edi, edi        ; edi es el offset (del fondo y la pantalla)
 
