@@ -1,7 +1,11 @@
 %include "./asm/macros_globales.asm"
 
 global constructor_lista
+
+; inicializar_nodo es opcional. En nuestro caso, podriamos haberla usado
+; en agregar_item_ordenado pero no lo hicimos.
 global inicializar_nodo
+
 global verificar_id
 global agregar_item_ordenado
 global borrar
@@ -119,7 +123,7 @@ inicio:
 
     mov ecx, [ebx + coord_x]    ; guardo en ecx la coord x del primer nodo
     cmp ag_x, ecx               ; reviso si la coord x del primer nodo es menor a la que me pasaron por parametro
-    jg ag_seguir                   ; mayor sin signo?
+    jg ag_seguir                ; mayor sin signo?
 
 ;esta guardado en edx la dir de la lista y en ebx la dir del primer nodo
 caso_va_primero: 
@@ -127,15 +131,15 @@ caso_va_primero:
     jmp insertar_primer_nodo    ; guardo en la lista un puntero al nuevo nodo (eax)
     salida_funcion 0
 
-ag_seguir:                         ; ebx tiene un puntero al nodo actual
-    cmp dword[ebx + prox], 0    ; me fijo si hay prox
-    jmp caso_va_al_final        ; No hay proximo
+ag_seguir:                      ; ebx tiene un puntero al nodo actual
+    cmp dword [ebx + prox], 0   ; me fijo si hay prox
+    je caso_va_al_final         ; No hay proximo
     
     mov edx, ebx                ; salvo en edi el nodo actual
     mov ebx, [ebx + prox]       ; Muevo ebx al proximo elemento
     mov ecx, [ebx + coord_x]    ; Guardo en ecx la coord x del siguiente nodo
     cmp ag_x, ecx
-    jg ag_seguir                   ; Si nodo_actual.x > nodo_nuevo.x sigo buscando
+    jg ag_seguir                ; Si nodo_actual.x > nodo_nuevo.x sigo buscando
    
     connect_nodos edx,eax        ; pongo el elemento nuevo (eax) despues del nodo actual (edx)
     connect_nodos eax,ebx        ; pongo el elemento nuevo (eax) antes del proximo (ebx)
@@ -230,3 +234,4 @@ avanzar:
 ;TODO: Hacerla
 liberar_lista:
     ret
+
