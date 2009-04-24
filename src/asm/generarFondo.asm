@@ -1,4 +1,4 @@
-%include "macros_globales.asm"
+%include "./asm/macros_globales.asm"
 
 extern screen_pixeles
 
