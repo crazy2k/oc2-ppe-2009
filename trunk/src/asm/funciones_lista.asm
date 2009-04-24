@@ -1,4 +1,4 @@
-%include "macros_globales.asm"
+%include "./asm/macros_globales.asm"
 
 global constructor_lista
 global inicializar_nodo

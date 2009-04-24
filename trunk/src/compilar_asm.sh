@@ -1,9 +1,7 @@
-cd ./asm/
-rm *.o
-
-for i in ./*
+# Correrlo desde el directorio src/ del TP.
+rm ./asm/*.o
+for i in ./asm/*
 do
-    nasm -f elf "$i"
+    nasm -g -f elf "$i"
 done
 
-cd ..
