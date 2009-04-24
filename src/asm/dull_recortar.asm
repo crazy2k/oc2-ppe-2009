@@ -1,0 +1,4 @@
+global recortar
+
+recortar:
+    ret    

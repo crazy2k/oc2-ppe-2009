@@ -227,3 +227,6 @@ avanzar:
     jmp b_seguir
     
 
+;TODO: Hacerla
+liberar_lista:
+    ret

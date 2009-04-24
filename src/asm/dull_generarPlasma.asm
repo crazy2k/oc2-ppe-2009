@@ -1,0 +1,4 @@
+global generarPlasma
+
+generarPlasma:
+    ret    
