@@ -39,5 +39,8 @@ extern free
 %define prox 24
 %define prev 28
 
+%define SCREEN_W 800
+%define SCREEN_H 400
+
  
 
