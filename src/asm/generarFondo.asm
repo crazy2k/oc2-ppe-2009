@@ -54,3 +54,4 @@ recorrer_x:
     cmp ecx, SCREEN_H*SCREEN_W
     jl recorrer_y       ; ver si hay que pasar por y = SCREEN_H
 
+    salida_funcion 0
