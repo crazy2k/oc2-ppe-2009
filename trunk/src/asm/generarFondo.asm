@@ -27,13 +27,16 @@ generarFondo:
     sub edx, SCREEN_W   ; edx = "coordenada posta"
 
 seguir:
-    mov ecx, screen_pixeles     ; ecx es la base en la pantalla
-    mov ecx, [ecx]
+    mov ecx, screen_pixeles
+    mov ecx, [ecx]      ; ecx es la base en la pantalla
 
-    mul edx, 3          ; edx es la base en el fondo
-    add edx, fondo
+    mov esi, edx 
+    shl edx, 1
+    add edx, esi        ; multiplicacion por 3
 
-   
+    add edx, fondo      ; edx es la base en el fondo
+
+
 recorrer_y:
     xor edi, edi        ; edi es el offset (del fondo y la pantalla)
 

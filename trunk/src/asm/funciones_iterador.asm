@@ -1,5 +1,10 @@
 %include "macros_globales.asm"
 
+global constructor_iterador
+global hay_proximo
+global proximo
+global item
+global liberar_iterador
 
 section .text
 
