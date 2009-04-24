@@ -35,12 +35,16 @@ retornar:
 
 %define hay_prox_pit [ebp + 8]
 ; bool hay_proximo(Iterador *iter)
+; Recordar: La especificacion de esta funcion en el enunciado esta _mal_.
+; hay_proximo() es, mas bien, hay_actual()
 hay_proximo:
     entrada_funcion 0
 
     mov ebx, hay_prox_pit       ; ebx = direccion que apunta al Iterador
     mov ebx, [ebx]              ; ebx = direccion que apunta al Nodo actual
-    cmp dword [ebx + prox], 0         ; el proximo es NULL?
+    ;cmp dword [ebx + prox], 0         ; el proximo es NULL?
+    cmp ebx, 0            ; el actual es NULL?
+
     je es_null
     ; si no lo es, retorno 1
     mov eax, 1
