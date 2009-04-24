@@ -33,7 +33,7 @@ void init()
 	for (i = 0; i < 512; i++)
     {
 		rad =  ((float)i * 0.703125) * 0.0174532;
-		colores[i] = (int) sin(rad) * 1024;
+		colores[i] = sin(rad) * 1024;
     }
 }
 
