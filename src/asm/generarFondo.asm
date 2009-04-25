@@ -40,9 +40,11 @@ seguir:
     shl ebx, 1
     add ebx, esi        ; multipliacion por 3
 
+    xor esi, esi        ; esi es la fila actual
+
 recorrer_y:
     xor edi, edi        ; edi es el offset (del fondo y la pantalla)
-
+    inc esi
 
 recorrer_x:
     mov eax, [edx + edi]
@@ -63,7 +65,8 @@ recorrer_x:
     
     add edx, ebx        ; ebx era fondo_w*3
     add ecx, SCREEN_W*3
-    cmp ecx, SCREEN_H*SCREEN_W*3
+
+    cmp esi, SCREEN_H
     jl recorrer_y       ; ver si hay que pasar por y = SCREEN_H
 
     salida_funcion 0
