@@ -39,7 +39,7 @@ retornar:
 ; hay_proximo() es, mas bien, hay_actual()
 hay_proximo:
     entrada_funcion 0
-
+    xor eax, eax
     mov ebx, hay_prox_pit       ; ebx = direccion que apunta al Iterador
     mov ebx, [ebx]              ; ebx = direccion que apunta al Nodo actual
     ;cmp dword [ebx + prox], 0         ; el proximo es NULL?
@@ -48,11 +48,7 @@ hay_proximo:
     je es_null
     ; si no lo es, retorno 1
     mov eax, 1
-
-    salida_funcion 0
-    
 es_null:
-    mov eax, 0
     salida_funcion 0
     
 %define prox_pit [ebp + 8]
@@ -64,11 +60,9 @@ proximo:
     mov ebx, [eax]          ; ebx = direccion que apunta al Nodo actual
     mov ebx, [ebx + prox]   ; ebx = direccion que apunta al Nodo proximo
     cmp ebx, 0
-    je salir
 
     mov [eax], ebx
 
-salir:
     salida_funcion 0
 
 %define item_pit [ebp + 8]

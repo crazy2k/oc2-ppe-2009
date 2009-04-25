@@ -23,10 +23,11 @@ int main() {
     agregar_item_ordenado(l, NULL, NULL, (Uint32)3, (Uint32)0, (Uint32)3);
     agregar_item_ordenado(l, NULL, NULL, (Uint32)1, (Uint32)0, (Uint32)1);
     agregar_item_ordenado(l, NULL, NULL, (Uint32)2, (Uint32)0, (Uint32)2);
+    agregar_item_ordenado(l, NULL, NULL, (Uint32)4, (Uint32)0, (Uint32)4);
 
     Iterador* i = constructor_iterador(l);
 
-    for (int x = 1; x <= 3; x++) {
+    while (hay_proximo(i)) {
         Nodo* n = item(i);
         printf("%d \n", n->coord_x);
         proximo(i);
