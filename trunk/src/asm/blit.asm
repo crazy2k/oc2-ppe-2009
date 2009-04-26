@@ -1,6 +1,6 @@
 ;void blit(Uint8 *sprite, Uint32 ancho, Uint32 alto, Uint x, Uint y, Color color-off)
 
-%include 'macros_globales.asm'
+%include 'asm/macros_globales.asm'
 	
 %define SCREEN_W 800
 %define SCREEN_H 400

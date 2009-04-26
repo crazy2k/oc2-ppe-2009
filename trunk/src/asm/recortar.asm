@@ -1,6 +1,6 @@
 ;void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
 
-%include 'macros_globales.asm'
+%include 'asm/macros_globales.asm'
 
 %define ptrSprite [ebp+8]
 %define instancia [ebp+12]
