@@ -31,3 +31,4 @@ struct Iterador
 {
 	Nodo *actual;
 };
+

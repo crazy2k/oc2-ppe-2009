@@ -4,11 +4,12 @@ extern free
 
 %macro entrada_funcion 1
     push ebp
-    mov ebp, esp
     
     push edi
     push esi
     push ebx
+    
+    mov ebp, esp
 
     %if %1 <> 0
     sub esp, %1

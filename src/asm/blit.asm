@@ -1,6 +1,6 @@
 ;void blit(Uint8 *sprite, Uint32 ancho, Uint32 alto, Uint x, Uint y, Color color-off)
 
-%include 'asm/macros_globales.asm'
+%include 'asm/macros_globales.inc'
 	
 %define SCREEN_W 800
 %define SCREEN_H 400
@@ -34,7 +34,6 @@ extern screen_pixeles
 global blit
 
 blit:
-
 entrada_funcion 16
      
 completo:

@@ -1,4 +1,4 @@
-%include "./asm/macros_globales.asm"
+%include "./asm/macros_globales.inc"
 
 global constructor_lista
 
