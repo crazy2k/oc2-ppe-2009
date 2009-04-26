@@ -14,13 +14,13 @@
 %define final						[ebp+0]
 %define ancho_screen_bytes [ebp-4]
 
-%macro calcular_pixels 2   ; 2 registro y pos de memoria
+%macro calcular_pixels 2   ; registro y pos de memoria
 		mov %1, %2						;cargamos la coor x en edx y lo multiplicamos por 3
     shl %1, 1
     add %1, %2
 %endmacro
 
-%macro calcular_basura 2   ; 2 registro y pos de memoria
+%macro calcular_basura 2   ; registro y pos de memoria
     mov %1, %2 														
     and %1, 3h				         						;la basura del fondo bmp
     neg %1  
@@ -46,7 +46,7 @@ completo:
     add esi, ecx									;le addiciono el valor de la coord_x a screen_pixeles
     mov eax, coord_y							;cargo la coord y en eax
     
-    calcular_pixels edx, SCREEN_W           ;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
+    calcular_pixels edx, SCREEN_W						;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
 		calcular_basura ebx,edx 								;calculo la basura en ebx, desde edx
     add edx, ebx														;sumo el valor de la basura a edx
 		mov ancho_screen_bytes,edx

@@ -11,18 +11,18 @@
 %define orientacion [ebp+32]
 
 %define ancho_instancia_bytes [ebp+0]
-%define basura_sprite [ebp-4]
+%define basura_instancia [ebp-4]
 %define final [ebp-8]
 
 global recortar
 
-%macro calcular_pixels 2   ; 2 registro y pos de memoria
-		mov %1, %2						;cargamos la coor x en edx y lo multiplicamos por 3
+%macro calcular_pixels 2   ; registro y pos de memoria
+		mov %1, %2						;cargamos la coor x en %1 y lo multiplicamos por 3
     shl %1, 1
     add %1, %2
 %endmacro
 
-%macro calcular_basura 2   ; 2 registro y pos de memoria
+%macro calcular_basura 2   ; registro y pos de memoria
     mov %1, %2 														
     and %1, 3h				         						;la basura del fondo bmp
     neg %1  
@@ -34,18 +34,20 @@ recortar:
 entrada_funcion 12
 
 	mov esi, ptrSprite
-	calcular_pixels ebx,ancho_instancia
 	mov edi, ptrResultado
+	calcular_pixels ebx,ancho_instancia
+	calcular_basura eax, ecx
+  mov basura_instancia,eax										;basura para la instancia
+  
 	mov eax, instancia
 	mul ebx                                  ;tengo la cant de bytes hasta la primera instancia
-	add esi, eax                             ;en esi tengo la instancia
-	calcular_pixels ecx, ancho_sprite
-  calcular_basura ebx,ecx
-  
+	add esi, eax                             ;en esi tengo el comienzo de la instancia dentro del sprite
+	
+	calcular_pixels ecx, ancho_sprite				 ;cantidada de pixeles q ocupa el sprite
+  calcular_basura ebx,ecx  
   add ecx, ebx
-  mov ancho_instancia_bytes, ecx
-  calcular_basura eax, ecx
-  mov basura_sprite,eax
+  mov ancho_instancia_bytes, ecx					;ancho del sprite en pixeles
+
   
   mov eax, alto_sprite
   mul ecx
@@ -67,7 +69,7 @@ ciclo:              ;voy copiando los bytes de cada fila de la instancia y dejan
 	loopne ciclo
 	
 	calcular_pixels ebx, ancho_instancia
-	add edi, basura_sprite
+	add edi, basura_instancia
 	sub esi, ebx
 	add esi, ancho_instancia_bytes
 	cmp esi, final
