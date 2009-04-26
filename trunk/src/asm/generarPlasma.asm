@@ -1,4 +1,4 @@
-%include "asm/macros_globales.asm"
+%include "asm/macros_globales.inc"
 
 extern screen_pixeles
 extern colores
