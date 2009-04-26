@@ -13,6 +13,8 @@
 %define color_off       [ebp+28]
 %define final						[ebp+0]
 %define ancho_screen_bytes [ebp-4]
+%define ancho_sprite_bytes [ebp-8]
+%define basura_sprite [ebp-12]
 
 %macro calcular_pixels 2   ; registro y pos de memoria
 		mov %1, %2						;cargamos la coor x en edx y lo multiplicamos por 3
@@ -33,7 +35,7 @@ global blit
 
 blit:
 
-entrada_funcion 8 
+entrada_funcion 16
      
 completo:
   		
@@ -41,15 +43,20 @@ completo:
     
     ;esi <-- coord_y*(3*SCREEN_W + basura) + coord_x*3 + screen_pixeles
     
-    mov esi, [screen_pixeles]			;cargo el puntero a pantalla en esi
-		calcular_pixels ecx, coord_x	;cargamos la coor x en edx y lo multiplicamos por 3
-    add esi, ecx									;le addiciono el valor de la coord_x a screen_pixeles
-    mov eax, coord_y							;cargo la coord y en eax
+ 		calcular_pixels ebx, anchoSprite
+		calcular_basura edx,ebx
+		mov basura_sprite,edx
+		mov ancho_sprite_bytes,ebx
     
     calcular_pixels edx, SCREEN_W						;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
 		calcular_basura ebx,edx 								;calculo la basura en ebx, desde edx
     add edx, ebx														;sumo el valor de la basura a edx
 		mov ancho_screen_bytes,edx
+		
+    mov esi, [screen_pixeles]			;cargo el puntero a pantalla en esi    
+		calcular_pixels ecx, coord_x	;cargamos la coor x en edx y lo multiplicamos por 3
+    add esi, ecx									;le addiciono el valor de la coord_x a screen_pixeles
+    mov eax, coord_y							;cargo la coord y en eax
 						
     mul edx
     add esi, eax									;eax posee la cantidad de bytes q hay q sumarle al puntero a screen
@@ -93,12 +100,9 @@ no_cambio_color:
 	add esi, 03h
 	loopne while
 	
-	calcular_pixels ebx, anchoSprite
-	calcular_basura edx,ebx
-	add edi, ebx
-	sub esi, ebx
-	mov edx, ancho_screen_bytes
-	add esi, edx	; edx queda apuntando al principio de la siguiente fila
+	add edi, basura_sprite
+	sub esi, ancho_sprite_bytes
+	add esi, ancho_screen_bytes	; edx queda apuntando al principio de la siguiente fila
 	
 	cmp edi, final
 	je finBlit
@@ -107,5 +111,5 @@ no_cambio_color:
  
 finBlit:
   
-salida_funcion 4
+salida_funcion 16
 

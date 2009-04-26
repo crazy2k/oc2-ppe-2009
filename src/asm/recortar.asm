@@ -48,10 +48,9 @@ entrada_funcion 12
   add ecx, ebx
   mov ancho_instancia_bytes, ecx					;ancho del sprite en pixeles
 
-  
   mov eax, alto_sprite
-  mul ecx
-  add eax, esi
+  mul ecx										 ;esta en ex
+  add eax,esi
   mov final, eax             ;calculo el final de la instancia
 
 seguir:  
@@ -77,9 +76,3 @@ ciclo:              ;voy copiando los bytes de cada fila de la instancia y dejan
 	
 salida_funcion 12
 
-  
-  
-  
-  	
-	
-	
