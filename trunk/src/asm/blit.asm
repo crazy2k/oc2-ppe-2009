@@ -11,10 +11,11 @@
 %define coord_x         [ebp+20]
 %define coord_y         [ebp+24]
 %define color_off       [ebp+28]
-%define final						[ebp+0]
+
 %define ancho_screen_bytes [ebp-4]
 %define ancho_sprite_bytes [ebp-8]
 %define basura_sprite [ebp-12]
+%define final	[ebp-16]
 
 %macro calcular_pixels 2   ; registro y pos de memoria
 		mov %1, %2						;cargamos la coor x en edx y lo multiplicamos por 3

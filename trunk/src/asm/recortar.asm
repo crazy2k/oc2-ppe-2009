@@ -10,9 +10,9 @@
 %define ptrResultado [ebp+28]
 %define orientacion [ebp+32]
 
-%define ancho_instancia_bytes [ebp+0]
-%define basura_instancia [ebp-4]
-%define final [ebp-8]
+%define ancho_instancia_bytes [ebp-4]
+%define basura_instancia [ebp-8]
+%define final [ebp-12]
 
 global recortar
 
