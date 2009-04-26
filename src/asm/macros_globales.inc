@@ -4,28 +4,23 @@ extern free
 
 %macro entrada_funcion 1
     push ebp
-    
-    push edi
-    push esi
-    push ebx
-    
     mov ebp, esp
-
     %if %1 <> 0
     sub esp, %1
     %endif
+    push edi
+    push esi
+    push ebx
 
 %endmacro
 
 %macro salida_funcion 1
-    %if %1 <> 0
-    add esp, %1
-    %endif
-
     pop ebx
     pop esi
     pop edi
-
+    %if %1 <> 0
+    add esp, %1
+    %endif
     pop ebp
 
     ret

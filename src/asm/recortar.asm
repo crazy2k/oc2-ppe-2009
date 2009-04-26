@@ -57,19 +57,30 @@ seguir:
   mov ecx, ancho_instancia
       
 ciclo:              ;voy copiando los bytes de cada fila de la instancia y dejandolos en *res
+	jne espejado
 	mov bl, [esi] 		;edi es el puntero al byte actual de la instancia
 	mov [edi], bl
 	
 	mov bx, [esi + 1] 		
 	mov [edi + 1], bx
-		 
-	add edi, 03h
+
+	add edi, 03h	
+;	cmp orientacion,0
+;	jne restar	
 	add esi, 03h
+;	jmp fin_ciclo
+;restar:
+;	sub esi, 03h
+
+fin_ciclo:
 	loopne ciclo
 	
 	calcular_pixels ebx, ancho_instancia
 	add edi, basura_instancia
+;	cmp orientacion,0
+;	jne no_restar	
 	sub esi, ebx
+;no_restar:
 	add esi, ancho_instancia_bytes
 	cmp esi, final
 	jne seguir
