@@ -1,4 +1,0 @@
-global blit
-
-blit:
-    ret    

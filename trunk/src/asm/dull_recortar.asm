@@ -1,4 +1,0 @@
-global recortar
-
-recortar:
-    ret    
