@@ -57,7 +57,6 @@ seguir:
   mov ecx, ancho_instancia
       
 ciclo:              ;voy copiando los bytes de cada fila de la instancia y dejandolos en *res
-	jne espejado
 	mov bl, [esi] 		;edi es el puntero al byte actual de la instancia
 	mov [edi], bl
 	
