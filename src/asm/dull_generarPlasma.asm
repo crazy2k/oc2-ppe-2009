@@ -1,4 +1,0 @@
-global generarPlasma
-
-generarPlasma:
-    ret    
