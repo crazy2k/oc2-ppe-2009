@@ -56,12 +56,9 @@ completo:
     mov final, eax
     
 ;edi apunta todo el tiempo a la posicion dentro de la pantalla
-nueva_fila:		
-		 								
-  mov ecx, anchoSprite
-      
 ;las coordenadas (x, y) (x+p, y) (x, y+q) (x+p, y+q)
-
+nueva_fila:				 								
+  mov ecx, anchoSprite
 while:
 	;edi es el puntero al byte actual del sprite
 	;reviso q el primer byte (red) sea igual
@@ -73,11 +70,11 @@ while:
 	;reviso q los 2 ultimos bytes (green-blue) sean iguales
 	mov bx, [edi + 1]
 	mov eax, color_off
-	ror eax, 8
+	ror eax, 8											;realizo un desplazamiento para q los bytes green-blue queden en ax
 	cmp ax, bx
 	jne no_cambio_color
 
-	;cambio el color_off por el fondoa
+	;cambio el color_off por el fondo
 	mov bl, [esi] 		;esi es el puntero al byte actual del screen
 	mov [edi], bl
 	

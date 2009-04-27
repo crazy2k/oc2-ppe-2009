@@ -188,11 +188,13 @@ borrar:
 b_seguir:
 ; asumo q en ebx esta siempre el puntero al nodo actual y en edx el puntero a la lista
     cmp ebx, 0
-    jne revisar_rango            ; reviso si la lista esta vacia
+    jne revisar_rango           ; reviso si la lista esta vacia
     salida_funcion 0
 
 ; si no esta vacia
 revisar_rango:
+		mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual
+		
     en_rango b_x,[ebx + coord_x]
     jne avanzar
     en_rango b_y,[ebx + coord_y]
@@ -200,12 +202,11 @@ revisar_rango:
 
 ; eax - ebx - ecx y elimino ebx
 eliminar_elemento:
-    mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual
-    mov eax, [ebx + prev]       ; guardo en ecx el nodo anterior al actual
-
     push ebx
     call free
     add esp, 4
+		mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual (por si el free lo destruyo)
+		mov eax, [ebx + prev]       ; guardo en eax el nodo anterior al actual (por si el free lo destruyo)
 
     cmp eax, 0
     je caso_primer_elemento
@@ -217,6 +218,7 @@ caso_elemento_intermedio:
     jmp avanzar
 
 caso_primer_elemento:
+    mov edx, b_lista            ; cargo en edx el puntero a la lista (por si lo destruyo free)
     mov [edx], ecx              ; edx es la pos de memoria donde esta la lista
     cmp ecx, 0
     je avanzar                  ; si no hay proximo elemento sigo de largo
@@ -233,5 +235,5 @@ avanzar:
 
 ;TODO: Hacerla
 liberar_lista:
-    ret
+ret
 
