@@ -9,10 +9,9 @@ extern g_hor1
 
 ; color_de_fondo escribe en el valor %1 del pixel (i, j) de la pantalla
 ; el numero %2. %1 puede ser: 0 (R), 1 (G) o 2 (B) (debe ser inmediato). %2
-; puede ser un registro o un inmediato. color_de_fondo utiliza internamente
-; eax y edx para realizar calculos, y tambien el registro auxiliar pasado
-; en %3.
-%macro color_de_fondo 3
+; puede ser un registro o un inmediato de 8 bits. color_de_fondo utiliza
+; internamente eax y edx para realizar calculos.
+%macro color_de_fondo 2
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca eax y edx
@@ -35,23 +34,12 @@ global generarPlasma
 %define i esi
 %define j edi
 
-; prometo ser un buen chico y nunca usar el stack, despues de pushear ebp :)
-; por eso, defino las direcciones usando como referencia *esp despues de
-; pushear ebp*
-%define rgb [esp + 28]
-%define rgb_local [esp + 16]
+%define rgb [ebp + 8]
 generarPlasma:
-    entrada_funcion 4
-
-    push ebp                ; libero el ebp; no voy a acceder a ninguna
-                            ; direccion de memoria usandolo
-
-    mov eax, rgb
-    mov rgb_local, eax
+    entrada_funcion 0
 
     xor i, i
 loop_i:
-
 
     xor j, j
 loop_j:
@@ -100,7 +88,7 @@ loop_j:
     mov eax, [ebx + eax]                ; en eax tengo el pixel y un byte
 
     and eax, 0x00FFFFFF
-    mov ebx, rgb_local
+    mov ebx, rgb
     and ebx, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
     cmp eax, ebx
     jne ir_a_seguir
@@ -121,9 +109,9 @@ case_1:
     sub bl, cl
     dec bl                              ; bl = 255 - ((index << 2) + 1)
 
-    color_de_fondo 0,bl,ebp
-    color_de_fondo 1,cl,ebp
-    color_de_fondo 2,0,ebp
+    color_de_fondo 0,bl
+    color_de_fondo 1,cl
+    color_de_fondo 2,0
     
     jmp salir
 
@@ -134,9 +122,9 @@ case_2:
     shl cl, 2
     inc cl                              ; cl = (index << 2) + 1
 
-    color_de_fondo 0,cl,ebp
-    color_de_fondo 1,255,ebp
-    color_de_fondo 2,0,ebp
+    color_de_fondo 0,cl
+    color_de_fondo 1,255
+    color_de_fondo 2,0
 
     jmp salir
 
@@ -149,9 +137,9 @@ case_3:
     sub bl, cl
     dec bl                             ; bl = 255 - ((index << 2) + 1)
 
-    color_de_fondo 0,bl,ebp
-    color_de_fondo 1,bl,ebp
-    color_de_fondo 2,0,ebp
+    color_de_fondo 0,bl
+    color_de_fondo 1,bl
+    color_de_fondo 2,0
 
     jmp salir
 
@@ -162,17 +150,17 @@ case_4:
     shl cl, 2
     inc cl                             ; cl = (index << 2) + 1
 
-    color_de_fondo 0,cl,ebp
-    color_de_fondo 1,0,ebp
-    color_de_fondo 2,0,ebp
+    color_de_fondo 0,cl
+    color_de_fondo 1,0
+    color_de_fondo 2,0
 ;
     jmp salir
 case_5:
 ;
 
-    color_de_fondo 0,0,ebp
-    color_de_fondo 1,0,ebp
-    color_de_fondo 2,0,ebp
+    color_de_fondo 0,0
+    color_de_fondo 1,0
+    color_de_fondo 2,0
 
 salir:
     
@@ -187,9 +175,7 @@ seguir:
     cmp i, SCREEN_W
     jle loop_i
 
-    pop ebp
-
     add word [g_ver0], 9
     add word [g_hor0], 8
 
-    salida_funcion 4
+    salida_funcion 0
