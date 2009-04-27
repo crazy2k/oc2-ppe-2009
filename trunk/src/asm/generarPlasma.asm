@@ -15,7 +15,7 @@ extern g_hor1
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca eax y edx
-    mul j              ; eax = j*SCREEN_W*3
+    mul j               ; eax = j*SCREEN_W*3
 
     ; uso edx porque total ya lo arruine con el mul...
     mov edx, i
@@ -28,6 +28,7 @@ extern g_hor1
     mov byte [eax + edx + %1], %2
 
 %endmacro
+
 
 global generarPlasma
 
@@ -72,7 +73,6 @@ loop_j:
 
     add ecx, [colores + eax*4]
 
-    ; es este shift?
     sar ecx, 4
     add ecx, 128                        ; cl es index
 
@@ -92,13 +92,13 @@ loop_j:
     and ebx, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
     cmp eax, ebx
     jne ir_a_seguir
-    jmp no_ir_a_seguir
+    jmp entrar_al_switch
 
 ir_a_seguir:
     jmp seguir
 
     ; aca viene el switch
-no_ir_a_seguir:
+entrar_al_switch:
 
 case_1:
     cmp ecx, 64
@@ -113,7 +113,7 @@ case_1:
     color_de_fondo 1,cl
     color_de_fondo 2,0
     
-    jmp salir
+    jmp seguir
 
 case_2:
     cmp ecx, 128
@@ -126,7 +126,7 @@ case_2:
     color_de_fondo 1,255
     color_de_fondo 2,0
 
-    jmp salir
+    jmp seguir
 
 case_3:
     cmp ecx, 192
@@ -141,7 +141,7 @@ case_3:
     color_de_fondo 1,bl
     color_de_fondo 2,0
 
-    jmp salir
+    jmp seguir
 
 case_4:
     cmp ecx, 256
@@ -153,17 +153,15 @@ case_4:
     color_de_fondo 0,cl
     color_de_fondo 1,0
     color_de_fondo 2,0
-;
-    jmp salir
+    
+    jmp seguir
+
 case_5:
-;
 
     color_de_fondo 0,0
     color_de_fondo 1,0
     color_de_fondo 2,0
 
-salir:
-    
 
 seguir:
 
