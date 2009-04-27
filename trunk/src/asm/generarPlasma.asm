@@ -7,32 +7,37 @@ extern g_ver1
 extern g_hor0
 extern g_hor1
 
-%macro color_de_fondo 7
+; color_de_fondo escribe en el valor %1 del pixel (i, j) de la pantalla
+; el numero %2. %1 puede ser: 0 (R), 1 (G) o 2 (B) (debe ser inmediato). %2
+; puede ser un registro o un inmediato. color_de_fondo utiliza internamente
+; eax y edx para realizar calculos, y tambien el registro auxiliar pasado
+; en %3.
+%macro color_de_fondo 3
 
-    mov %5, SCREEN_W*3
-    ; tener en cuenta que esto toca edx
-    mul %2
+    mov eax, SCREEN_W*3
+    ; tener en cuenta que esto toca eax y edx
+    mul j              ; eax = j*SCREEN_W*3
 
-    mov %6, %1
-    shl %6, 1
+    ; uso edx porque total ya lo arruine con el mul...
+    mov edx, i
+    shl edx, 1
+    add edx, i          ; edx = i*2 + i = i*3
+    add edx, eax        ; edx = i*3 + j*SCREEN_W*3
 
-    mov %7, [screen_pixeles]
+    mov eax, [screen_pixeles]
     
-    add %7, %6
-    add %7, %1
-
-    mov dword [%7 + %5 + %3], %4
+    mov byte [eax + edx + %1], %2
 
 %endmacro
 
 global generarPlasma
 
 %define i esi
-%define j ebx
+%define j edi
 
 ; prometo ser un buen chico y nunca usar el stack, despues de pushear ebp :)
-; por eso, defino las direcciones usando como referencia esp despues de
-; pushear ebp
+; por eso, defino las direcciones usando como referencia *esp despues de
+; pushear ebp*
 %define rgb [esp + 28]
 %define rgb_local [esp + 16]
 generarPlasma:
@@ -81,23 +86,23 @@ loop_j:
 
     ; es este shift?
     sar ecx, 4
-    add ecx, 128                        ; ecx es index
+    add ecx, 128                        ; cl es index
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca edx
     mul j                               ; eax = j*SCREEN_W*3
 
-    mov edi, [screen_pixeles]
+    mov ebx, [screen_pixeles]
     mov edx, i
     shl edx, 1
-    add edi, edx
-    add edi, i                          ; edi = [screen_pixeles] + 3*i
-    mov eax, [edi + eax]                ; en eax tengo el pixel y un byte
+    add ebx, edx
+    add ebx, i                          ; ebx = [screen_pixeles] + 3*i
+    mov eax, [ebx + eax]                ; en eax tengo el pixel y un byte
 
     and eax, 0x00FFFFFF
-    mov edi, rgb_local
-    and edi, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
-    cmp eax, edi
+    mov ebx, rgb_local
+    and ebx, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
+    cmp eax, ebx
     jne ir_a_seguir
     jmp no_ir_a_seguir
 
@@ -108,66 +113,66 @@ ir_a_seguir:
 no_ir_a_seguir:
 
 case_1:
-    cmp ecx, 64
+    cmp cl, 64
     jge case_2
     
-    shl ecx, 2                          ; ecx = index << 2
-    mov edi, 255
-    sub edi, ecx
-    dec edi                             ; edi = 255 - ((index << 2) + 1)
+    shl cl, 2                           ; cl = index << 2
+    mov bl, 255
+    sub bl, cl
+    dec bl                              ; bl = 255 - ((index << 2) + 1)
 
-    color_de_fondo i,j,0,edi,eax,edx,ebp
-    color_de_fondo i,j,1,ecx,eax,edx,ebp
-    color_de_fondo i,j,2,0,eax,edx,ebp
+    color_de_fondo 0,bl,ebp
+    color_de_fondo 1,cl,ebp
+    color_de_fondo 2,0,ebp
     
     jmp salir
 
 case_2:
-    cmp ecx, 128
+    cmp cl, 128
     jge case_3
 
-    shl ecx, 2
-    inc ecx                             ; ecx = (index << 2) + 1
+    shl cl, 2
+    inc cl                              ; cl = (index << 2) + 1
 
-    color_de_fondo i,j,0,ecx,eax,edx,ebp
-    color_de_fondo i,j,1,255,eax,edx,ebp
-    color_de_fondo i,j,2,0,eax,edx,ebp
+    color_de_fondo 0,cl,ebp
+    color_de_fondo 1,255,ebp
+    color_de_fondo 2,0,ebp
 
     jmp salir
 
 case_3:
-    cmp ecx, 192
+    cmp cl, 192
     jge case_4
 
-    shl ecx, 2
-    mov edi, 255
-    sub edi, ecx
-    dec edi                             ; edi = 255 - ((index << 2) + 1)
+    shl cl, 2
+    mov bl, 255
+    sub bl, cl
+    dec bl                             ; bl = 255 - ((index << 2) + 1)
 
-    color_de_fondo i,j,0,edi,eax,edx,ebp
-    color_de_fondo i,j,1,edi,eax,edx,ebp
-    color_de_fondo i,j,2,0,eax,edx,ebp
+    color_de_fondo 0,bl,ebp
+    color_de_fondo 1,bl,ebp
+    color_de_fondo 2,0,ebp
 
     jmp salir
 
 case_4:
-    cmp ecx, 256
+    cmp cl, 256
     jge case_5
 
-    shl ecx, 2
-    inc ecx                             ; ecx = (index << 2) + 1
+    shl cl, 2
+    inc cl                             ; cl = (index << 2) + 1
 
-    color_de_fondo i,j,0,ecx,eax,edx,ebp
-    color_de_fondo i,j,1,0,eax,edx,ebp
-    color_de_fondo i,j,2,0,eax,edx,ebp
+    color_de_fondo 0,cl,ebp
+    color_de_fondo 1,0,ebp
+    color_de_fondo 2,0,ebp
 ;
     jmp salir
 case_5:
 ;
 
-    color_de_fondo i,j,0,0,eax,edx,ebp
-    color_de_fondo i,j,1,0,eax,edx,ebp
-    color_de_fondo i,j,2,0,eax,edx,ebp
+    color_de_fondo 0,0,ebp
+    color_de_fondo 1,0,ebp
+    color_de_fondo 2,0,ebp
 
 salir:
     
