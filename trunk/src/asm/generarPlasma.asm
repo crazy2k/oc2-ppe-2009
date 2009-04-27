@@ -29,9 +29,20 @@ global generarPlasma
 
 %define i esi
 %define j ebx
-%define rgb [ebp + 8]
+
+; prometo ser un buen chico y nunca usar el stack, despues de pushear ebp :)
+; por eso, defino las direcciones usando como referencia esp despues de
+; pushear ebp
+%define rgb [esp + 28]
+%define rgb_local [esp + 16]
 generarPlasma:
-    entrada_funcion 0
+    entrada_funcion 4
+
+    push ebp                ; libero el ebp; no voy a acceder a ninguna
+                            ; direccion de memoria usandolo
+
+    mov eax, rgb
+    mov rgb_local, eax
 
     xor i, i
 loop_i:
@@ -87,7 +98,7 @@ loop_j:
     mov eax, [edi + eax]                ; en eax tengo el pixel y un byte
 
     and eax, 0x00FFFFFF
-    mov edi, rgb
+    mov edi, rgb_local
     and edi, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
     cmp eax, edi
     jne ir_a_seguir
@@ -103,30 +114,30 @@ case_1:
     cmp ecx, 64
     jge case_2
     
-    shl ecx, 2
+    shl ecx, 2                          ; ecx = index << 2
     mov edi, 255
     sub edi, ecx
-    dec edi
+    dec edi                             ; edi = 255 - ((index << 2) + 1)
 
-    color_de_fondo i,j,0,edi,eax,edx,ecx
-
-    color_de_fondo i,j,1,ecx,eax,edx,ecx
-
-    color_de_fondo i,j,2,0,eax,edx,ecx
+    color_de_fondo i,j,0,edi,eax,edx,ebp
+    color_de_fondo i,j,1,ecx,eax,edx,ebp
+    color_de_fondo i,j,2,0,eax,edx,ebp
     
-
     jmp salir
+
 case_2:
     cmp ecx, 128
     jge case_3
 
     shl ecx, 2
-    inc ecx
-    color_de_fondo i,j,0,ecx,eax,edx,ecx
-    color_de_fondo i,j,1,255,eax,edx,ecx
-    color_de_fondo i,j,2,0,eax,edx,ecx
+    inc ecx                             ; ecx = (index << 2) + 1
+
+    color_de_fondo i,j,0,ecx,eax,edx,ebp
+    color_de_fondo i,j,1,255,eax,edx,ebp
+    color_de_fondo i,j,2,0,eax,edx,ebp
 
     jmp salir
+
 case_3:
     cmp ecx, 192
     jge case_4
@@ -134,32 +145,32 @@ case_3:
     shl ecx, 2
     mov edi, 255
     sub edi, ecx
-    dec edi
+    dec edi                             ; edi = 255 - ((index << 2) + 1)
 
+    color_de_fondo i,j,0,edi,eax,edx,ebp
+    color_de_fondo i,j,1,edi,eax,edx,ebp
+    color_de_fondo i,j,2,0,eax,edx,ebp
 
-    color_de_fondo i,j,0,edi,eax,edx,ecx
-    color_de_fondo i,j,1,edi,eax,edx,ecx
-    color_de_fondo i,j,2,0,eax,edx,ecx
-
-;
     jmp salir
+
 case_4:
     cmp ecx, 256
     jge case_5
 
     shl ecx, 2
-    inc ecx
-    color_de_fondo i,j,0,ecx,eax,edx,ecx
-    color_de_fondo i,j,1,0,eax,edx,ecx
-    color_de_fondo i,j,2,0,eax,edx,ecx
+    inc ecx                             ; ecx = (index << 2) + 1
+
+    color_de_fondo i,j,0,ecx,eax,edx,ebp
+    color_de_fondo i,j,1,0,eax,edx,ebp
+    color_de_fondo i,j,2,0,eax,edx,ebp
 ;
     jmp salir
 case_5:
 ;
 
-    color_de_fondo i,j,0,0,eax,edx,ecx
-    color_de_fondo i,j,1,0,eax,edx,ecx
-    color_de_fondo i,j,2,0,eax,edx,ecx
+    color_de_fondo i,j,0,0,eax,edx,ebp
+    color_de_fondo i,j,1,0,eax,edx,ebp
+    color_de_fondo i,j,2,0,eax,edx,ebp
 
 salir:
     
@@ -172,9 +183,9 @@ seguir:
     cmp i, SCREEN_W
     jle loop_i
 
-    ;pop ebp
+    pop ebp
 
     add word [g_ver0], 9
     add word [g_hor0], 8
 
-    salida_funcion 0
+    salida_funcion 4
