@@ -46,14 +46,11 @@ generarPlasma:
 
     xor i, i
 loop_i:
-    inc i
+
 
     xor j, j
 loop_j:
-    inc j
 
-
-; cosas
     lea ecx, [j + j*4]
     add cx, [g_ver0]
 
@@ -177,9 +174,11 @@ salir:
 
 seguir:
 
+    inc j
     cmp j, SCREEN_H
     jle loop_j
 
+    inc i
     cmp i, SCREEN_W
     jle loop_i
 
