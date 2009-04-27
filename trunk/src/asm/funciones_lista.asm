@@ -114,7 +114,7 @@ inicializar:
 
 
 ; en eax esta todo el tiempo el puntero al nodo nuevo y en ebx esta el puntero al nodo actual
-inicio:
+inicio: 
     mov edx, ag_lista           ; cargo en edx el puntero a la lista
     mov ebx, [edx]              ; cargo en ebx el puntero al primer nodo de la lista
     cmp ebx, 0                  ; reviso si la lista esta vacia
