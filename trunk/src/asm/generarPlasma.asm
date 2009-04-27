@@ -72,22 +72,23 @@ loop_j:
     add ecx, [colores + eax*4]
 
     ; es este shift?
-    shr ecx, 4
-    add ecx, 128                ; ecx es index
+    sar ecx, 4
+    add ecx, 128                        ; ecx es index
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca edx
-    mul j
+    mul j                               ; eax = j*SCREEN_W*3
 
     mov edi, [screen_pixeles]
     mov edx, i
     shl edx, 1
     add edi, edx
-    add edi, i
-    mov eax, [edi + eax]
-    and eax, 0x00111111
+    add edi, i                          ; edi = [screen_pixeles] + 3*i
+    mov eax, [edi + eax]                ; en eax tengo el pixel y un byte
+
+    and eax, 0x00FFFFFF
     mov edi, rgb
-    and edi, 0x00111111
+    and edi, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
     cmp eax, edi
     jne ir_a_seguir
     jmp no_ir_a_seguir
@@ -98,7 +99,6 @@ ir_a_seguir:
     ; aca viene el switch
 no_ir_a_seguir:
 
-    ;push ebp        ; "despejo" ebp
 case_1:
     cmp ecx, 64
     jge case_2
