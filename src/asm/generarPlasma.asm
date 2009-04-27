@@ -113,7 +113,7 @@ ir_a_seguir:
 no_ir_a_seguir:
 
 case_1:
-    cmp cl, 64
+    cmp ecx, 64
     jge case_2
     
     shl cl, 2                           ; cl = index << 2
@@ -128,7 +128,7 @@ case_1:
     jmp salir
 
 case_2:
-    cmp cl, 128
+    cmp ecx, 128
     jge case_3
 
     shl cl, 2
@@ -141,7 +141,7 @@ case_2:
     jmp salir
 
 case_3:
-    cmp cl, 192
+    cmp ecx, 192
     jge case_4
 
     shl cl, 2
@@ -156,7 +156,7 @@ case_3:
     jmp salir
 
 case_4:
-    cmp cl, 256
+    cmp ecx, 256
     jge case_5
 
     shl cl, 2
