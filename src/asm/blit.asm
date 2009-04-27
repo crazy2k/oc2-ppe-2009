@@ -1,6 +1,7 @@
 ;void blit(Uint8 *sprite, Uint32 ancho, Uint32 alto, Uint x, Uint y, Color color-off)
 
 %include 'asm/macros_globales.inc'
+%include 'asm/macros_pixels.inc'
 	
 %define SCREEN_W 800
 %define SCREEN_H 400
@@ -16,19 +17,6 @@
 %define ancho_sprite_bytes [ebp-8]
 %define basura_sprite [ebp-12]
 %define final	[ebp-16]
-
-%macro calcular_pixels 2   ; registro y pos de memoria
-		mov %1, %2						;cargamos la coor x en edx y lo multiplicamos por 3
-    shl %1, 1
-    add %1, %2
-%endmacro
-
-%macro calcular_basura 2   ; registro y pos de memoria
-    mov %1, %2 														
-    and %1, 3h				         						;la basura del fondo bmp
-    neg %1  
-    add %1, 4h                 						;sumo 4 porq recién negamos ebx              
-%endmacro
     
 extern screen_pixeles
 
@@ -56,11 +44,12 @@ completo:
     mov esi, [screen_pixeles]			;cargo el puntero a pantalla en esi    
 		calcular_pixels ecx, coord_x	;cargamos la coor x en edx y lo multiplicamos por 3
     add esi, ecx									;le addiciono el valor de la coord_x a screen_pixeles
-    mov eax, coord_y							;cargo la coord y en eax
+    mov eax, coord_y							;cargo la coord y en eax 
 						
-    mul edx
+    mul edx												; (pierdo edx)
     add esi, eax									;eax posee la cantidad de bytes q hay q sumarle al puntero a screen
     
+    mov edx, ancho_screen_bytes
     mov eax, altoSprite
     mul edx												;guardo en ecx la cantidad de bytes q usa el sprite							
     add eax, esi									;sumo el punto (0,0)
@@ -89,7 +78,7 @@ while:
 	jne no_cambio_color
 
 	;cambio el color_off por el fondoa
-	mov bl, [esi] 		;edi es el puntero al byte actual del screen
+	mov bl, [esi] 		;esi es el puntero al byte actual del screen
 	mov [edi], bl
 	
 	mov bx, [esi + 1] 		
@@ -104,7 +93,7 @@ no_cambio_color:
 	sub esi, ancho_sprite_bytes
 	add esi, ancho_screen_bytes	; edx queda apuntando al principio de la siguiente fila
 	
-	cmp edi, final
+	cmp esi, final
 	je finBlit
 	
 	jmp nueva_fila
