@@ -75,7 +75,7 @@ recorrer_x:
 
 
     add edi, 3
-    cmp edi, SCREEN_W*3
+    cmp edi, SCREEN_W*3 - 3
     jl recorrer_x           ; ver si hay que pasar por x = SCREEN_W
     
     add edx, ebx            ; ebx era fondo_w*3 llevado a multiplo de 4
@@ -84,7 +84,7 @@ recorrer_x:
     multiplo_de_4 esi,eax   ; esi es SCREEN_W*3 llevado a multiplo de 4
 
     add ecx, esi
-    
+
     cmp ecx, ebp
     jl recorrer_y       ; ver si hay que pasar por y = SCREEN_H
 
