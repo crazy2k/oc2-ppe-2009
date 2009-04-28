@@ -21,6 +21,12 @@ Pablo Herrero    LU: 332/07   pablodherrero@gmail.com
 
 Estefanía Porta  LU: 451/04   estef.barbara@gmail.com
 
+||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
+||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
+
+||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
+
+
 
 Indice
 
@@ -35,6 +41,8 @@ Indice
 2.3. Blit . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 
 2.4. Generar Plasma . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+2.5. Lista . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+2.6. Iterador . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 3. Conclusiones 
 
@@ -93,9 +101,7 @@ recortar:
 entrada_funcion 12  <---- cantidad de parámetros
 
 .
-
 .
-
 .
 
 calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en  
@@ -105,9 +111,7 @@ calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sp
     calcular_basura eax, ebx             ;basura para la instancia
 
 .
-
 .
-
 .             
   
     sub ebx, 03h     ;cantidad de bytes para avanzar del primer al ultimo pixel de una  
@@ -137,9 +141,7 @@ extern screen_pixeles <--- esta variable se encuentra en el main, al ser una var
 *Blit:*
 
 .
-
 .
-
 .
 
     mov edi, ptrSprite  
@@ -161,9 +163,7 @@ cargamos el ancho de la pantalla en edx y lo multiplicamos por 3 como debemos ha
     mov ancho_screen_bytes,edx
 
 .
-
 .
-
 .
     
     mov esi, `[`screen_pixeles `]`    
@@ -182,9 +182,7 @@ Una nueva_fila (la misma idea que en recortar, pensando el sprite como una matri
 Y el ciclo no es más que intercambiar los bytes que tienen el color-off de nuestra imagen por los del fondo, también utilizando *registros de 8 bits* para RGB.
 
 .
-
 .
-
 .
 
 finBlit:
@@ -195,8 +193,6 @@ salida_funcion 16  <--- idem recortar, restaura la pila como estaba al principio
 *Conclusiones*
 
 Además de practicar los conceptos teoricos y la interaccion de assembrer con C. trabajamos con algunas herramientas de debugger. Vimos como se manejan los bytes en memoria bien a bajo nivel. Realmente no resultó del todo cómodo escribir en este lenguaje pero es un aprendizaje realmente útil.
-
-
 
 
 *Compilar y Ejecutar*
