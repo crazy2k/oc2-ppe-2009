@@ -70,13 +70,13 @@ optar por la imagen necesaria, debiendose recortar el Sprite indicado por la ins
 como parametros un puntero a la imagen, y sus dimensiones en pixeles. El número de instancia comenzando desde cero, y el ancho de la misma. También un booleano que indicará la orientación del personaje dentro del escenario (esto es para que tenga un buen efecto a la hora de hacerlo cambiar de dirección, que camina hacia un lado u otro de la pantalla) y estos bytes serán devueltos en el puntero res.
 
 
-*Código:*
+*Mirando un poco nuestro Código:*
 (vamos a destacar algunas partes, ya que el código está comentado, y adjuntado junto a este informe.)
 
 En principio ponemos en la pila los parámetros de la función.
 Por ejemplo el primer parámetro lo tenemos en:
 
-_%define ptrSprite [ebp+8]_
+_%define ptrSprite `[`ebp+8`]`_
 
 Y así con los demás sabiendo que son de 32 bits.
 El %define es para legibilidad en el código, así en vez de llamar a [ebp+8] usamos un nombre más amigable como ptrSprite.
@@ -92,13 +92,25 @@ recortar:
 
 entrada_funcion 12  <---- cantidad de parámetros
 
-calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en   
+.
+.
+.
+
+calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en  
+ 
                                          ;pixeles (sin la basura)
+
     calcular_basura eax, ebx             ;basura para la instancia
-              
+
+.
+.
+.             
   
-    sub ebx, 03h     ;cantidad de bytes para avanzar del primer al ultimo pixel de una   fila
-                                Esto es para explicar la razon de hacer sub con 03h, recordar (rgb)                     
+    sub ebx, 03h     ;cantidad de bytes para avanzar del primer al ultimo pixel de una  
+
+ fila
+                                Esto es para explicar la razon de hacer sub con 03h, 
+recordar (rgb)                     
   
 En el ciclo, donde voy a ir copiado los bytes de cada fila de la instancia, muevo hacia un *registro de 8 bits*, en este caso *bl (parte baja)* y luego avanzo de a 1 para moverme hacia el otro pixel.
 Y termino el ciclo cuando el contador de hace cero, usando la instrucción *loopne*.
@@ -113,7 +125,64 @@ salida_funcion 12   <---- tiene la restauración de la pila, y también la conve
 Esta función es la encargada de solapar un Sprite sobre el fondo de manera
 de que solo se vea el dibujo y no el color-off.  
 Lo primero que hacemos al trabajar con este tipo de imágenes es calcularle la "basura", y multiplicamos por 3 recordando que estamos con RGB.
-Como parámetros tenemos el puntero a la imágen, el color-off de la misma, las dimensiones y las coordenadas donde aparece. Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos accediendo
+Como parámetros tenemos el puntero a la imágen, el color-off de la misma, las dimensiones y las coordenadas donde aparece. Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos accediendo.
+
+
+extern screen_pixeles <--- esta variable se encuentra en el main, al ser una variable externa a este archivo la llamo de este modo.
+
+*Blit:*
+
+.
+.
+.
+
+    mov edi, ptrSprite  
+
+edi apunta todo el tiempo a la posicion dentro de sprite, en esta función se necesitan dos punteros, uno que apunte al sprite y otro que apunte al fondo (al escenario)                 
+
+    mov edx, SCREEN_W*3  
+         
+cargamos el ancho de la pantalla en edx y lo multiplicamos por 3 como debemos hacer en todos los casos.
+
+    calcular_basura ebx,edx 
+                
+(calculo de la basura en ebx)
+
+    add edx, ebx  
+                          
+(sumamos el valor de la basura al registro edx)
+
+    mov ancho_screen_bytes,edx
+
+.
+.
+.
+    
+    mov esi, `[`screen_pixeles `]`    
+  
+Acá es donde cargo el puntero a pantalla. Y luego cargamos las coordenadas...   
+
+.
+.
+.
+         
+    
+Una nueva_fila (la misma idea que en recortar, pensando el sprite como una matriz)     
+             
+  mov ecx, anchoSprite
+
+Y el ciclo no es más que intercambiar los bytes que tienen el color-off de nuestra imagen por los del fondo, también utilizando *registros de 8 bits* para RGB.
+
+.
+.
+.
+
+finBlit:
+
+salida_funcion 16  <--- idem recortar, restaura la pila como estaba al principio y los registros que se pushean por convención del lenguaje C.
+
+
+
 
 
 *Conclusiones*
