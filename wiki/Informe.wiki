@@ -12,20 +12,11 @@ Trabajo Práctico 1
 _“Oportuncrisis ”_
 
 Grupo *"UNPCKHPD"*
-
-Integrante LU Correo electrónico
-
-Pablo Antonio    LU:290/08   pabloa@gmail.com
-
-Pablo Herrero    LU: 332/07   pablodherrero@gmail.com
-
-Estefanía Porta  LU: 451/04   estef.barbara@gmail.com
-
+  
+||*Integrante* || *LU* || *Correo electrónico* ||
 ||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
-||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
-
-||Pablo Antonio|| LU:290/08 || pabloa@gmail.com ||
-
+||Pablo Herrero|| LU:332/07 || pablodherrero@gmail.com ||
+||Estefanía Porta|| LU: 451/04 || estef.barbara@gmail.com ||
 
 
 Indice
