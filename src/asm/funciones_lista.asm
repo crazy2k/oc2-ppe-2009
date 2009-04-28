@@ -193,20 +193,22 @@ b_seguir:
 
 ; si no esta vacia
 revisar_rango:
-		mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual
-		
+	mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual
+    	
     en_rango b_x,[ebx + coord_x]
-    jne avanzar
+    jne ir_avanzar
     en_rango b_y,[ebx + coord_y]
-    jne avanzar
+    jne ir_avanzar
 
 ; eax - ebx - ecx y elimino ebx
 eliminar_elemento:
+    push dword [ebx + prev]
+    push dword [ebx + prox]
     push ebx
     call free
     add esp, 4
-		mov ecx, [ebx + prox]       ; guardo en ecx el nodo siguiente al actual (por si el free lo destruyo)
-		mov eax, [ebx + prev]       ; guardo en eax el nodo anterior al actual (por si el free lo destruyo)
+    pop ecx
+    pop eax
 
     cmp eax, 0
     je caso_primer_elemento
@@ -215,6 +217,7 @@ eliminar_elemento:
 
 caso_elemento_intermedio:
     connect_nodos eax,ecx
+ir_avanzar:
     jmp avanzar
 
 caso_primer_elemento:
@@ -233,7 +236,34 @@ avanzar:
     jmp b_seguir
     
 
-;TODO: Hacerla
+%define l_lista [ebp + 8]
+; void liberar_lista(Lista* l)
 liberar_lista:
-ret
+    entrada_funcion 0
+    
+    mov edx, l_lista            ; cargo en edx el puntero a la lista
+    mov ebx, [edx]              ; cargo en ebx el puntero al primer nodo de la lista
+l_seguir:
+; asumo q en ebx esta siempre el puntero al nodo actual y en edx el puntero a la lista
+    cmp ebx, 0
+    jne l_eliminar_elemento; reviso si la lista esta vacia
+
+    mov edx, l_lista            ; cargo en edx el puntero a la lista (por si lo perdi)
+    push edx
+    call free
+    add esp, 4
+
+    salida_funcion 0
+
+; si no esta vacia
+
+; elimino ebx
+l_eliminar_elemento:
+    mov esi, [ebx + prox] 
+    push ebx
+    call free
+    add esp, 4
+	mov ebx, esi
+
+    jmp l_seguir
 
