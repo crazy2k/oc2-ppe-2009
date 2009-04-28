@@ -248,7 +248,7 @@ connect_nodos eax,ebx        ; pongo el elemento nuevo (eax) antes del proximo (
 Y si el ítem debe ser el último (en este caso el puntero a prox del nuevo ítem debe apuntar a null)
 
 Donde ebx tiene un puntero al ultimo
-    * connect_nodos ebx,eax *        
+    connect_nodos ebx,eax        
 y pongo el elemento nuevo (eax) despues del nodo actual (ebx)
 
 
