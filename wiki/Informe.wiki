@@ -26,24 +26,34 @@ Estefanía Porta  LU: 451/04   estef.barbara@gmail.com
 Indice
 
 1. Introducción
+
 2. Desarrollo en ASM
+
 2.1. Generar Fondo . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
 2.2. Recortar . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
 2.3. Blit . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-2.4. Generar Plasma . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+2.4. Generar Plasma . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
 3. Conclusiones 
 
 *Introducción:*
+
 El trabajo práctico consiste en programar en assembler las funciones encargadas
 de generar ciertos efectos visuales del video juego como solapar Sprites, recortar y otros, utilizando La arquitectura Intel x86.  A modo práctico se recorre la pantalla (400x200) como una
 matriz de pixeles, donde cada pixel son tres bytes que representan las componentes
 RGB del color a mostrar. El juego está implementado en C  e incluye algunas librerías gráficas.
 
 *Los Sprites:*
+
 Son tiras de imágenes que se utilizan para dar movimiento a los personajes, en nuestro caso a Wolverine y Gambit. Los fondos también pueden denominarse Sprites aunque estos no tengan movimiento, ya que el movimiento lo persibe el usuario, (es un efecto de recorte que el ojo humano no llega a persibir).
 Por otra parte, para que los personajes no se vean como cuadras desencajados de otro color diferente al fondo, de declara un color-off que actuará como transparente a la hora de programar (eso sucederá porque se irá intercambiando el color-off con el fondo) y de este modo el personaje simulará estar inmerso en el escenario.
 
-*Los BMP:* Notamos que este tipo de archivos a veces su longitud no es múltiplo de cuatro, entonces encontramos bytes con "basura", este comportamiento lo encapsulamos en una macro para que el código assembrer sea más legible.
+*Los BMP:* 
+
+Notamos que este tipo de archivos a veces su longitud no es múltiplo de cuatro, entonces encontramos bytes con "basura", este comportamiento lo encapsulamos en una macro para que el código assembrer sea más legible.
 
 *2.1. Generar Fondo*
 
