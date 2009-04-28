@@ -31,12 +31,12 @@ completo:
     
     ;esi <-- coord_y*(3*SCREEN_W + basura) + coord_x*3 + screen_pixeles
     
-     calcular_pixels ebx, anchoSprite
+    calcular_pixels ebx, anchoSprite
     calcular_basura edx,ebx
     mov basura_sprite,edx
     mov ancho_sprite_bytes,ebx
     
-    calcular_pixels edx, SCREEN_W           ;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
+    mov edx, SCREEN_W*3           ;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
     calcular_basura ebx,edx                 ;calculo la basura en ebx, desde edx
     add edx, ebx                            ;sumo el valor de la basura a edx
     mov ancho_screen_bytes,edx
