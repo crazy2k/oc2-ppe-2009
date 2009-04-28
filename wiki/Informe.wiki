@@ -230,6 +230,27 @@ Para el constructor de lista pedimos memoria mediante la instrucción de C call 
 Luego me muevo al prox, y comparo para ver si ya encontré o no.
 
 
+; void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers, SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID);
+
+También requiere *llamar a malloc*.  Inicializo la estructura del nodo.
+En eax esta todo el tiempo el puntero al nodo nuevo y en ebx esta el puntero al nodo actual.
+Tomamos los tres casos: (el ítem que agrego debe ser el primero, o la lista está vacía o bien la coord_x es menor al prox.)
+Si no hay ningun nodo, agregar el nuevo (eax) al principio.
+
+(cmp ag_x, ecx)  si la coord x del primer nodo es menor a la que me pasaron por parametro.
+
+Si el ítem debe ir en el medio.
+
+connect_nodos edx,eax        ; pongo el elemento nuevo (eax) despues del nodo actual (edx)
+
+connect_nodos eax,ebx        ; pongo el elemento nuevo (eax) antes del proximo (ebx)
+
+Y si el ítem debe ser el último (en este caso el puntero a prox del nuevo ítem debe apuntar a null)
+
+Donde ebx tiene un puntero al ultimo
+    *connect_nodos ebx,eax*        y pongo el elemento nuevo (eax) despues del nodo actual (ebx)
+
+
 *Conclusiones*
 
 Además de practicar los conceptos teoricos y la interaccion de assembrer con C. trabajamos con algunas herramientas de debugger. Vimos como se manejan los bytes en memoria bien a bajo nivel. Realmente no resultó del todo cómodo escribir en este lenguaje pero es un aprendizaje realmente útil.
