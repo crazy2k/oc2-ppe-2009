@@ -85,7 +85,13 @@ loop_j:
     shl edx, 1
     add ebx, edx
     add ebx, i                          ; ebx = [screen_pixeles] + 3*i
-    mov eax, [ebx + eax]                ; en eax tengo el pixel y un byte
+
+    mov dh, [ebx + eax + 2]
+    shl edx, 8
+    mov dx, [ebx + eax]
+    mov eax, edx
+
+    ;bbbbbbbbgggggggrrrrrrr
 
     and eax, 0x00FFFFFF
     mov ebx, rgb
@@ -101,7 +107,7 @@ ir_a_seguir:
 entrar_al_switch:
 
 case_1:
-    cmp ecx, 64
+    cmp cl, 64
     jge case_2
     
     shl cl, 2                           ; cl = index << 2
@@ -116,7 +122,7 @@ case_1:
     jmp seguir
 
 case_2:
-    cmp ecx, 128
+    cmp cl, 128
     jge case_3
 
     shl cl, 2
@@ -129,7 +135,7 @@ case_2:
     jmp seguir
 
 case_3:
-    cmp ecx, 192
+    cmp cl, 192
     jge case_4
 
     shl cl, 2
@@ -144,7 +150,7 @@ case_3:
     jmp seguir
 
 case_4:
-    cmp ecx, 256
+    cmp cl, 256
     jge case_5
 
     shl cl, 2
@@ -167,11 +173,11 @@ seguir:
 
     inc j
     cmp j, SCREEN_H
-    jle loop_j
+    jl loop_j
 
     inc i
     cmp i, SCREEN_W
-    jle loop_i
+    jl loop_i
 
     add word [g_ver0], 9
     add word [g_hor0], 8
