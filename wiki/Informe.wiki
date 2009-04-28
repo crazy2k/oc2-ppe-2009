@@ -223,9 +223,9 @@ Para el constructor de lista pedimos memoria mediante la instrucción de C call 
 .
 .
 
-    mov ebx, [eax]           ;cargo la parte menos significativa del Id del nodo
+    mov ebx, `[`eax`]`           ;cargo la parte menos significativa del Id del nodo
 
-    mov ecx, [eax+4]     *;porq ID es de 64 bits*
+    mov ecx, `[`eax+4`]`     *;porq ID es de 64 bits*
 
 Luego me muevo al prox, y comparo para ver si ya encontré o no.
 
@@ -245,14 +245,11 @@ El ejecutable que genera se llama "prg" y se encuentra dentro de la carpeta src.
 
 *Referencias*
 
-1- Intel R
- 64 and IA-32 Architectures Software
+1- Intel R . 64 and IA-32 Architectures Software
 1: Basic Architecture
 
-2- Intel R
- 64 and IA-32 Architectures Software
+2- Intel R. 64 and IA-32 Architectures Software
 2A: Instruction Set Reference, A-M
 
-3- Intel R
- 64 and IA-32 Architectures Software
+3- Intel R. 64 and IA-32 Architectures Software
 2B: Instruction Set Reference, N-Z
