@@ -257,6 +257,36 @@ Esta otra función es muy sililar a las anteriores, salvo porque hay que recorda
 
 _void liberar_lista(Lista* l)_
 
+Esta función no es muy larga, me gustaría poner la mayor parte del código ya que es bastante claro:
+    
+    mov edx, l_lista            ; cargo en edx el puntero a la lista
+    mov ebx, `[`edx`]`             ; cargo en ebx el puntero al primer nodo de la lista
+l_seguir:
+; asumo q en ebx esta siempre el puntero al nodo actual y en edx el puntero a la lista
+    cmp ebx, 0
+    jne l_eliminar_elemento        reviso si la lista esta vacia
+
+    mov edx, l_lista            ; cargo en edx el puntero a la lista (por si lo perdi)
+    push edx
+    call free    <--- importante liberar en este caso
+    add esp, 4
+
+    salida_funcion 0  <--- recuerda que acá tenemos la convención C y pongo la pila como al principio.
+
+Si no esta vacia
+
+; elimino ebx
+l_eliminar_elemento:
+    mov esi, `[`ebx + prox`]`
+    push ebx
+    call free    <--- importante liberar en este caso
+    add esp, 4
+    mov ebx, esi
+
+    jmp l_seguir  
+
+Nos pareció que era más claro mostrar el código acá, ya que no es largo y fue bastante simple...
+
 
 *Conclusiones*
 
