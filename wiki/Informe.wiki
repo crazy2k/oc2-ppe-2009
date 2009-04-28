@@ -251,6 +251,12 @@ Donde ebx tiene un puntero al ultimo
     connect_nodos ebx,eax        
 y pongo el elemento nuevo (eax) despues del nodo actual (ebx)
 
+_void borrar(Lista* la_lista, Uint32 x, Uint32 y)_
+
+Esta otra función es muy sililar a las anteriores, salvo porque hay que recordar liberar la memoria que se utilizó para ese elem. Del mismo modo que agregar_item, también actualizo los punteros de los items prev y prox, si es que existen (esos casos borde también son examinados aparte)
+
+_void liberar_lista(Lista* l)_
+
 
 *Conclusiones*
 
