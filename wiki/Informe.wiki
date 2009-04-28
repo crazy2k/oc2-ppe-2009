@@ -69,6 +69,43 @@ Una imagen BMP puede guardar varios Sprites, en este caso se tiene que
 optar por la imagen necesaria, debiendose recortar el Sprite indicado por la instancia. Recibe
 como parametros un puntero a la imagen, y sus dimensiones en pixeles. El número de instancia comenzando desde cero, y el ancho de la misma. También un booleano que indicará la orientación del personaje dentro del escenario (esto es para que tenga un buen efecto a la hora de hacerlo cambiar de dirección, que camina hacia un lado u otro de la pantalla) y estos bytes serán devueltos en el puntero res.
 
+
+*Código:*
+(vamos a destacar algunas partes, ya que el código está comentado, y adjuntado junto a este informe.)
+
+En principio ponemos en la pila los parámetros de la función.
+Por ejemplo el primer parámetro lo tenemos en:
+
+_%define ptrSprite [ebp+8]_
+
+Y así con los demás sabiendo que son de 32 bits.
+El %define es para legibilidad en el código, así en vez de llamar a [ebp+8] usamos un nombre más amigable como ptrSprite.
+También definimos las variables locales, por convención en la pila las colocamos alrevez.
+Ejemplo:
+
+%define ancho_sprite_bytes [ebp-4]
+
+Luego comienza nuestra función: (la función entera se puede ver en el archivo recortar.asm, no parece interesante copiar el código entero, pero allí está la funcionalidad comentada.
+)
+global recortar
+recortar:
+
+entrada_funcion 12  <---- cantidad de parámetros
+
+calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en   
+                                         ;pixeles (sin la basura)
+    calcular_basura eax, ebx             ;basura para la instancia
+              
+  
+    sub ebx, 03h     ;cantidad de bytes para avanzar del primer al ultimo pixel de una   fila
+                                Esto es para explicar la razon de hacer sub con 03h, recordar (rgb)                     
+  
+En el ciclo, donde voy a ir copiado los bytes de cada fila de la instancia, muevo hacia un *registro de 8 bits*, en este caso *bl (parte baja)* y luego avanzo de a 1 para moverme hacia el otro pixel.
+Y termino el ciclo cuando el contador de hace cero, usando la instrucción *loopne*.
+Por último, la iteración se hace pasando por todas las filas (pensando el sprite como una matriz, aunque sabemos que realmente es una tira de bytes.)                         
+salida_funcion 12   <---- tiene la restauración de la pila, y también la convención C.
+
+
 *2.3. Blit*
 
 *void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb);*
