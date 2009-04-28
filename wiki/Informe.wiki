@@ -182,6 +182,21 @@ finBlit:
 
 salida_funcion 16  <--- idem recortar, restaura la pila como estaba al principio y los registros que se pushean por convención del lenguaje C.
 
+2.4. Generar Plasma
+
+.
+
+.
+
+.
+
+2.5. Lista
+
+La lista se utilizará para el personaje de “Gambito” que también aparecerá dentro de los escenarios en alguna posición en particular, y este personaje no va a tener el efecto de caminar, solo se aparecerá parado con un leve movimiento.
+Para ello se utilizará la lista,  esta se consulta constantemente en cada Frame del juego para saber que se debe dibujar en pantalla.
+
+Inicializar_nodo es opcional. En nuestro caso, podriamos haberla usado en agregar_item_ordenado pero no lo hicimos.
+
 
 *Conclusiones*
 
