@@ -45,7 +45,8 @@ loop_i:
     xor j, j
 loop_j:
 
-    lea ecx, [i + i*4]
+    ;lea ecx, [i + i*4]
+    lea ecx, [j + j*4]
 
     xor edx, edx
     mov dx, [g_ver0] 
@@ -55,7 +56,8 @@ loop_j:
     
     mov ecx, [colores + ecx*4]
 
-    lea eax, [i + i*2]
+    ;lea eax, [i + i*2]
+    lea eax, [j + j*2]
 
     xor edx, edx
     mov dx, [g_ver1]
@@ -65,7 +67,8 @@ loop_j:
 
     add ecx, [colores + eax*4]
 
-    lea eax, [j + 2*j]
+    ;lea eax, [j + 2*j]
+    lea eax, [i + 2*i]
 
     xor edx, edx
     mov dx, [g_hor0]
@@ -75,7 +78,8 @@ loop_j:
 
     add ecx, [colores + eax*4]
 
-    mov eax, j
+    ;mov eax, j
+    mov eax, i
     xor edx, edx
     mov dx, [g_hor1]
     add eax, edx
@@ -85,7 +89,7 @@ loop_j:
     add ecx, [colores + eax*4]
 
     sar ecx, 4
-    add ecx, 128                        ; cl es index
+    add ecx, 128                        ; ecx es index
     and ecx, 0xFF
 
     mov eax, SCREEN_W*3
@@ -102,8 +106,6 @@ loop_j:
     shl edx, 8
     mov dx, [ebx + eax]
     mov eax, edx
-
-    ;bbbbbbbbgggggggrrrrrrr
 
     and eax, 0x00FFFFFF
     mov ebx, rgb
