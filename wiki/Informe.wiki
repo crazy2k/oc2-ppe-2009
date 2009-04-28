@@ -356,6 +356,22 @@ Nodo* item(Iterador *iter)
 Devuelvo la direccion que apunta al Nodo actual, en nuestro caso en el registro eax, claramente porq devuelvo un puntero.
 
 
+void liberar_iterador(Iterador *iter)
+
+%define lib_pit ´[´ebp + 8´]´
+
+liberar_iterador:
+    entrada_funcion 0
+
+    mov eax, lib_pit
+    push eax
+    call free
+    add esp, 4
+
+    salida_funcion 0
+
+Notar que lo más importante es llamar a free para liberar la memoria pedida.
+
 
 *Conclusiones*
 
