@@ -45,29 +45,40 @@ loop_i:
     xor j, j
 loop_j:
 
-    lea ecx, [j + j*4]
-    add cx, [g_ver0]
+    lea ecx, [i + i*4]
+
+    xor edx, edx
+    mov dx, [g_ver0] 
+    add ecx, edx
 
     and ecx, 0x000001FF
     
     mov ecx, [colores + ecx*4]
 
-    lea eax, [j + j*2]
-    add ax, [g_ver1]
+    lea eax, [i + i*2]
+
+    xor edx, edx
+    mov dx, [g_ver1]
+    add eax, edx
 
     and eax, 0x000001FF
 
     add ecx, [colores + eax*4]
 
-    lea eax, [i + 2*i]
-    add ax, [g_hor0]
+    lea eax, [j + 2*j]
+
+    xor edx, edx
+    mov dx, [g_hor0]
+    add eax, edx
 
     and eax, 0x000001FF
 
     add ecx, [colores + eax*4]
 
-    mov eax, i
-    add ax, [g_hor1]
+    mov eax, j
+    xor edx, edx
+    mov dx, [g_hor1]
+    add eax, edx
 
     and eax, 0x000001FF
 
@@ -75,6 +86,7 @@ loop_j:
 
     sar ecx, 4
     add ecx, 128                        ; cl es index
+    and ecx, 0xFF
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca edx
@@ -107,7 +119,7 @@ ir_a_seguir:
 entrar_al_switch:
 
 case_1:
-    cmp cl, 64
+    cmp ecx, 64
     jge case_2
     
     shl cl, 2                           ; cl = index << 2
@@ -122,7 +134,7 @@ case_1:
     jmp seguir
 
 case_2:
-    cmp cl, 128
+    cmp ecx, 128
     jge case_3
 
     shl cl, 2
@@ -135,7 +147,7 @@ case_2:
     jmp seguir
 
 case_3:
-    cmp cl, 192
+    cmp ecx, 192
     jge case_4
 
     shl cl, 2
@@ -150,7 +162,7 @@ case_3:
     jmp seguir
 
 case_4:
-    cmp cl, 256
+    cmp ecx, 256
     jge case_5
 
     shl cl, 2
