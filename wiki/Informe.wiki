@@ -2,12 +2,69 @@
 
 = Introduction =
 
-Add your content here.
+*Organizacion del Computador II*
 
+Primer Cuatrimestre de 2008
+Departamento de Computacion
+
+Facultad de Ciencias Exactas y Naturales
+Universidad de Buenos Aires
+
+Trabajo Práctico 1
+_“Oportuncrisis ”_
+
+Grupo *"UNPCKHPD"*
+
+Integrante LU Correo electrónico
+
+Pablo Antonio    LU:290/08   pabloa@gmail.com
+Pablo Herrero    LU: 332/07   pablodherrero@gmail.com
+Estefanía Porta  LU: 451/04   estef.barbara@gmail.com
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Indice
+
+1. Introducción
+2. Desarrollo en ASM
+2.1. Generar Fondo . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+2.2. Recortar . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+2.3. Blit . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+2.4. Generar Plasma . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+3. Conclusiones 
+
+*Introducción:*
+El trabajo práctico consiste en programar en assembler las funciones encargadas
+de generar ciertos efectos visuales del video juego como solapar Sprites, recortar y otros, utilizando La arquitectura Intel x86.  A modo práctico se recorre la pantalla (400x200) como una
+matriz de pixeles, donde cada pixel son tres bytes que representan las componentes
+RGB del color a mostrar. El juego está implementado en C  e incluye algunas librerías gráficas.
+
+*Los Sprites:*
+Son tiras de imágenes que se utilizan para dar movimiento a los personajes, en nuestro caso a Wolverine y Gambit. Los fondos también pueden denominarse Sprites aunque estos no tengan movimiento, ya que el movimiento lo persibe el usuario, (es un efecto de recorte que el ojo humano no llega a persibir).
+Por otra parte, para que los personajes no se vean como cuadras desencajados de otro color diferente al fondo, de declara un color-off que actuará como transparente a la hora de programar (eso sucederá porque se irá intercambiando el color-off con el fondo) y de este modo el personaje simulará estar inmerso en el escenario.
+
+*Los BMP:* Notamos que este tipo de archivos a veces su longitud no es múltiplo de cuatro, entonces encontramos bytes con "basura", este comportamiento lo encapsulamos en una macro para que el código assembrer sea más legible.
+
+*2.1. Generar Fondo*
+
+*void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos);*
+
+Recibe como parametros un puntero al lugar donde esta la pantalla y sus dimensiones
+en pixeles (w de ancho y h de alto). Estos pixeles RGB también hay que tener en cuenta que los bytes tienen "basura" (no siendo mod 4) por lo que hacemos el tratamiento para eliminarla.
+
+*2.2. Recortar*
+
+*void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);*
+
+Una imagen BMP puede guardar varios Sprites, en este caso se tiene que
+optar por la imagen necesaria, debiendose recortar el Sprite indicado por la instancia. Recibe
+como parametros un puntero a la imagen, y sus dimensiones en pixeles. El número de instancia comenzando desde cero, y el ancho de la misma. También un booleano que indicará la orientación del personaje dentro del escenario (esto es para que tenga un buen efecto a la hora de hacerlo cambiar de dirección, que camina hacia un lado u otro de la pantalla) y estos bytes serán devueltos en el puntero res.
+
+*2.3. Blit*
+
+*void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb);*
+
+Esta función es la encargada de solapar un Sprite sobre el fondo de manera
+de que solo se vea el dibujo y no el color-off.  
+Lo primero que hacemos al trabajar con este tipo de imágenes es calcularle la "basura", y multiplicamos por 3 recordando que estamos con RGB.
+Como parámetros tenemos el puntero a la imágen, el color-off de la misma, las dimensiones y las coordenadas donde aparece. Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos accediendo
