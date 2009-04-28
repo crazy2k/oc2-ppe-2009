@@ -1,0 +1,981 @@
+#LyX 1.5.6 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\language spanish
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize 11
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+\shape smallcaps
+Organización del Computador II
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
+Departamento de Computación,
+\newline
+ Facultad de Ciencias Exactas y Naturales,
+\newline
+Universida
+d de Buenos Aires
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape smallcaps
+\size larger
+Trabajo Práctico 1: “Oportuncrisis”
+\end_layout
+
+\begin_layout Standard
+\align center
+Primer Cuatrimestre de 2009
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+Grupo "UNPCKHPD":
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Pablo Antonio
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+290/08
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+pabloa@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Pablo Herrero
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+332/07
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+pablodherrero@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Estefanía Porta
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+451/04
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+estef.barbara@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\newpage
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\newpage
+
+\end_layout
+
+\begin_layout Section
+Introducción
+\end_layout
+
+\begin_layout Standard
+El trabajo práctico consiste en programar, en lenguaje 
+\emph on
+assembly
+\emph default
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Standard
+Se optó por el ensamblador nasm, y se escribió el código en el lenguaje
+ que este soporta.
+\end_layout
+
+\end_inset
+
+ de la arquitectura x86 de Intel, ciertas funciones de un videojuego.
+ La lógica del videojuego se halla programada en C/C++, y utiliza un número
+ de funciones que, en principio, no se encuentran implementadas.
+ Nuestra tarea fue implementar dichas funciones.
+\end_layout
+
+\begin_layout Standard
+Las funciones faltantas se encargan de implementar:
+\end_layout
+
+\begin_layout Itemize
+las funcionalidades básicas de una lista doblemente enlazada
+\end_layout
+
+\begin_layout Itemize
+las funcionalidades de un iterador que sirva para recorrer dicha lista
+\end_layout
+
+\begin_layout Itemize
+una función 
+\family typewriter
+recortar
+\family default
+, encargada de, a partir de un 
+\emph on
+sprite
+\emph default
+ que contiene varias instancias de un objeto visual, y dados los parámetros
+ necesarios, quedarse con una instancia de este, y depositarla en un lugar
+ específico con la orientación adecuada
+\end_layout
+
+\begin_layout Itemize
+una función 
+\family typewriter
+generarFondo
+\family default
+, capaz de, a partir de una imagen para el fondo y una coordenada 
+\begin_inset Formula $x$
+\end_inset
+
+ en este, dibujarlo en pantalla tomando como inicio del fondo la coordenada
+ especifidada.
+ De no contar con suficiente ancho en el fondo a partir de dicha coordenada
+ como para llenar el ancho de la pantalla por completo, deberá tomar como
+ valor de dicha coordenada, el valor máximo suficiente que permita llenar
+ la pantalla.
+\end_layout
+
+\begin_layout Standard
+Se utilizaron, a lo largo del trabajo, 
+\emph on
+bitmaps
+\emph default
+ de 24 bits de color.
+ Tanto la pantalla como las imágenes cargadas se recorrieron como una matriz
+ de pixeles, donde cada pixel estaba representado por tres bytes, uno para
+ cada componente RGB del color a mostrar.
+\end_layout
+
+\begin_layout Standard
+El juego hace uso de la biblioteca multiplataforma libre SDL.
+\end_layout
+
+\begin_layout Subsection
+Los 
+\emph on
+sprites
+\end_layout
+
+\begin_layout Standard
+Un 
+\emph on
+sprite
+\emph default
+, para nosotros,
+\emph on
+ 
+\emph default
+es una imagen compuesta por una tira de figuras que se utilizan para dar
+ movimiento a los personajes.
+ En nuestro caso, tenemos un sprite para cada una de las animaciones de
+ los movimientos de Wolverine (parado, caminando y atacando) y Gambit (parado).
+\end_layout
+
+\begin_layout Standard
+Para simular el movimiento de los personajes, se muestran por pantalla una
+ a una las figuras de la tira.
+ El usuario percibe un movimiento por parte de los personajes pues el ojo
+ humano no alcanza a percibir que en realidad se trata de varias figuras
+ una detrás de la otra.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Framed
+status open
+
+\begin_layout Standard
+Llegué hasta acá retocando el informe.
+ (Pablo A.)
+\end_layout
+
+\end_inset
+
+\SpecialChar \ldots{}
+
+\end_layout
+
+\begin_layout Subsection
+Los fondos
+\end_layout
+
+\begin_layout Standard
+En nuestro juego, tenemos dos fondos; uno para cada escenario.
+ Los fondos también pueden denominarse Sprites aunque estos no tengan movimiento
+, ya que el movimiento lo persibe el usuario.
+ Por otra parte, para que los personajes no se vean como cuadras desencajados
+ de otro color diferente al fondo, de declara un color-off que actuará como
+ transparente a la hora de programar (eso sucederá porque se irá intercambiando
+ el color-off con el fondo) y de este modo el personaje simulará estar inmerso
+ en el escenario.
+\end_layout
+
+\begin_layout Standard
+* Los BMP
+\end_layout
+
+\begin_layout Standard
+Notamos que este tipo de archivos a veces su longitud no es múltiplo de
+ cuatro, entonces encontramos bytes con "basura", este comportamiento lo
+ encapsulamos en una macro para que el código assembrer sea más legible.
+\end_layout
+
+\begin_layout Standard
+*2.1.
+ Generar Fondo*
+\end_layout
+
+\begin_layout Standard
+*void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32
+ screenAbsPos);*
+\end_layout
+
+\begin_layout Standard
+Recibe como parametros un puntero al lugar donde esta la pantalla y sus
+ dimensiones en pixeles (w de ancho y h de alto).
+ Estos pixeles RGB también hay que tener en cuenta que los bytes tienen
+ "basura" (no siendo mod 4) por lo que hacemos el tratamiento para eliminarla.
+\end_layout
+
+\begin_layout Standard
+*2.2.
+ Recortar*
+\end_layout
+
+\begin_layout Standard
+*void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia,
+ Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);*
+\end_layout
+
+\begin_layout Standard
+Una imagen BMP puede guardar varios Sprites, en este caso se tiene que optar
+ por la imagen necesaria, debiendose recortar el Sprite indicado por la
+ instancia.
+ Recibe como parametros un puntero a la imagen, y sus dimensiones en pixeles.
+ El número de instancia comenzando desde cero, y el ancho de la misma.
+ También un booleano que indicará la orientación del personaje dentro del
+ escenario (esto es para que tenga un buen efecto a la hora de hacerlo cambiar
+ de dirección, que camina hacia un lado u otro de la pantalla) y estos bytes
+ serán devueltos en el puntero res.
+\end_layout
+
+\begin_layout Standard
+*Mirando un poco nuestro Código:* (vamos a destacar algunas partes, ya que
+ el código está comentado, y adjuntado junto a este informe.)
+\end_layout
+
+\begin_layout Standard
+En principio ponemos en la pila los parámetros de la función.
+ Por ejemplo el primer parámetro lo tenemos en:
+\end_layout
+
+\begin_layout Standard
+_%define ptrSprite `[`ebp+8`]`_
+\end_layout
+
+\begin_layout Standard
+Y así con los demás sabiendo que son de 32 bits.
+ El %define es para legibilidad en el código, así en vez de llamar a [ebp+8]
+ usamos un nombre más amigable como ptrSprite.
+ También definimos las variables locales, por convención en la pila las
+ colocamos alrevez.
+ Ejemplo:
+\end_layout
+
+\begin_layout Standard
+%define ancho_sprite_bytes [ebp-4]
+\end_layout
+
+\begin_layout Standard
+Luego comienza nuestra función: (la función entera se puede ver en el archivo
+ recortar.asm, no parece interesante copiar el código entero, pero allí está
+ la funcionalidad comentada.
+ ) global recortar recortar:
+\end_layout
+
+\begin_layout Standard
+entrada_funcion 12 <---- cantidad de parámetros
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+\end_layout
+
+\begin_layout Standard
+calcular_pixels ebx,ancho_instancia ;ebx: ancho de la instancia sobre el
+ sprite en ;pixeles (sin la basura)
+\end_layout
+
+\begin_layout Standard
+calcular_basura eax, ebx ;basura para la instancia
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+ sub ebx, 03h ;cantidad de bytes para avanzar del primer al ultimo pixel
+ de una 
+\end_layout
+
+\begin_layout Standard
+fila Esto es para explicar la razon de hacer sub con 03h, recordar (rgb)
+ En el ciclo, donde voy a ir copiado los bytes de cada fila de la instancia,
+ muevo hacia un *registro de 8 bits*, en este caso *bl (parte baja)* y luego
+ avanzo de a 1 para moverme hacia el otro pixel.
+ Y termino el ciclo cuando el contador de hace cero, usando la instrucción
+ *loopne*.
+ Por último, la iteración se hace pasando por todas las filas (pensando
+ el sprite como una matriz, aunque sabemos que realmente es una tira de
+ bytes.) salida_funcion 12 <---- tiene la restauración de la pila, y también
+ la convención C.
+\end_layout
+
+\begin_layout Standard
+*2.3.
+ Blit*
+\end_layout
+
+\begin_layout Standard
+*void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb);*
+\end_layout
+
+\begin_layout Standard
+Esta función es la encargada de solapar un Sprite sobre el fondo de manera
+ de que solo se vea el dibujo y no el color-off.
+ Lo primero que hacemos al trabajar con este tipo de imágenes es calcularle
+ la "basura", y multiplicamos por 3 recordando que estamos con RGB.
+ Como parámetros tenemos el puntero a la imágen, el color-off de la misma,
+ las dimensiones y las coordenadas donde aparece.
+ Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos
+ accediendo.
+\end_layout
+
+\begin_layout Standard
+extern screen_pixeles <--- esta variable se encuentra en el main, al ser
+ una variable externa a este archivo la llamo de este modo.
+\end_layout
+
+\begin_layout Standard
+*Blit:*
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+\end_layout
+
+\begin_layout Standard
+mov edi, ptrSprite 
+\end_layout
+
+\begin_layout Standard
+edi apunta todo el tiempo a la posicion dentro de sprite, en esta función
+ se necesitan dos punteros, uno que apunte al sprite y otro que apunte al
+ fondo (al escenario) 
+\end_layout
+
+\begin_layout Standard
+mov edx, SCREEN_W*3 cargamos el ancho de la pantalla en edx y lo multiplicamos
+ por 3 como debemos hacer en todos los casos.
+\end_layout
+
+\begin_layout Standard
+calcular_basura ebx,edx (calculo de la basura en ebx)
+\end_layout
+
+\begin_layout Standard
+add edx, ebx (sumamos el valor de la basura al registro edx)
+\end_layout
+
+\begin_layout Standard
+mov ancho_screen_bytes,edx
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+ mov esi, `[`screen_pixeles `]` Acá es donde cargo el puntero a pantalla.
+ Y luego cargamos las coordenadas...
+ 
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+ Una nueva_fila (la misma idea que en recortar, pensando el sprite como
+ una matriz) mov ecx, anchoSprite
+\end_layout
+
+\begin_layout Standard
+Y el ciclo no es más que intercambiar los bytes que tienen el color-off
+ de nuestra imagen por los del fondo, también utilizando *registros de 8
+ bits* para RGB.
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+\end_layout
+
+\begin_layout Standard
+finBlit:
+\end_layout
+
+\begin_layout Standard
+salida_funcion 16 <--- idem recortar, restaura la pila como estaba al principio
+ y los registros que se pushean por convención del lenguaje C.
+\end_layout
+
+\begin_layout Standard
+2.4.
+ Generar Plasma
+\end_layout
+
+\begin_layout Standard
+.
+\end_layout
+
+\begin_layout Standard
+.
+\end_layout
+
+\begin_layout Standard
+.
+\end_layout
+
+\begin_layout Standard
+2.5.
+ Lista
+\end_layout
+
+\begin_layout Standard
+La lista se utilizará para el personaje de “Gambito” que también aparecerá
+ dentro de los escenarios en alguna posición en particular, y este personaje
+ no va a tener el efecto de caminar, solo se aparecerá parado con un leve
+ movimiento.
+ Para ello se utilizará la lista, esta se consulta constantemente en cada
+ Frame del juego para saber que se debe dibujar en pantalla.
+\end_layout
+
+\begin_layout Standard
+Inicializar_nodo es opcional.
+ En nuestro caso, podriamos haberla usado en agregar_item_ordenado pero
+ no lo hicimos.
+\end_layout
+
+\begin_layout Standard
+Las funciones para la lista las hicimos en el mismo archivo funciones_lista.asm
+\end_layout
+
+\begin_layout Standard
+global inicializar_nodo
+\end_layout
+
+\begin_layout Standard
+global verificar_id
+\end_layout
+
+\begin_layout Standard
+global agregar_item_ordenado
+\end_layout
+
+\begin_layout Standard
+global borrar
+\end_layout
+
+\begin_layout Standard
+global liberar_lista
+\end_layout
+
+\begin_layout Standard
+*Lista* constructor_lista()*
+\end_layout
+
+\begin_layout Standard
+Para el constructor de lista pedimos memoria mediante la instrucción de
+ C call malloc
+\end_layout
+
+\begin_layout Standard
+bool verificar_id (Lista* la_lista, Uint32 id)
+\end_layout
+
+\begin_layout Standard
+mov eax, verif_lista (aca tenemos el nodo* primero, porque vamos a tener
+ que recorrer)
+\end_layout
+
+\begin_layout Standard
+(y verif_lista está definido arriba del código con un %define)
+\end_layout
+
+\begin_layout Standard
+.
+ .
+ .
+\end_layout
+
+\begin_layout Standard
+mov ebx, `[`eax`]` ;cargo la parte menos significativa del Id del nodo
+\end_layout
+
+\begin_layout Standard
+mov ecx, `[`eax+4`]` *;porq ID es de 64 bits*
+\end_layout
+
+\begin_layout Standard
+Luego me muevo al prox, y comparo para ver si ya encontré o no.
+\end_layout
+
+\begin_layout Standard
+; void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers,
+ SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID);
+\end_layout
+
+\begin_layout Standard
+También requiere *llamar a malloc*.
+ Inicializo la estructura del nodo.
+ En eax esta todo el tiempo el puntero al nodo nuevo y en ebx esta el puntero
+ al nodo actual.
+ Tomamos los tres casos: (el ítem que agrego debe ser el primero, o la lista
+ está vacía o bien la coord_x es menor al prox.) Si no hay ningun nodo, agregar
+ el nuevo (eax) al principio.
+\end_layout
+
+\begin_layout Standard
+(cmp ag_x, ecx) si la coord x del primer nodo es menor a la que me pasaron
+ por parametro.
+\end_layout
+
+\begin_layout Standard
+Si el ítem debe ir en el medio.
+\end_layout
+
+\begin_layout Standard
+connect_nodos edx,eax ; pongo el elemento nuevo (eax) despues del nodo actual
+ (edx)
+\end_layout
+
+\begin_layout Standard
+connect_nodos eax,ebx ; pongo el elemento nuevo (eax) antes del proximo
+ (ebx)
+\end_layout
+
+\begin_layout Standard
+Y si el ítem debe ser el último (en este caso el puntero a prox del nuevo
+ ítem debe apuntar a null)
+\end_layout
+
+\begin_layout Standard
+Donde ebx tiene un puntero al ultimo connect_nodos ebx,eax y pongo el elemento
+ nuevo (eax) despues del nodo actual (ebx)
+\end_layout
+
+\begin_layout Standard
+_void borrar(Lista* la_lista, Uint32 x, Uint32 y)_
+\end_layout
+
+\begin_layout Standard
+Esta otra función es muy sililar a las anteriores, salvo porque hay que
+ recordar liberar la memoria que se utilizó para ese elem.
+ Del mismo modo que agregar_item, también actualizo los punteros de los
+ items prev y prox, si es que existen (esos casos borde también son examinados
+ aparte)
+\end_layout
+
+\begin_layout Standard
+_void liberar_lista(Lista* l)_
+\end_layout
+
+\begin_layout Standard
+Esta función no es muy larga, me gustaría poner la mayor parte del código
+ ya que es bastante claro: mov edx, l_lista ; cargo en edx el puntero a
+ la lista mov ebx, `[`edx`]` ; cargo en ebx el puntero al primer nodo de
+ la lista l_seguir: ; asumo q en ebx esta siempre el puntero al nodo actual
+ y en edx el puntero a la lista cmp ebx, 0 jne l_eliminar_elemento reviso
+ si la lista esta vacia
+\end_layout
+
+\begin_layout Standard
+mov edx, l_lista ; cargo en edx el puntero a la lista (por si lo perdi)
+ push edx call free <--- importante liberar en este caso add esp, 4
+\end_layout
+
+\begin_layout Standard
+salida_funcion 0 <--- recuerda que acá tenemos la convención C y pongo la
+ pila como al principio.
+\end_layout
+
+\begin_layout Standard
+Si no esta vacia
+\end_layout
+
+\begin_layout Standard
+; elimino ebx l_eliminar_elemento: mov esi, `[`ebx + prox`]` push ebx call
+ free <--- importante liberar en este caso add esp, 4 mov ebx, esi
+\end_layout
+
+\begin_layout Standard
+jmp l_seguir 
+\end_layout
+
+\begin_layout Standard
+Nos pareció que era más claro mostrar el código acá, ya que no es largo
+ y fue bastante simple...
+\end_layout
+
+\begin_layout Standard
+*2.6 Iterador*
+\end_layout
+
+\begin_layout Standard
+Igual que con la lista las funciones del iterador las pusimos juntas en
+ un mismo archivo “funciones_iterador.asm”
+\end_layout
+
+\begin_layout Standard
+global constructor_iterador
+\end_layout
+
+\begin_layout Standard
+global hay_proximo
+\end_layout
+
+\begin_layout Standard
+global proximo
+\end_layout
+
+\begin_layout Standard
+global item
+\end_layout
+
+\begin_layout Standard
+global liberar_iterador
+\end_layout
+
+\begin_layout Standard
+Iterador* constructor_iterador(Lista *lista) ; los punteros son de 32 bits
+\end_layout
+
+\begin_layout Standard
+mov eax, 4 <--- 4bytes xq es un registro de 32 bits
+\end_layout
+
+\begin_layout Standard
+push eax
+\end_layout
+
+\begin_layout Standard
+call malloc ; parecido a la lista pido memoria al construír (pensánsolo
+ en C realmente es la misma idea)
+\end_layout
+
+\begin_layout Standard
+add esp, 4 
+\end_layout
+
+\begin_layout Standard
+cmp eax, 0
+\end_layout
+
+\begin_layout Standard
+; si malloc no me pudo dar memoria (raro que ocurra pero por las dudas si
+ eso ocurriera salgo de la función)
+\end_layout
+
+\begin_layout Standard
+je retornar ;salto a salir
+\end_layout
+
+\begin_layout Standard
+mov ebx, const_it_lista ; ebx = direccion que apunta a la Lista
+\end_layout
+
+\begin_layout Standard
+mov ebx, ´[´ebx´]´ ; ebx = direccion que apunta al Nodo
+\end_layout
+
+\begin_layout Standard
+mov ´[´eax´]´, ebx ; En el espacio creado en memoria guardo ; la direccion
+ que apunta al nodo.
+\end_layout
+
+\begin_layout Standard
+bool hay_proximo(Iterador *iter)
+\end_layout
+
+\begin_layout Standard
+En realidad un mejor nombre creo que sería hay_actual().
+ No parece que valga la pena copiar el código de esta función aunq es muy
+ simple.
+ La idea es simplemente ver si el nodo actual tiene un siguiente elemento,
+ que no apunte a null.
+\end_layout
+
+\begin_layout Standard
+void proximo(Iterador *iter)
+\end_layout
+
+\begin_layout Standard
+entrada_funcion 0
+\end_layout
+
+\begin_layout Standard
+mov eax, prox_pit ; eax = direccion que apunta al Iterador
+\end_layout
+
+\begin_layout Standard
+mov ebx, ´[´eax´]´ ; ebx = direccion que apunta al Nodo actual
+\end_layout
+
+\begin_layout Standard
+mov ebx, ´[´ebx + prox´]´ ; ebx = direccion que apunta al Nodo proximo
+\end_layout
+
+\begin_layout Standard
+cmp ebx, 0
+\end_layout
+
+\begin_layout Standard
+mov ´[´eax´]´, ebx
+\end_layout
+
+\begin_layout Standard
+salida_funcion 0
+\end_layout
+
+\begin_layout Standard
+Nodo* item(Iterador *iter)
+\end_layout
+
+\begin_layout Standard
+Devuelvo la direccion que apunta al Nodo actual, en nuestro caso en el registro
+ eax, claramente porq devuelvo un puntero.
+\end_layout
+
+\begin_layout Standard
+void liberar_iterador(Iterador *iter)
+\end_layout
+
+\begin_layout Standard
+%define lib_pit ´[´ebp + 8´]´
+\end_layout
+
+\begin_layout Standard
+liberar_iterador: entrada_funcion 0
+\end_layout
+
+\begin_layout Standard
+mov eax, lib_pit push eax call free add esp, 4
+\end_layout
+
+\begin_layout Standard
+salida_funcion 0
+\end_layout
+
+\begin_layout Standard
+Notar que lo más importante es llamar a free para liberar la memoria pedida.
+\end_layout
+
+\begin_layout Standard
+*Conclusiones*
+\end_layout
+
+\begin_layout Standard
+Además de practicar los conceptos teoricos y la interaccion de assembrer
+ con C.
+ trabajamos con algunas herramientas de debugger.
+ Vimos como se manejan los bytes en memoria bien a bajo nivel.
+ Realmente no resultó del todo cómodo escribir en este lenguaje pero es
+ un aprendizaje realmente útil.
+\end_layout
+
+\begin_layout Standard
+*Compilar y Ejecutar*
+\end_layout
+
+\begin_layout Standard
+El trabajo práctico fue desarrollado sobre Linux y no es multiplataforma.
+ Para compilarlo se pueden usar los comandos *bash compilar_asm.sh* elimina
+ todos los .o en ./asm/, y ensambla todos los archivos presentes en ese directorio
+ y *bash compilar_cpp.sh* compila el main.cpp y crea el ejecutable linkeando
+ con los .o en ./asm.
+ El ejecutable que genera se llama "prg" y se encuentra dentro de la carpeta
+ src.
+\end_layout
+
+\begin_layout Standard
+*Referencias*
+\end_layout
+
+\begin_layout Standard
+1- Intel R .
+ 64 and IA-32 Architectures Software 1: Basic Architecture
+\end_layout
+
+\begin_layout Standard
+2- Intel R.
+ 64 and IA-32 Architectures Software 2A: Instruction Set Reference, A-M
+\end_layout
+
+\begin_layout Standard
+3- Intel R.
+ 64 and IA-32 Architectures Software 2B: Instruction Set Reference, N-Z
+\end_layout
+
+\end_body
+\end_document
