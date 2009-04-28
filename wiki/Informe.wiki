@@ -197,6 +197,38 @@ Para ello se utilizará la lista,  esta se consulta constantemente en cada Frame
 
 Inicializar_nodo es opcional. En nuestro caso, podriamos haberla usado en agregar_item_ordenado pero no lo hicimos.
 
+Las funciones para la lista las hicimos en el mismo archivo funciones_lista.asm
+
+global inicializar_nodo
+
+global verificar_id
+
+global agregar_item_ordenado
+
+global borrar
+
+global liberar_lista
+
+*Lista* constructor_lista()*
+
+Para el constructor de lista pedimos memoria mediante la instrucción de C call malloc
+
+ bool verificar_id (Lista* la_lista, Uint32 id)
+
+ mov eax, verif_lista     (aca tenemos el nodo* primero, porque vamos a tener que recorrer)
+
+(y  verif_lista está definido arriba del código con un %define)
+
+.
+.
+.
+
+    mov ebx, [eax]           ;cargo la parte menos significativa del Id del nodo
+
+    mov ecx, [eax+4]     *;porq ID es de 64 bits*
+
+Luego me muevo al prox, y comparo para ver si ya encontré o no.
+
 
 *Conclusiones*
 
