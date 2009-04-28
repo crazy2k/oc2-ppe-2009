@@ -333,8 +333,29 @@ bool hay_proximo(Iterador *iter)
 En realidad un mejor nombre creo que sería  hay_actual().
 No parece que valga la pena copiar el código de esta función aunq es muy simple. La idea es simplemente ver si el nodo actual tiene un siguiente elemento, que no apunte a null.
 
+
+void proximo(Iterador *iter)
+
+entrada_funcion 0
+
+    mov eax, prox_pit       ; eax = direccion que apunta al Iterador
+
+    mov ebx, ´[´eax´]´            ; ebx = direccion que apunta al Nodo actual
+
+    mov ebx, ´[´ebx + prox´]´   ; ebx = direccion que apunta al Nodo proximo
+
+    cmp ebx, 0
+
+    mov ´[´eax´]´, ebx
+
+    salida_funcion 0
+
+
 Nodo* item(Iterador *iter)
+
 Devuelvo la direccion que apunta al Nodo actual, en nuestro caso en el registro eax, claramente porq devuelvo un puntero.
+
+
 
 *Conclusiones*
 
