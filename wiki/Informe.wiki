@@ -190,6 +190,7 @@ salida_funcion 16  <--- idem recortar, restaura la pila como estaba al principio
 
 .
 
+
 2.5. Lista
 
 La lista se utilizará para el personaje de “Gambito” que también aparecerá dentro de los escenarios en alguna posición en particular, y este personaje no va a tener el efecto de caminar, solo se aparecerá parado con un leve movimiento.
@@ -288,6 +289,7 @@ l_eliminar_elemento:
 Nos pareció que era más claro mostrar el código acá, ya que no es largo y fue bastante simple...
 
 
+
 *2.6 Iterador*
 
 Igual que con la lista las funciones del iterador las pusimos juntas en un mismo archivo
@@ -325,6 +327,11 @@ Iterador* constructor_iterador(Lista *lista)  ; los punteros son de 32 bits
 
     mov ´[´eax´]´, ebx              ; En el espacio creado en memoria guardo
                                     ; la direccion que apunta al nodo.
+
+bool hay_proximo(Iterador *iter)
+
+En realidad un mejor nombre creo que sería  hay_actual().
+No parece que valga la pena copiar el código de esta función aunq es muy simple. La idea es simplemente ver si el nodo actual tiene un siguiente elemento, que no apunte a null.
 
 
 *Conclusiones*
