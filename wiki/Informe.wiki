@@ -288,6 +288,45 @@ l_eliminar_elemento:
 Nos pareció que era más claro mostrar el código acá, ya que no es largo y fue bastante simple...
 
 
+*2.6 Iterador*
+
+Igual que con la lista las funciones del iterador las pusimos juntas en un mismo archivo
+“funciones_iterador.asm”
+
+global constructor_iterador
+
+global hay_proximo
+
+global proximo
+
+global item
+
+global liberar_iterador
+
+Iterador* constructor_iterador(Lista *lista)  ; los punteros son de 32 bits
+
+    mov eax, 4 <--- 4bytes xq es un registro de 32 bits
+
+    push eax
+
+    call malloc   ; parecido a la lista pido memoria al construír (pensánsolo en C realmente es la misma idea)
+
+    add esp, 4   
+
+    cmp eax, 0
+
+    ; si malloc no me pudo dar memoria (raro que ocurra pero por las dudas si eso ocurriera salgo de la función)
+
+    je retornar  ;salto a salir
+
+    mov ebx, const_it_lista         ; ebx = direccion que apunta a la Lista
+
+    mov ebx, ´[´ebx´]´              ; ebx = direccion que apunta al Nodo
+
+    mov ´[´eax´]´, ebx              ; En el espacio creado en memoria guardo
+                                    ; la direccion que apunta al nodo.
+
+
 *Conclusiones*
 
 Además de practicar los conceptos teoricos y la interaccion de assembrer con C. trabajamos con algunas herramientas de debugger. Vimos como se manejan los bytes en memoria bien a bajo nivel. Realmente no resultó del todo cómodo escribir en este lenguaje pero es un aprendizaje realmente útil.
