@@ -15,13 +15,11 @@ extern g_hor1
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca eax y edx
-    mul j               ; eax = j*SCREEN_W*3
+    mul i               ; eax = i*SCREEN_W*3
 
     ; uso edx porque total ya lo arruine con el mul...
-    mov edx, i
-    shl edx, 1
-    add edx, i          ; edx = i*2 + i = i*3
-    add edx, eax        ; edx = i*3 + j*SCREEN_W*3
+    lea edx, [j + j * 2] ; edx = j + j*2 = j*3
+    add edx, eax        ; edx = j*3 + i*SCREEN_W*3
 
     mov eax, [screen_pixeles]
     
@@ -45,7 +43,6 @@ loop_i:
     xor j, j
 loop_j:
 
-    ;lea ecx, [i + i*4]
     lea ecx, [j + j*4]
 
     xor edx, edx
@@ -56,7 +53,6 @@ loop_j:
     
     mov ecx, [colores + ecx*4]
 
-    ;lea eax, [i + i*2]
     lea eax, [j + j*2]
 
     xor edx, edx
@@ -67,7 +63,6 @@ loop_j:
 
     add ecx, [colores + eax*4]
 
-    ;lea eax, [j + 2*j]
     lea eax, [i + 2*i]
 
     xor edx, edx
@@ -78,7 +73,6 @@ loop_j:
 
     add ecx, [colores + eax*4]
 
-    ;mov eax, j
     mov eax, i
     xor edx, edx
     mov dx, [g_hor1]
@@ -94,13 +88,11 @@ loop_j:
 
     mov eax, SCREEN_W*3
     ; tener en cuenta que esto toca edx
-    mul j                               ; eax = j*SCREEN_W*3
+    mul i                               ; eax = j*SCREEN_W*3
 
     mov ebx, [screen_pixeles]
-    mov edx, i
-    shl edx, 1
-    add ebx, edx
-    add ebx, i                          ; ebx = [screen_pixeles] + 3*i
+    lea edx, [ j + j * 2 ]
+    add ebx, edx                          ; ebx = [screen_pixeles] + 3*i
 
     mov dh, [ebx + eax + 2]
     shl edx, 8
@@ -121,8 +113,8 @@ ir_a_seguir:
 entrar_al_switch:
 
 case_1:
-    cmp ecx, 64
-    jge case_2
+    cmp cl, 64
+    jae case_2                          ; fallaba por q jge es signed
     
     shl cl, 2                           ; cl = index << 2
     mov bl, 255
@@ -136,8 +128,8 @@ case_1:
     jmp seguir
 
 case_2:
-    cmp ecx, 128
-    jge case_3
+    cmp cl, 128
+    jae case_3
 
     shl cl, 2
     inc cl                              ; cl = (index << 2) + 1
@@ -149,8 +141,8 @@ case_2:
     jmp seguir
 
 case_3:
-    cmp ecx, 192
-    jge case_4
+    cmp cl, 192
+    jae case_4
 
     shl cl, 2
     mov bl, 255
@@ -164,8 +156,8 @@ case_3:
     jmp seguir
 
 case_4:
-    cmp ecx, 256
-    jge case_5
+    cmp cx, 256                        ;256 no entra en 8 bits (por eso us cx)
+    jae case_5
 
     shl cl, 2
     inc cl                             ; cl = (index << 2) + 1
@@ -186,11 +178,11 @@ case_5:
 seguir:
 
     inc j
-    cmp j, SCREEN_H
+    cmp j, SCREEN_W
     jl loop_j
 
     inc i
-    cmp i, SCREEN_W
+    cmp i, SCREEN_H
     jl loop_i
 
     add word [g_ver0], 9
