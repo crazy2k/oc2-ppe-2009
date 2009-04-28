@@ -78,3 +78,17 @@ Esta función es la encargada de solapar un Sprite sobre el fondo de manera
 de que solo se vea el dibujo y no el color-off.  
 Lo primero que hacemos al trabajar con este tipo de imágenes es calcularle la "basura", y multiplicamos por 3 recordando que estamos con RGB.
 Como parámetros tenemos el puntero a la imágen, el color-off de la misma, las dimensiones y las coordenadas donde aparece. Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos accediendo
+
+
+
+
+
+
+
+*Compilar y Ejecutar*
+
+El trabajo práctico fue desarrollado sobre Linux y no es multiplataforma. 
+Para compilarlo se pueden usar los comandos *bash compilar_asm.sh*
+elimina todos los .o en ./asm/, y ensambla todos los archivos presentes
+en ese directorio y *bash compilar_cpp.sh* compila el main.cpp y crea el ejecutable linkeando con los .o en ./asm.
+El ejecutable que genera se llama "prg" y se encuentra dentro de la carpeta src.
