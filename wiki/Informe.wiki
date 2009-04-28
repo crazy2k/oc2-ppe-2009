@@ -94,14 +94,15 @@ en ese directorio y *bash compilar_cpp.sh* compila el main.cpp y crea el ejecuta
 El ejecutable que genera se llama "prg" y se encuentra dentro de la carpeta src.
 
 *Referencias*
-[1] Intel R
+
+1- Intel R
  64 and IA-32 Architectures Software
 1: Basic Architecture
 
-[2] Intel R
+2- Intel R
  64 and IA-32 Architectures Software
 2A: Instruction Set Reference, A-M
 
-[3] Intel R
+3- Intel R
  64 and IA-32 Architectures Software
 2B: Instruction Set Reference, N-Z
