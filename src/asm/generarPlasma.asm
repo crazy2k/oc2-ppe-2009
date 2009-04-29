@@ -131,7 +131,7 @@ entrar_al_switch:
     load_screenw_pixels ;cargo en eax, el desplazamiento vertical (en bytes)
     lea edx, [j + j * 2] ; edx = j + j*2 = j*3
     add eax, edx        ; eax = j*3 + i*SCREEN_W*3
-    add eax, [screen_pixeles]   ;queda todo el offset completo en eax
+    add eax, [screen_pixeles]   ;queda todo el offset completo en eax (y se calcula solo la primera vez)
 
 case_1:
     cmp cl, 64
