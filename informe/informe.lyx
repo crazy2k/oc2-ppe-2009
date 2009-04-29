@@ -1,8 +1,13 @@
-#LyX 1.5.6 created this file. For more info see http://www.lyx.org/
-\lyxformat 276
+#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\date{}
+\setcounter{page}{-1}
+\end_preamble
+\use_default_options false
 \language spanish
 \inputencoding auto
 \font_roman default
@@ -13,9 +18,11 @@
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
+
 \graphics default
 \paperfontsize 11
 \spacing single
+\use_hyperref false
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -51,11 +58,14 @@ Organización del Computador II
 
 \shape italic
 Departamento de Computación,
-\newline
+\begin_inset Newline newline
+\end_inset
+
  Facultad de Ciencias Exactas y Naturales,
-\newline
-Universida
-d de Buenos Aires
+\begin_inset Newline newline
+\end_inset
+
+Universidad de Buenos Aires
 \end_layout
 
 \begin_layout Standard
@@ -101,28 +111,28 @@ Grupo "UNPCKHPD":
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Pablo Antonio
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 290/08
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 pabloa@gmail.com
 \end_layout
 
@@ -130,28 +140,28 @@ pabloa@gmail.com
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Pablo Herrero
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 332/07
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 pablodherrero@gmail.com
 \end_layout
 
@@ -159,28 +169,28 @@ pablodherrero@gmail.com
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Estefanía Porta
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 451/04
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Standard
+\begin_layout Plain Layout
 estef.barbara@gmail.com
 \end_layout
 
@@ -195,13 +205,15 @@ estef.barbara@gmail.com
 \end_layout
 
 \begin_layout Standard
+\begin_inset ERT
+status open
 
-\newpage
+\begin_layout Plain Layout
 
+
+\backslash
+thispagestyle{empty}
 \end_layout
-
-\begin_layout Standard
-\begin_inset LatexCommand tableofcontents
 
 \end_inset
 
@@ -209,8 +221,41 @@ estef.barbara@gmail.com
 \end_layout
 
 \begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
 
-\newpage
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
 
 \end_layout
 
@@ -227,7 +272,7 @@ assembly
 \begin_inset Foot
 status collapsed
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Se optó por el ensamblador nasm, y se escribió el código en el lenguaje
  que este soporta.
 \end_layout
@@ -321,25 +366,11 @@ es una imagen compuesta por una tira de figuras que se utilizan para dar
 
 \begin_layout Standard
 Para simular el movimiento de los personajes, se muestran por pantalla una
- a una las figuras de la tira.
- El usuario percibe un movimiento por parte de los personajes pues el ojo
+ a una las figuras de la tira, en la misma posición (o con algún desplazamiento
+ si se quiere mostrar que el personaje se traslada).
+ El usuario observa un movimiento por parte de los personajes pues el ojo
  humano no alcanza a percibir que en realidad se trata de varias figuras
  una detrás de la otra.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Framed
-status open
-
-\begin_layout Standard
-Llegué hasta acá retocando el informe.
- (Pablo A.)
-\end_layout
-
-\end_inset
-
-\SpecialChar \ldots{}
-
 \end_layout
 
 \begin_layout Subsection
@@ -348,13 +379,87 @@ Los fondos
 
 \begin_layout Standard
 En nuestro juego, tenemos dos fondos; uno para cada escenario.
- Los fondos también pueden denominarse Sprites aunque estos no tengan movimiento
-, ya que el movimiento lo persibe el usuario.
- Por otra parte, para que los personajes no se vean como cuadras desencajados
- de otro color diferente al fondo, de declara un color-off que actuará como
- transparente a la hora de programar (eso sucederá porque se irá intercambiando
- el color-off con el fondo) y de este modo el personaje simulará estar inmerso
- en el escenario.
+ Los fondos tienen un cierto ancho, en nuestro caso mayor al de la pantalla.
+ Inicialmente se muestra en la pantalla la primera parte del fondo (observándolo
+ de izquierda a derecha).
+ A medida que el personaje avanza hacia un lado u otro de la pantalla nuevas
+ porciones del fondo se hacen visibles, generando la sensación de que el
+ personaje está recorriéndolo.
+\end_layout
+
+\begin_layout Subsection
+El color-off
+\end_layout
+
+\begin_layout Standard
+Siendo bitmaps, lógicamente las imágenes de los personajes y las de los
+ fondos tienen un color asignado a cada pixel que los conforma.
+ Sin embargo, para que el movimiento del personaje a través del escenario
+ sea más realista, preferiríamos que ciertas zonas de su bitmap no se mantengan
+ estáticas, sino que vayan cambiando conforme al contexto que lo rodea en
+ cada momento.
+ Además, también puede sernos útil que el mismo fondo se comporte de manera
+ similar; por ejemplo, podríamos querer que en cierta parte del fondo designada
+ al cielo las nubes vayan moviéndose, en lugar de que se mantenga estática.
+\end_layout
+
+\begin_layout Standard
+Para lograr esto se elige un color en el bitmap al cual se lo llama 
+\begin_inset Quotes eld
+\end_inset
+
+color-off
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Simplemente se trata de un color RGB que no será utilizado en el bitmap
+ sino para designar pixeles que serán reemplazados por otros.
+ En el caso del personaje, estos pixeles podrán reemplazarse por pixeles
+ correspondientes al fondo.
+\end_layout
+
+\begin_layout Subsection
+El plasma
+\end_layout
+
+\begin_layout Standard
+Para colaborar con la ambientación de las escenas, se utilizó un fondo de
+ plasma.
+ Básicamente, se trata de una imagen que se genera a partir de una función
+ senoidal y ciertas designaciones de colores a los puntos.
+ El efecto resultante podría describirse como una serie de círculos y circunfere
+ncias de distintos colores agrandándose, achicándose y trasladándose a lo
+ largo de la pantalla.
+\end_layout
+
+\begin_layout Standard
+De este modo, tanto el color-off de los personajes como el del fondo del
+ escenario fueron reemplazados 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 0
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+Llegué hasta acá retocando el informe.
+ (Pablo A.)
+\end_layout
+
+\end_inset
+
+\SpecialChar \ldots{}
+
 \end_layout
 
 \begin_layout Standard
