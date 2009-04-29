@@ -76,13 +76,13 @@ extern "C" bool verificar_id (Lista* la_lista, Uint32 id) {
     return true;
 }
 
-extern "C" bool conectar (Nodo* a, Nodo* b) {
+extern "C" void conectar (Nodo* a, Nodo* b) {
     a->prox = b;
     b->prev = a;
 }
 
 extern "C" void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers, SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID) {
-    Nodo *sgte, = la_lista->primero, *anterior = NULL;
+    Nodo *sgte = la_lista->primero;
     while (sgte && sgte->ID < ID)
         sgte = sgte->prox;
         
@@ -90,9 +90,9 @@ extern "C" void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers,
         Nodo* nuevo = (Nodo*) malloc(sizeof(Nodo));
         nuevo->ID = ID;
 	    nuevo->surfaceGen = surfaceGen;
-        nuevo->surfacePers surfacePers;
-	    nuevo->coord_x = coord_x;
-	    nuevo->coord_y = coord_y;
+        nuevo->surfacePers = surfacePers;
+	    nuevo->coord_x = x;
+	    nuevo->coord_y = y;
 	    nuevo->prox = NULL;
 	    nuevo->prev = NULL;
 	    
@@ -105,10 +105,10 @@ extern "C" void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers,
 
 
 extern "C" void borrar(Lista* la_lista, Uint32 x, Uint32 y) {
-    Nodo *sgte, = la_lista->primero, *proximo = NULL;
+    Nodo *sgte = la_lista->primero, *proximo = NULL;
     while (sgte) {
         proximo = sgte->prox;
-        if ( abs(sgnt->coord_x - x) < 50 && abs(sgnt->coord_y - y) < 50 ) {
+        if ( abs(sgte->coord_x - x) < 50 && abs(sgte->coord_y - y) < 50 ) {
             if (sgte->prev == NULL) { 
                 la_lista->primero = sgte->prox;
                 if (sgte->prox != NULL) sgte->prox->prev = NULL;
@@ -166,17 +166,17 @@ extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia
 // Cambia el color off en una imagen por el color del Fondo
 ////
 extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
-    Color* comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
-    pos_buff = (Color*) image;
+    Color *comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
+    *pos_buff = (Color*) image;
     int basura = (w * 3) % 4;
     
-    for (int i = 0; i < h; i++) {
-        Color *final = comienzo + w, *actual = comienzo;
-        for (int j = 0; j < w; j++, actual++, pos_buff++) {
-        if (color_igual(*pix,rgb))
+    for (Uint32 i = 0; i < h; i++) {
+        Color *actual = comienzo;
+        for (Uint32 j = 0; j < w; j++, actual++, pos_buff++) {
+        if (color_igual(actual,&rgb))
             copiar_color(pos_buff,actual);
         }
-        pos_buff = (Color*) ((int) pos_buff + basura);
+        pos_buff = (Color*) ((Uint32) pos_buff + basura);
         comienzo += SCREEN_WIDTH;
     }        
 }
