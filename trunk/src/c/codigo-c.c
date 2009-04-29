@@ -8,8 +8,14 @@
 extern int g_ver0, g_ver1, g_hor0, g_hor1, colores[512];
 extern Color* screen_pixeles;
 
-bool color_igual(Color* a ,Color* b) {
+bool color_igual(Color* a ,Color* b) { //*a == *b
     return a->r == b->r && a->g == b->g && a->b == b->b;
+}
+
+void copiar_color (Color* a ,Color* b) { //*a = *b
+    a->r = b ->r;
+    a->g = b ->g;
+    a->b = b ->b;
 }
 
 extern "C" void generarPlasma (Color rgb)
@@ -60,21 +66,11 @@ extern "C" Lista* constructor_lista() {
     return res;
 }
 
-//extern "C" void inicializar_nodo(Nodo* nuevo, SDL_Surface *surfacePers, SDL_Surface *surfaceGen, Uint32 x, Uint32 y, Uint32 ID) { 
-    nuevo->ID = ID;
-	nuevo->surfaceGen = surfaceGen;
-    nuevo->surfacePers surfacePers;
-	nuevo->coord_x = coord_x;
-	nuevo->coord_y = coord_y;
-	nuevo->prox = NULL;
-	nuevo->prev = NULL;
-//}
-
 extern "C" bool verificar_id (Lista* la_lista, Uint32 id) {
     Nodo* sgte = la_lista->primero;
     while (sgte) {
         Nodo* prox = sgte->prox; 
-        if sgte->ID == id then return false;
+        if (sgte->ID == id) return false;
         sgte = prox;
     }
     return true;
@@ -170,15 +166,18 @@ extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia
 // Cambia el color off en una imagen por el color del Fondo
 ////
 extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
-    int comienzo = ((SCREEN_WIDTH * 3) * y) + x * 3 + (int) screen_pixeles;
+    Color* comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
+    pos_buff = (Color*) image;
+    int basura = (w * 3) % 4;
+    
     for (int i = 0; i < h; i++) {
-        int final = comienzo + (w*3);
-        for (int j = comienzo, int b = 0; j < final; b++,j+=3) {
-        Color* pix = (Color*) j;
+        Color *final = comienzo + w, *actual = comienzo;
+        for (int j = 0; j < w; j++, actual++, pos_buff++) {
         if (color_igual(*pix,rgb))
-            ((Color*)image)[i * h + b] = *pix;
+            copiar_color(pos_buff,actual);
         }
-        comienzo += (SCREEN_WIDTH * 3);
+        pos_buff = (Color*) ((int) pos_buff + basura);
+        comienzo += SCREEN_WIDTH;
     }        
 }
 
