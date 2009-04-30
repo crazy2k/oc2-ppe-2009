@@ -22,7 +22,7 @@ Uint32 calcular_basura (Uint32 ancho) {
 	return (ancho * 3) % 4;
 }
 
-Color* acomodar_arreglo (Color* arr, Uint32 basura) {
+Color* ajustar_arreglo (Color* arr, Uint32 basura) {
 	return (Color*) ((Uint32) arr + basura);
 }
 
@@ -73,15 +73,33 @@ extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint
 /////
 // Recorta de una tira de Sprites uno en particular
 /////
-//extern void recortar(Uint8 *imagen, Uint32 instancia, Uint32 ancho_instancia, Uint32 w, Uint32 h, Uint8 *res, bool dir);
-extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
- //recortar(item(iter)->surfaceGen->pixels, ciclo%24, item(iter)->surfacePers->w, item(iter)->surfaceGen->w, item(iter)->surfaceGen->h, item(iter)->surfacePers->pixels, true);
+
+extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion) {
+    Color *pos_sprite = ((Color*) sprite) + (instancia * ancho_instancia),
+    *pos_res = (Color*) res;
+    int basura_sprite = calcular_basura(ancho_sprite), 
+    	basura_instancia = calcular_basura(ancho_instancia),
+    	sentido = 1, defasaje = 0;
+    if (orientacion) {
+    	sentido = -1;
+    	defasaje = ancho_instancia -1;
+    }
+	for (Uint32 i = 0; i < alto_sprite; i++) {
+		Color* comienzo = pos_sprite;
+		pos_sprite += defasaje;
+		for (Uint32 j = 0; i < ancho_instancia; j++, pos_sprite+=sentido, pos_res++) {
+			copiar_color(pos_res,pos_sprite);			
+		}
+		pos_sprite = ajustar_arreglo(comienzo + ancho_sprite,basura_sprite)
+		pos_res = ajustar_arreglo(pos_res,basura_instancia);
+	}
+}
 
 /////
 // Cambia el color off en una imagen por el color del Fondo
 ////
 extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
-    Color *comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
+    Color *comienzo = screen_pixeles + SCREEN_WIDTH + x,
     *pos_buff = (Color*) image;
     int basura = calcular_basura(w);
     
@@ -91,7 +109,7 @@ extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color
         if (color_igual(actual,&rgb))
             copiar_color(pos_buff,actual);
         }
-        pos_buff = acomodar_arreglo(pos_buff,basura);
+        pos_buff = ajustar_arreglo(pos_buff,basura);
         comienzo += SCREEN_WIDTH;
     }        
 }
@@ -187,5 +205,6 @@ extern "C" bool hay_proximo(Iterador *iter){
 
 extern "C" void liberar_iterador(Iterador *iter) {
     free(iter);
-}
+}
+
 
