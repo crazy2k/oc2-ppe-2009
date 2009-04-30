@@ -744,6 +744,12 @@ n así lo indica, la figura recortada se mostrará orientada hacia el lado
 \end_layout
 
 \begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/recortar.asm
+\end_layout
+
+\begin_layout Standard
 Pseudocódigo:
 \end_layout
 
@@ -974,6 +980,12 @@ rgb
 \end_layout
 
 \begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/blit.asm
+\end_layout
+
+\begin_layout Standard
 Pseudocódigo:
 \end_layout
 
@@ -1159,6 +1171,12 @@ screenAbsPos
 \end_layout
 
 \begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/generarFondo.asm
+\end_layout
+
+\begin_layout Standard
 Pseudocódigo:
 \end_layout
 
@@ -1305,6 +1323,12 @@ rgb
 \family default
  es el color del que estarán pintados los pixeles que serán reemplazados
  por el efecto de plasma
+\end_layout
+
+\begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/generarPlasma.asm
 \end_layout
 
 \begin_layout Standard
@@ -1706,7 +1730,7 @@ overhead
 Todas las funciones que atañen a la lista se encuentran en el mismo archivo,
  
 \family typewriter
-funciones_lista.asm
+src/asm/funciones_lista.asm
 \family default
 .
 \end_layout
@@ -2199,7 +2223,7 @@ void liberar_iterador(Iterador *iter);
 \begin_layout Standard
 Todas estas funciones se hallan en el archivo 
 \family typewriter
-funciones_iterador.asm
+src/asm/funciones_iterador.asm
 \family default
 .
 \end_layout
