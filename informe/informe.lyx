@@ -298,10 +298,10 @@ assembly
 \emph default
 
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
-Se optó por el ensamblador nasm, y se escribió el código en el lenguaje
+Se optó por el ensamblador NASM, y se escribió el código en el lenguaje
  que este soporta.
 \end_layout
 
@@ -616,11 +616,41 @@ ncias de distintos colores (en nuestro caso, mayormente verde azul y negro)
  agrandándose, achicándose y trasladándose a lo largo de la pantalla.
 \end_layout
 
+\begin_layout Subsection
+La lista y el iterador
+\end_layout
+
 \begin_layout Standard
-\begin_inset Box Framed
+Para disponer de personajes estáticos (que no se trasladan) en la escena
+ que, a su vez, pueden desaparecer de ella (por ejemplo, al ser atacados
+ por nuestro personaje principal), puede disponerse de una lista que los
+ contenga, de manera que pueda eliminárselos de ella en caso de necesitarlo.
+\end_layout
+
+\begin_layout Standard
+Para recorrerla con facilidad, se construyó también un iterador muy simple
+ que permite atravaserla.
+\end_layout
+
+\begin_layout Section
+Desarrollo
+\end_layout
+
+\begin_layout Subsection
+Funciones desarrolladas
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+recortar
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
 position "t"
 hor_pos "c"
-has_inner_box 0
+has_inner_box 1
 inner_pos "t"
 use_parbox 0
 width "100col%"
@@ -630,60 +660,114 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-Llegué hasta acá retocando el informe.
- (Pablo A.)
+
+\family typewriter
+void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32
+ ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
 \end_layout
 
 \end_inset
 
-\SpecialChar \ldots{}
 
-\end_layout
-
-\begin_layout Section
-Desarrollo
-\end_layout
-
-\begin_layout Subsection
-Basura en los bitmaps
 \end_layout
 
 \begin_layout Standard
-El formato de los bitmaps que utilizamos alineaba cada fila de pixeles a
- un múltiplo de 32 bits.
- Esto quiere decir que, cuando la fila de pixeles no ocupaba un múltiplo
- de 32 bits, el bitmap contenía, luego de los datos correspondientes a los
- colores de los pixeles, datos 
-\begin_inset Quotes eld
+\begin_inset VSpace defskip
 \end_inset
 
-basura
-\begin_inset Quotes erd
-\end_inset
 
- para llevar la fila a un múltiplo de 32 bits.
 \end_layout
 
 \begin_layout Standard
-En cada una de las funciones que se ocupaban de leer o bien de escribir
- en los bitmaps cargados en memoria, tuvimos que tener en cuenta esto.
- Como el direccionamiento en la arquitectura que utilizamos es a byte, tuvimos
- que prestar atención al hecho de que cada fila de pixeles tendría que empezar
- en una dirección múltiplo de 4.
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+sprite
+\family default
+ es un puntero a la imagen que contiene el sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+instancia
+\family default
+ es el número correspondiente a la figura que se quiere obtener recortando
+ del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+ancho_instancia
+\family default
+ es el ancho de cada una de las instancias (figuras) en el sprite (asumimos
+ que todas las instancias tienen un mismo ancho)
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+ancho_sprite
+\family default
+ es el ancho de la imagen del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+alto_sprite
+\family default
+ es la altura de la imagen del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+res
+\family default
+ es un puntero a un espacio en memoria reservado para depositar la imagen
+ recortada
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+orientacion
+\family default
+ indica la orientación que tendrá la imagen recortada (si el valor de orientació
+n así lo indica, la figura recortada se mostrará orientada hacia el lado
+ contrario al que aparece en el sprite)
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+blit
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+
+\family typewriter
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-* Los BMP
-\end_layout
 
-\begin_layout Plain Layout
-Notamos que este tipo de archivos a veces su longitud no es múltiplo de
- cuatro, entonces encontramos bytes con "basura", este comportamiento lo
- encapsulamos en una macro para que el código assembrer sea más legible.
+\family typewriter
+void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb);
 \end_layout
 
 \end_inset
@@ -691,7 +775,64 @@ Notamos que este tipo de archivos a veces su longitud no es múltiplo de
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+image
+\family default
+ es un puntero a la imagen que se desea tratar
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+w
+\family default
+ es el ancho de la imagen
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+h
+\family default
+ es la altura de la imagen
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+x
+\family default
+ e 
+\family typewriter
+y
+\family default
+ son las coordenadas de la posición en la pantalla a partir de la cual se
+ obtendrán los datos para reemplazar en la imagen
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+rgb
+\family default
+ representa al color-off, es decir, el color en el que están pintados en
+ la imagen los pixeles a ser reemplazados
+\end_layout
+
+\begin_layout Subsubsection
 Función 
 \family typewriter
 generarFondo
@@ -769,13 +910,15 @@ screenAbsPos
  del fondo a partir de la cual se quiere comenzar a dibujar
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Función 
 \family typewriter
-recortar
+generarPlasma
 \end_layout
 
 \begin_layout Standard
+
+\family typewriter
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"
@@ -791,10 +934,16 @@ status open
 \begin_layout Plain Layout
 
 \family typewriter
-void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32
- ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
+void generarPlasma(Color rgb)
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
 \end_inset
 
 
@@ -807,633 +956,794 @@ Parámetros:
 \begin_layout Itemize
 
 \family typewriter
-sprite
+rgb
 \family default
- es un puntero a la imagen que contiene el sprite
+ es el color del que estarán pintados los pixeles que serán reemplazados
+ por el efecto de plasma
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Subsubsection
+Lista
+\end_layout
 
+\begin_layout Standard
+La lista consta de dos estructuras muy simples:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+struct Nodo {
+\end_layout
+
+\begin_layout Plain Layout
+
+	Uint64  ID;
+\end_layout
+
+\begin_layout Plain Layout
+
+	SDL_Surface *surfaceGen;
+\end_layout
+
+\begin_layout Plain Layout
+
+	SDL_Surface *surfacePers;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Uint32 coord_x;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Uint32 coord_y;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Nodo* prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+	Nodo* prev;
+\end_layout
+
+\begin_layout Plain Layout
+
+};
+\end_layout
+
+\begin_layout Plain Layout
+
+struct Lista {
+\end_layout
+
+\begin_layout Plain Layout
+
+	Nodo* primero;
+\end_layout
+
+\begin_layout Plain Layout
+
+}; 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La idea es que las variables del tipo 
 \family typewriter
-instancia
+Lista
 \family default
- es el número correspondiente a la figura que se quiere obtener recortando
- del sprite
-\end_layout
-
-\begin_layout Itemize
-
+ sólo contengan un puntero al primer elemento de la lista.
+ Los nodos se encuentran doblemente enlazados (cada nodo tiene una referencia
+ al nodo previo y al nodo próximo).
+ El puntero al nodo previo del primer elemento debe apuntar a 
 \family typewriter
-ancho_instancia
+NULL
 \family default
- es el ancho de cada una de las instancias (figuras) en el sprite (asumimos
- que todas las instancias tienen un mismo ancho)
+, lo mismo que el puntero al próximo del último.
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Standard
+Se pedían las siguientes funciones:
+\end_layout
 
+\begin_layout Standard
+\begin_inset listings
+lstparams "breaklines=true,language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Lista* constructor_lista();
+\end_layout
+
+\begin_layout Plain Layout
+
+void inicializar_nodo(Nodo* nuevo, SDL_Surface *surfacePers, SDL_Surface
+ *surfaceGen, Uint32 x, Uint32 y, Uint32 ID);
+\end_layout
+
+\begin_layout Plain Layout
+
+bool verificar_id (Lista* la_lista, Uint32 id);
+\end_layout
+
+\begin_layout Plain Layout
+
+void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers, SDL_Surfac
+e* surfaceGen, Uint32 x, Uint32 y, Uint32 ID);
+\end_layout
+
+\begin_layout Plain Layout
+
+void borrar(Lista* la_lista, Uint32 x, Uint32 y);
+\end_layout
+
+\begin_layout Plain Layout
+
+void liberar_lista(Lista* l); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Las construimos a todas, con la excepción de 
 \family typewriter
-ancho_sprite
+inicializar_nodo
 \family default
- es el ancho de la imagen del sprite
-\end_layout
-
-\begin_layout Itemize
-
+ que era opcional.
+ Pudimos haberla usado en la función 
 \family typewriter
-alto_sprite
+agregar_item_ordenado
 \family default
- es la altura de la imagen del sprite
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-res
-\family default
- es un puntero a un espacio en memoria reservado para depositar la imagen
- recortada
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-orientacion
-\family default
- indica la orientación que tendrá la imagen recortada (si el valor de orientació
-n así lo indica, la figura recortada se mostrará orientada hacia el lado
- contrario al que aparece en el sprite)
+, pero decidimos no hacerlo; nos pareció que agregaría un 
+\emph on
+overhead
+\emph default
+ innecesario.
 \end_layout
 
 \begin_layout Standard
-*Mirando un poco nuestro Código:* (vamos a destacar algunas partes, ya que
- el código está comentado, y adjuntado junto a este informe.)
-\end_layout
-
-\begin_layout Standard
-En principio ponemos en la pila los parámetros de la función.
- Por ejemplo el primer parámetro lo tenemos en:
-\end_layout
-
-\begin_layout Standard
-_%define ptrSprite `[`ebp+8`]`_
-\end_layout
-
-\begin_layout Standard
-Y así con los demás sabiendo que son de 32 bits.
- El %define es para legibilidad en el código, así en vez de llamar a [ebp+8]
- usamos un nombre más amigable como ptrSprite.
- También definimos las variables locales, por convención en la pila las
- colocamos alrevez.
- Ejemplo:
-\end_layout
-
-\begin_layout Standard
-%define ancho_sprite_bytes [ebp-4]
-\end_layout
-
-\begin_layout Standard
-Luego comienza nuestra función: (la función entera se puede ver en el archivo
- recortar.asm, no parece interesante copiar el código entero, pero allí está
- la funcionalidad comentada.
- ) global recortar recortar:
-\end_layout
-
-\begin_layout Standard
-entrada_funcion 12 <---- cantidad de parámetros
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
-\end_layout
-
-\begin_layout Standard
-calcular_pixels ebx,ancho_instancia ;ebx: ancho de la instancia sobre el
- sprite en ;pixeles (sin la basura)
-\end_layout
-
-\begin_layout Standard
-calcular_basura eax, ebx ;basura para la instancia
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
- sub ebx, 03h ;cantidad de bytes para avanzar del primer al ultimo pixel
- de una 
-\end_layout
-
-\begin_layout Standard
-fila Esto es para explicar la razon de hacer sub con 03h, recordar (rgb)
- En el ciclo, donde voy a ir copiado los bytes de cada fila de la instancia,
- muevo hacia un *registro de 8 bits*, en este caso *bl (parte baja)* y luego
- avanzo de a 1 para moverme hacia el otro pixel.
- Y termino el ciclo cuando el contador de hace cero, usando la instrucción
- *loopne*.
- Por último, la iteración se hace pasando por todas las filas (pensando
- el sprite como una matriz, aunque sabemos que realmente es una tira de
- bytes.) salida_funcion 12 <---- tiene la restauración de la pila, y también
- la convención C.
-\end_layout
-
-\begin_layout Standard
-*2.3.
- Blit*
-\end_layout
-
-\begin_layout Standard
-*void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb);*
-\end_layout
-
-\begin_layout Standard
-Esta función es la encargada de solapar un Sprite sobre el fondo de manera
- de que solo se vea el dibujo y no el color-off.
- Lo primero que hacemos al trabajar con este tipo de imágenes es calcularle
- la "basura", y multiplicamos por 3 recordando que estamos con RGB.
- Como parámetros tenemos el puntero a la imágen, el color-off de la misma,
- las dimensiones y las coordenadas donde aparece.
- Por otro lado estamos necesitando acceder a la pantalla, y esto lo hacemos
- accediendo.
-\end_layout
-
-\begin_layout Standard
-extern screen_pixeles <--- esta variable se encuentra en el main, al ser
- una variable externa a este archivo la llamo de este modo.
-\end_layout
-
-\begin_layout Standard
-*Blit:*
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
-\end_layout
-
-\begin_layout Standard
-mov edi, ptrSprite 
-\end_layout
-
-\begin_layout Standard
-edi apunta todo el tiempo a la posicion dentro de sprite, en esta función
- se necesitan dos punteros, uno que apunte al sprite y otro que apunte al
- fondo (al escenario) 
-\end_layout
-
-\begin_layout Standard
-mov edx, SCREEN_W*3 cargamos el ancho de la pantalla en edx y lo multiplicamos
- por 3 como debemos hacer en todos los casos.
-\end_layout
-
-\begin_layout Standard
-calcular_basura ebx,edx (calculo de la basura en ebx)
-\end_layout
-
-\begin_layout Standard
-add edx, ebx (sumamos el valor de la basura al registro edx)
-\end_layout
-
-\begin_layout Standard
-mov ancho_screen_bytes,edx
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
- mov esi, `[`screen_pixeles `]` Acá es donde cargo el puntero a pantalla.
- Y luego cargamos las coordenadas...
+Todas las funciones que atañen a la lista se encuentran en el mismo archivo,
  
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
- Una nueva_fila (la misma idea que en recortar, pensando el sprite como
- una matriz) mov ecx, anchoSprite
-\end_layout
-
-\begin_layout Standard
-Y el ciclo no es más que intercambiar los bytes que tienen el color-off
- de nuestra imagen por los del fondo, también utilizando *registros de 8
- bits* para RGB.
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
-\end_layout
-
-\begin_layout Standard
-finBlit:
-\end_layout
-
-\begin_layout Standard
-salida_funcion 16 <--- idem recortar, restaura la pila como estaba al principio
- y los registros que se pushean por convención del lenguaje C.
-\end_layout
-
-\begin_layout Standard
-2.4.
- Generar Plasma
-\end_layout
-
-\begin_layout Standard
+\family typewriter
+funciones_lista.asm
+\family default
 .
 \end_layout
 
+\begin_layout Subsubsection
+Iterador
+\end_layout
+
 \begin_layout Standard
+La estructura del iterador es la siguiente:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+struct Iterador {
+\end_layout
+
+\begin_layout Plain Layout
+
+	Nodo *actual;
+\end_layout
+
+\begin_layout Plain Layout
+
+}; 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La idea es que el puntero del iterador se encuentre siempre apuntando a
+ un nodo (el nodo actual) de la lista que recorre.
+ A continuación, las funciones correspondientes al iterador pedidas:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "breaklines=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Iterador *iterador_lista;
+\end_layout
+
+\begin_layout Plain Layout
+
+Iterador* constructor_iterador(Lista *lista);
+\end_layout
+
+\begin_layout Plain Layout
+
+void proximo(Iterador *iter);
+\end_layout
+
+\begin_layout Plain Layout
+
+Nodo* item(Iterador *iter);
+\end_layout
+
+\begin_layout Plain Layout
+
+bool hay_proximo(Iterador *iter);
+\end_layout
+
+\begin_layout Plain Layout
+
+void liberar_iterador(Iterador *iter); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Todas estas funciones se hallan en el archivo 
+\family typewriter
+funciones_iterador.asm
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+Basura en los bitmaps
+\end_layout
+
+\begin_layout Standard
+El formato de los bitmaps que utilizamos alineaba cada fila de pixeles a
+ un múltiplo de 32 bits.
+ Esto quiere decir que, cuando la fila de pixeles no ocupaba un múltiplo
+ de 32 bits, el bitmap contenía, luego de los datos correspondientes a los
+ colores de los pixeles, datos 
+\begin_inset Quotes eld
+\end_inset
+
+basura
+\begin_inset Quotes erd
+\end_inset
+
+ para llevar la fila a un múltiplo de 32 bits.
+\end_layout
+
+\begin_layout Standard
+En cada una de las funciones que se ocupaban de leer o bien de escribir
+ en los bitmaps cargados en memoria, tuvimos que tener en cuenta esto.
+ Como el direccionamiento en la arquitectura que utilizamos es a byte, tuvimos
+ que prestar atención al hecho de que cada fila de pixeles tendría que empezar
+ en una dirección múltiplo de 4.
+\end_layout
+
+\begin_layout Subsection
+Manejo de la pila (
+\family typewriter
+entrada_funcion
+\family default
+ y 
+\family typewriter
+salida_funcion
+\family default
+)
+\end_layout
+
+\begin_layout Standard
+Al arribar a la función, en la pila (
+\emph on
+stack
+\emph default
+) se encuentran los parámetros pasados y, a continuación y en el tope, la
+ dirección de retorno a la cual deberá volverse luego de la ejecución de
+ la función.
+ Ese es el momento en el cual debe armarse el 
+\family typewriter
+stack frame
+\family default
+ de la función.
+ Para hacerlo, precisamos lo siguiente:
+\end_layout
+
+\begin_layout Enumerate
+mover el puntero a la base de la pila (
+\family typewriter
+ebp
+\family default
+) al tope de esta
+\end_layout
+
+\begin_layout Enumerate
+de ser necesario, puede reservarse espacio en la pila para almacenar variables/d
+atos locales (es decir, que sólo interesan a la función); para esto, sólo
+ basta decrementar el puntero al tope de la pila tantas veces como palabras
+ de 32 bits se quieran reservar
+\end_layout
+
+\begin_layout Standard
+Además, como la convención C asegura que los registros 
+\family typewriter
+edi
+\family default
+, 
+\family typewriter
+esi
+\family default
+ y 
+\family typewriter
+ebx
+\family default
+ deben mantenerse en sus valores iniciales al momento del retorno, es una
+ práctica común (que también adoptamos) enviarlos al tope de la pila.
+\end_layout
+
+\begin_layout Standard
+Como debíamos realizar esta tarea en la gran mayoría de las funciones, nos
+ fue útil construirnos una macro 
+\family typewriter
+entrada_funcion
+\family default
+ y su contrapartida 
+\family typewriter
+salida_funcion
+\family default
+, encargadas de realizar las tareas mencionadas (la primera) y de dejar
+ el stack en el estado inicial (la segunda).
+\end_layout
+
+\begin_layout Standard
+A continuación el código correspondiente a las macros mencionadas:
+\end_layout
+
+\begin_layout Standard
+Dado que, como mencionamos, la mayoría de las funciones recibían parámetros,
+ nos fue útil la creación de una macro llamada 
+\family typewriter
+entrada_funcion 
+\family default
+y su contrapartida
+\family typewriter
+ salida_funcion
+\family default
+.
+ A continuación, las macros mencionadas:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+%macro entrada_funcion 1
+\end_layout
+
+\begin_layout Plain Layout
+
+	push ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov ebp, esp
+\end_layout
+
+\begin_layout Plain Layout
+
+	%if %1 <> 0
+\end_layout
+
+\begin_layout Plain Layout
+
+	sub esp, %1
+\end_layout
+
+\begin_layout Plain Layout
+
+	%endif
+\end_layout
+
+\begin_layout Plain Layout
+
+	push edi
+\end_layout
+
+\begin_layout Plain Layout
+
+	push esi
+\end_layout
+
+\begin_layout Plain Layout
+
+	push ebx
+\end_layout
+
+\begin_layout Plain Layout
+
+%endmacro
+\end_layout
+
+\begin_layout Plain Layout
+
+%macro salida_funcion 1
+\end_layout
+
+\begin_layout Plain Layout
+
+	pop ebx
+\end_layout
+
+\begin_layout Plain Layout
+
+	pop esi
+\end_layout
+
+\begin_layout Plain Layout
+
+	pop edi
+\end_layout
+
+\begin_layout Plain Layout
+
+	%if %1 <> 0
+\end_layout
+
+\begin_layout Plain Layout
+
+	add esp, %1
+\end_layout
+
+\begin_layout Plain Layout
+
+	%endif
+\end_layout
+
+\begin_layout Plain Layout
+
+	pop ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+    ret
+\end_layout
+
+\begin_layout Plain Layout
+
+%endmacro 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Recepción de parámetros
+\end_layout
+
+\begin_layout Standard
+La mayoría de las funciones que tuvimos que construir recibían parámetros.
+ Estos parámetros, en su mayoría, eran pasados a través de la pila.
+ Como las funciones eran utilizadas desde C/C++, debió seguirse la convención
+ de C para el pasaje (y la recepción) de parámetros.
+ Dicha convención dice que los parámetros que recibirá la función se introducen
+ en la pila uno a uno, desde el último al primero, es decir, de derecha
+ a izquierda.
+\end_layout
+
+\begin_layout Standard
+Para mejorar la legibilidad de nuestro código, en todas las funciones que
+ recibían parámetros, definimos algunas constantes con nombres declarativos
+ para cada uno de los parámetros, los cuales referenciamos usando la base
+ de la pila (
+\family typewriter
+ebp
+\family default
+).
+\end_layout
+
+\begin_layout Standard
+Por ejemplo, para el caso de la función 
+\family typewriter
+generarFondo
+\family default
+, cuya firma era
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32
+ screenAbsPos);
+\end_layout
+
+\begin_layout Standard
+definimos las siguientes constantes:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "breaklines=true,language={[x86masm]Assembler}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+%define fondo [ebp + 8]
+\end_layout
+
+\begin_layout Plain Layout
+
+%define fondo_w [ebp + 12]
+\end_layout
+
+\begin_layout Plain Layout
+
+%define fondo_h [ebp + 16]
+\end_layout
+
+\begin_layout Plain Layout
+
+%define coord [ebp + 20] 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Reserva y liberación de memoria (
+\family typewriter
+malloc
+\family default
+ y 
+\family typewriter
+free
+\family default
+)
+\end_layout
+
+\begin_layout Standard
+En algunas funciones, como es el caso de los constructores (y destructores)
+ del iterador y de la lista, teníamos que reservar (y liberar) memoria en
+ el 
+\emph on
+heap
+\emph default
+.
+ Para esto, utilizamos las funciones de C 
+\family typewriter
+malloc
+\family default
+ y 
+\family typewriter
+free
+\family default
 .
 \end_layout
 
 \begin_layout Standard
+Siguiendo la convención de C, pasamos los parámetros a estas funciones a
+ través de la pila.
+ En el caso de 
+\family typewriter
+malloc
+\family default
+ tuvimos que pasar el número de bytes a reservar, y en el caso de 
+\family typewriter
+free
+\family default
+ la dirección de memoria del espacio a liberar.
+\end_layout
+
+\begin_layout Standard
+Ambas funciones, también siguiendo la convención de C, retornaban valores
+ a través del registro 
+\family typewriter
+eax
+\family default
+.
+ 
+\family typewriter
+malloc
+\family default
+ retornaba la dirección de memoria en la cual se ubicaba el espacio reservado
+ (o cero, en el caso de no haber podido reservar memoria) y 
+\family typewriter
+free
+\family default
+ retornaba si la liberación había sido exitosa.
+\end_layout
+
+\begin_layout Subsection
+Acceso a variables globales
+\end_layout
+
+\begin_layout Standard
+Algunas de nuestras funciones requerían acceder a variables globales (como,
+ por ejemplo, la matriz de pixeles correspondiente a la pantalla), declaradas
+ en el programa en C++.
+ Para acceder a dichas variables, no hizo falta más que utilizar 
+\family typewriter
+extern variable
+\family default
+ (siendo 
+\family typewriter
+variable
+\family default
+ una variable global) en alguna parte de nuestros archivos de assembly.
+\end_layout
+
+\begin_layout Standard
+El símbolo 
+\family typewriter
+variable
+\family default
+ debió utilizarse luego como una dirección de memoria: la dirección que
+ apunta a la variable.
+ En otras palabras, utilizando 
+\family typewriter
+extern
+\family default
+ contábamos con un puntero a la variable en memoria.
+\end_layout
+
+\begin_layout Section
+Resultados
+\end_layout
+
+\begin_layout Subsection
+
+\emph on
+Debugging
+\end_layout
+
+\begin_layout Standard
+Los programas enfocados al 
+\emph on
+debugging
+\emph default
+ son herramientas muy importantes, especialmente para el programador de
+ lenguajes de bajo nivel.
+ En nuestro caso, nos sirvieron para encontrar errores en nuestro código
+ y entender por qué al principio muchas de nuestras funciones no arrojaban
+ los resultados esperados.
+\end_layout
+
+\begin_layout Standard
+Los programas que más nos ayudaron en esta tarea fueron:
+\end_layout
+
+\begin_layout Itemize
+gdb (y sus frontends: ddd, Nemiver)
+\end_layout
+
+\begin_layout Itemize
+valgrind
+\end_layout
+
+\begin_layout Subsection
+El problema de la basura en los bitmaps
+\end_layout
+
+\begin_layout Standard
+En un principio, no sabíamos con certidumbre cómo era el formato de bitmaps
+ con el que estábamos trabajando.
+ No todos los formatos de bitmaps son alineados a 32 bits, como este.
+\end_layout
+
+\begin_layout Standard
+Al realizar las funciones sin pensar siquiera en la basura, encontrábamos
+ resultados extraños: en 
+\family typewriter
+generarFondo
+\family default
+, por ejemplo, obteníamos imágenes torcidas/inclinadas.
+\end_layout
+
+\begin_layout Standard
+Este fue un problema en el cual el 
+\emph on
+debugger
+\emph default
+ poco podía hacer: la cantidad de datos, en este caso los pixeles de las
+ imágenes, era muy extensa y variada, y además analizar un mapa de la memoria
+ no es tan fácil como observar el cambio de los valores de los registros.
+\end_layout
+
+\begin_layout Section
+Conclusiones
+\end_layout
+
+\begin_layout Standard
+A partir de la realización de este trabajo práctico sacamos varias conclusiones:
+\end_layout
+
+\begin_layout Itemize
+Escribir funciones que parecen muy simples y fáciles de construir en un
+ lenguaje de alto nivel, puede tornarse una 
+\emph on
+tarea muy compleja
+\emph default
+ en un lenguaje de bajo nivel como el que manejamos.
+\end_layout
+
+\begin_layout Itemize
+Por fortuna, existen herramientas para facilitarnos las cosas, como los
+ 
+\emph on
+debuggers
+\emph default
 .
 \end_layout
 
-\begin_layout Standard
-2.5.
- Lista
-\end_layout
-
-\begin_layout Standard
-La lista se utilizará para el personaje de “Gambito” que también aparecerá
- dentro de los escenarios en alguna posición en particular, y este personaje
- no va a tener el efecto de caminar, solo se aparecerá parado con un leve
- movimiento.
- Para ello se utilizará la lista, esta se consulta constantemente en cada
- Frame del juego para saber que se debe dibujar en pantalla.
-\end_layout
-
-\begin_layout Standard
-Inicializar_nodo es opcional.
- En nuestro caso, podriamos haberla usado en agregar_item_ordenado pero
- no lo hicimos.
-\end_layout
-
-\begin_layout Standard
-Las funciones para la lista las hicimos en el mismo archivo funciones_lista.asm
-\end_layout
-
-\begin_layout Standard
-global inicializar_nodo
-\end_layout
-
-\begin_layout Standard
-global verificar_id
-\end_layout
-
-\begin_layout Standard
-global agregar_item_ordenado
-\end_layout
-
-\begin_layout Standard
-global borrar
-\end_layout
-
-\begin_layout Standard
-global liberar_lista
-\end_layout
-
-\begin_layout Standard
-*Lista* constructor_lista()*
-\end_layout
-
-\begin_layout Standard
-Para el constructor de lista pedimos memoria mediante la instrucción de
- C call malloc
-\end_layout
-
-\begin_layout Standard
-bool verificar_id (Lista* la_lista, Uint32 id)
-\end_layout
-
-\begin_layout Standard
-mov eax, verif_lista (aca tenemos el nodo* primero, porque vamos a tener
- que recorrer)
-\end_layout
-
-\begin_layout Standard
-(y verif_lista está definido arriba del código con un %define)
-\end_layout
-
-\begin_layout Standard
-.
- .
- .
-\end_layout
-
-\begin_layout Standard
-mov ebx, `[`eax`]` ;cargo la parte menos significativa del Id del nodo
-\end_layout
-
-\begin_layout Standard
-mov ecx, `[`eax+4`]` *;porq ID es de 64 bits*
-\end_layout
-
-\begin_layout Standard
-Luego me muevo al prox, y comparo para ver si ya encontré o no.
-\end_layout
-
-\begin_layout Standard
-; void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers,
- SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID);
-\end_layout
-
-\begin_layout Standard
-También requiere *llamar a malloc*.
- Inicializo la estructura del nodo.
- En eax esta todo el tiempo el puntero al nodo nuevo y en ebx esta el puntero
- al nodo actual.
- Tomamos los tres casos: (el ítem que agrego debe ser el primero, o la lista
- está vacía o bien la coord_x es menor al prox.) Si no hay ningun nodo, agregar
- el nuevo (eax) al principio.
-\end_layout
-
-\begin_layout Standard
-(cmp ag_x, ecx) si la coord x del primer nodo es menor a la que me pasaron
- por parametro.
-\end_layout
-
-\begin_layout Standard
-Si el ítem debe ir en el medio.
-\end_layout
-
-\begin_layout Standard
-connect_nodos edx,eax ; pongo el elemento nuevo (eax) despues del nodo actual
- (edx)
-\end_layout
-
-\begin_layout Standard
-connect_nodos eax,ebx ; pongo el elemento nuevo (eax) antes del proximo
- (ebx)
-\end_layout
-
-\begin_layout Standard
-Y si el ítem debe ser el último (en este caso el puntero a prox del nuevo
- ítem debe apuntar a null)
-\end_layout
-
-\begin_layout Standard
-Donde ebx tiene un puntero al ultimo connect_nodos ebx,eax y pongo el elemento
- nuevo (eax) despues del nodo actual (ebx)
-\end_layout
-
-\begin_layout Standard
-_void borrar(Lista* la_lista, Uint32 x, Uint32 y)_
-\end_layout
-
-\begin_layout Standard
-Esta otra función es muy sililar a las anteriores, salvo porque hay que
- recordar liberar la memoria que se utilizó para ese elem.
- Del mismo modo que agregar_item, también actualizo los punteros de los
- items prev y prox, si es que existen (esos casos borde también son examinados
- aparte)
-\end_layout
-
-\begin_layout Standard
-_void liberar_lista(Lista* l)_
-\end_layout
-
-\begin_layout Standard
-Esta función no es muy larga, me gustaría poner la mayor parte del código
- ya que es bastante claro: mov edx, l_lista ; cargo en edx el puntero a
- la lista mov ebx, `[`edx`]` ; cargo en ebx el puntero al primer nodo de
- la lista l_seguir: ; asumo q en ebx esta siempre el puntero al nodo actual
- y en edx el puntero a la lista cmp ebx, 0 jne l_eliminar_elemento reviso
- si la lista esta vacia
-\end_layout
-
-\begin_layout Standard
-mov edx, l_lista ; cargo en edx el puntero a la lista (por si lo perdi)
- push edx call free <--- importante liberar en este caso add esp, 4
-\end_layout
-
-\begin_layout Standard
-salida_funcion 0 <--- recuerda que acá tenemos la convención C y pongo la
- pila como al principio.
-\end_layout
-
-\begin_layout Standard
-Si no esta vacia
-\end_layout
-
-\begin_layout Standard
-; elimino ebx l_eliminar_elemento: mov esi, `[`ebx + prox`]` push ebx call
- free <--- importante liberar en este caso add esp, 4 mov ebx, esi
-\end_layout
-
-\begin_layout Standard
-jmp l_seguir 
-\end_layout
-
-\begin_layout Standard
-Nos pareció que era más claro mostrar el código acá, ya que no es largo
- y fue bastante simple...
-\end_layout
-
-\begin_layout Standard
-*2.6 Iterador*
-\end_layout
-
-\begin_layout Standard
-Igual que con la lista las funciones del iterador las pusimos juntas en
- un mismo archivo “funciones_iterador.asm”
-\end_layout
-
-\begin_layout Standard
-global constructor_iterador
-\end_layout
-
-\begin_layout Standard
-global hay_proximo
-\end_layout
-
-\begin_layout Standard
-global proximo
-\end_layout
-
-\begin_layout Standard
-global item
-\end_layout
-
-\begin_layout Standard
-global liberar_iterador
-\end_layout
-
-\begin_layout Standard
-Iterador* constructor_iterador(Lista *lista) ; los punteros son de 32 bits
-\end_layout
-
-\begin_layout Standard
-mov eax, 4 <--- 4bytes xq es un registro de 32 bits
-\end_layout
-
-\begin_layout Standard
-push eax
-\end_layout
-
-\begin_layout Standard
-call malloc ; parecido a la lista pido memoria al construír (pensánsolo
- en C realmente es la misma idea)
-\end_layout
-
-\begin_layout Standard
-add esp, 4 
-\end_layout
-
-\begin_layout Standard
-cmp eax, 0
-\end_layout
-
-\begin_layout Standard
-; si malloc no me pudo dar memoria (raro que ocurra pero por las dudas si
- eso ocurriera salgo de la función)
-\end_layout
-
-\begin_layout Standard
-je retornar ;salto a salir
-\end_layout
-
-\begin_layout Standard
-mov ebx, const_it_lista ; ebx = direccion que apunta a la Lista
-\end_layout
-
-\begin_layout Standard
-mov ebx, ´[´ebx´]´ ; ebx = direccion que apunta al Nodo
-\end_layout
-
-\begin_layout Standard
-mov ´[´eax´]´, ebx ; En el espacio creado en memoria guardo ; la direccion
- que apunta al nodo.
-\end_layout
-
-\begin_layout Standard
-bool hay_proximo(Iterador *iter)
-\end_layout
-
-\begin_layout Standard
-En realidad un mejor nombre creo que sería hay_actual().
- No parece que valga la pena copiar el código de esta función aunq es muy
- simple.
- La idea es simplemente ver si el nodo actual tiene un siguiente elemento,
- que no apunte a null.
-\end_layout
-
-\begin_layout Standard
-void proximo(Iterador *iter)
-\end_layout
-
-\begin_layout Standard
-entrada_funcion 0
-\end_layout
-
-\begin_layout Standard
-mov eax, prox_pit ; eax = direccion que apunta al Iterador
-\end_layout
-
-\begin_layout Standard
-mov ebx, ´[´eax´]´ ; ebx = direccion que apunta al Nodo actual
-\end_layout
-
-\begin_layout Standard
-mov ebx, ´[´ebx + prox´]´ ; ebx = direccion que apunta al Nodo proximo
-\end_layout
-
-\begin_layout Standard
-cmp ebx, 0
-\end_layout
-
-\begin_layout Standard
-mov ´[´eax´]´, ebx
-\end_layout
-
-\begin_layout Standard
-salida_funcion 0
-\end_layout
-
-\begin_layout Standard
-Nodo* item(Iterador *iter)
-\end_layout
-
-\begin_layout Standard
-Devuelvo la direccion que apunta al Nodo actual, en nuestro caso en el registro
- eax, claramente porq devuelvo un puntero.
-\end_layout
-
-\begin_layout Standard
-void liberar_iterador(Iterador *iter)
-\end_layout
-
-\begin_layout Standard
-%define lib_pit ´[´ebp + 8´]´
-\end_layout
-
-\begin_layout Standard
-liberar_iterador: entrada_funcion 0
-\end_layout
-
-\begin_layout Standard
-mov eax, lib_pit push eax call free add esp, 4
-\end_layout
-
-\begin_layout Standard
-salida_funcion 0
-\end_layout
-
-\begin_layout Standard
-Notar que lo más importante es llamar a free para liberar la memoria pedida.
-\end_layout
-
-\begin_layout Standard
-*Conclusiones*
-\end_layout
-
-\begin_layout Standard
-Además de practicar los conceptos teoricos y la interaccion de assembrer
- con C.
- trabajamos con algunas herramientas de debugger.
- Vimos como se manejan los bytes en memoria bien a bajo nivel.
- Realmente no resultó del todo cómodo escribir en este lenguaje pero es
- un aprendizaje realmente útil.
-\end_layout
-
-\begin_layout Standard
-*Compilar y Ejecutar*
-\end_layout
-
-\begin_layout Standard
-El trabajo práctico fue desarrollado sobre Linux y no es multiplataforma.
- Para compilarlo se pueden usar los comandos *bash compilar_asm.sh* elimina
- todos los .o en ./asm/, y ensambla todos los archivos presentes en ese directorio
- y *bash compilar_cpp.sh* compila el main.cpp y crea el ejecutable linkeando
- con los .o en ./asm.
- El ejecutable que genera se llama "prg" y se encuentra dentro de la carpeta
- src.
-\end_layout
-
-\begin_layout Standard
-*Referencias*
-\end_layout
-
-\begin_layout Standard
-1- Intel R .
+\begin_layout Itemize
+Escribir en 
+\emph on
+assembly
+\emph default
+, si bien es una tarea ardua, resultó ser provechoso, pues nos posibilitó
+ entender qué es lo que se esconde detrás de los lenguajes de alto nivel,
+ de sus abstracciones para el manejo fácil de memoria, de sus sistemas de
+ tipos.
+\end_layout
+
+\begin_layout Section*
+Referencias
+\end_layout
+
+\begin_layout Itemize
+Intel R .
  64 and IA-32 Architectures Software 1: Basic Architecture
 \end_layout
 
-\begin_layout Standard
-2- Intel R.
+\begin_layout Itemize
+Intel R.
  64 and IA-32 Architectures Software 2A: Instruction Set Reference, A-M
 \end_layout
 
-\begin_layout Standard
-3- Intel R.
+\begin_layout Itemize
+Intel R.
  64 and IA-32 Architectures Software 2B: Instruction Set Reference, N-Z
+\end_layout
+
+\begin_layout Itemize
+Información sobre bitmaps: http://en.wikipedia.org/wiki/BMP_file_format
+\end_layout
+
+\begin_layout Itemize
+Documentación del NASM: http://www.nasm.us/doc/ 
 \end_layout
 
 \end_body
