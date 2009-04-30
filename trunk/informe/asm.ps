@@ -1,0 +1,2773 @@
+%!PS-Adobe-3.0
+%%Title: blit.asm, dull_smooth.asm, funciones_iterador.asm, funciones_lista.asm, generarFondo.asm, generarPlasma.asm, recortar.asm
+%%For: Pablo
+%%Creator: a2ps version 4.14
+%%CreationDate: Thu Apr 30 17:40:23 2009
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 10
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontType get 0 eq {
+    currentfont /FontMatrix get 3 get
+  }{
+    currentfont /FontMatrix get 3 get 1000 mul
+  } ifelse
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      % <vector> <key> <val>
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def % -
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Get the underline position and thickness if they're defined.
+    % Use 1 if they are not defined.
+    currentdict /FontInfo 2 copy known
+    { get
+      /UnderlinePosition 2 copy % <FontInfo> /UP <FontInfo> /UP
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+
+      /UnderlineThickness 2 copy % <FontInfo> /UT <FontInfo> /UT
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+      pop % -
+    }{ pop pop
+    } ifelse
+
+    currentdict
+  end 
+} bind def
+
+% composite fonts for ASCII-EUC mixed strings
+% Version 1.2 1/31/1990
+% Original Ken'ichi HANDA (handa@etl.go.jp)
+% Modified Norio Katayama (katayama@rd.nacsis.ac.jp),1998
+% Extend & Fix Koji Nakamaru (maru@on.cs.keio.ac.jp), 1999
+% Anyone can freely copy, modify, distribute this program.
+
+/copyfont {	% font-dic extra-entry-count  copyfont  font-dic
+	1 index maxlength add dict begin
+	{	1 index /FID ne 2 index /UniqueID ne and
+		{def} {pop pop} ifelse
+	} forall
+	currentdict
+	end
+} bind def
+
+/compositefont { % ASCIIFontName EUCFontName RomanScale RomanOffset Rot(T/F) compositefont font
+    /RomanRotation exch def
+    /RomanOffset exch def
+    /RomanScale exch def
+    userdict /fixeucfont_dict known not {
+	userdict begin
+	    /fixeucfont_dict 2 dict begin
+		/UpperByteEncoding [
+		    16#00 1 16#20 { pop 0 } for
+		    16#21 1 16#28 { 16#20 sub } for
+		    16#29 1 16#2F { pop 0 } for
+		    16#30 1 16#74 { 16#27 sub } for
+		    16#75 1 16#FF { pop 0 } for
+		] def
+	        /LowerByteEncoding [
+		    16#00 1 16#A0 { pop /.notdef } for
+		    16#A1 1 16#FE { 16#80 sub 16 2 string cvrs
+				    (cXX) dup 1 4 -1 roll
+				    putinterval cvn } for
+		    /.notdef
+		] def
+		currentdict
+	    end def
+	end
+    } if
+    findfont dup /FontType get 0 eq {
+	14 dict begin
+	    %
+	    % 7+8 bit EUC font
+	    %
+	    12 dict begin
+		/EUCFont exch def
+		/FontInfo (7+8 bit EUC font) readonly def
+		/PaintType 0 def
+		/FontType 0 def
+		/FontMatrix matrix def
+		% /FontName
+		/Encoding fixeucfont_dict /UpperByteEncoding get def
+		/FMapType 2 def
+		EUCFont /WMode known
+		{ EUCFont /WMode get /WMode exch def }
+		{ /WMode 0 def } ifelse
+		/FDepVector [
+		    EUCFont /FDepVector get 0 get
+		    [ 16#21 1 16#28 {} for 16#30 1 16#74 {} for ]
+		    {
+			13 dict begin
+			    /EUCFont EUCFont def
+			    /UpperByte exch 16#80 add def	
+			    % /FontName
+			    /FontInfo (EUC lower byte font) readonly def
+			    /PaintType 0 def
+			    /FontType 3 def
+			    /FontMatrix matrix def
+			    /FontBBox {0 0 0 0} def
+			    /Encoding
+				fixeucfont_dict /LowerByteEncoding get def
+			    % /UniqueID
+			    % /WMode
+			    /BuildChar {
+				gsave
+				exch dup /EUCFont get setfont
+				/UpperByte get
+				2 string
+				dup 0 4 -1 roll put
+				dup 1 4 -1 roll put
+				dup stringwidth setcharwidth
+				0 0 moveto show
+				grestore
+			    } bind def
+			    currentdict
+			end
+			/lowerbytefont exch definefont
+		    } forall
+		] def
+		currentdict
+	    end
+	    /eucfont exch definefont
+	    exch
+	    findfont 1 copyfont dup begin
+		RomanRotation {
+			/FontMatrix FontMatrix
+			[ 0 RomanScale neg RomanScale 0 RomanOffset neg 0 ]
+			matrix concatmatrix def
+		}{
+			/FontMatrix FontMatrix
+			[ RomanScale 0 0 RomanScale 0 RomanOffset ] matrix concatmatrix
+			def
+			/CDevProc
+			    {pop pop pop pop 0 exch -1000 exch 2 div 880} def
+		} ifelse
+	    end
+	    /asciifont exch definefont
+	    exch
+	    /FDepVector [ 4 2 roll ] def
+	    /FontType 0 def
+	    /WMode 0 def
+	    /FMapType 4 def
+	    /FontMatrix matrix def
+	    /Encoding [0 1] def
+	    /FontBBox {0 0 0 0} def
+%	    /FontHeight 1.0 def % XXXX
+	    /FontHeight RomanScale 1.0 ge { RomanScale }{ 1.0 } ifelse def
+	    /Descent -0.3 def   % XXXX
+	    currentdict
+	end
+	/tmpfont exch definefont
+	pop
+	/tmpfont findfont
+    }{
+	pop findfont 0 copyfont
+    } ifelse
+} def	
+
+/slantfont {	% FontName slant-degree  slantfont  font'
+    exch findfont 1 copyfont begin
+    [ 1 0 4 -1 roll 1 0 0 ] FontMatrix exch matrix concatmatrix
+    /FontMatrix exch def
+    currentdict
+    end
+} def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.493857 def
+/cw 4.496314 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 81.400000 mul
+def
+/ph
+   522.321860 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 0 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1-2) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(;void blit\(Uint8 *sprite, Uint32 ancho, Uint32 alto, Uint x, Uint y, Color color) C n
+(-off\)) N
+() p n
+(%include ') S
+(asm/macros_globales.inc) str
+(') p n
+(%include ') S
+(asm/macros_pixels.inc) str
+(') p n
+(  ) N
+(%define ptrSprite       [ebp+8]) N
+(%define anchoSprite     [ebp+12]) N
+(%define altoSprite      [ebp+16]) N
+(%define coord_x         [ebp+20]) N
+(%define coord_y         [ebp+24]) N
+(%define color_off       [ebp+28]) N
+() N
+(%define ancho_screen_bytes [ebp-4]) N
+(%define ancho_sprite_bytes [ebp-8]) N
+(%define basura_sprite [ebp-12]) N
+(%define final  [ebp-16]) N
+(    ) N
+(extern screen_pixeles) N
+() N
+(global) K
+( blit) p n
+() N
+(blit:) N
+(entrada_funcion 16) N
+(     ) N
+(completo:) N
+(      ) N
+(    ) S
+(mov) k
+( edi, ptrSprite                      ) p
+(;edi apunta todo el tiempo a la posi) c n
+(cion dentro de sprite) N
+(    ) p n
+(    ) S
+(;esi <-- coord_y*\(3*SCREEN_W + basura\) + coord_x*3 + screen_pixeles) c n
+(    ) p n
+(    calcular_pixels ebx, anchoSprite) N
+(    calcular_basura edx,ebx) N
+(    ) S
+(mov) k
+( basura_sprite,edx) p n
+(    ) S
+(mov) k
+( ancho_sprite_bytes,ebx) p n
+(    ) N
+(    ) S
+(mov) k
+( edx, SCREEN_W*3           ) p
+(;cargamos el ancho de la pantalla en edx y lo ) c n
+(multiplicamos por 3) N
+(    calcular_basura ebx,edx                 ) p
+(;calculo la basura en ebx, desde edx) c n
+(    ) p
+(add) k
+( edx, ebx                            ) p
+(;sumo el valor de la basura a edx) c n
+(    ) p
+(mov) k
+( ancho_screen_bytes,edx) p n
+(    ) N
+(    ) S
+(mov) k
+( esi, [screen_pixeles]      ) p
+(;cargo el puntero a pantalla en esi    ) c n
+(    calcular_pixels ecx, coord_x  ) p
+(;cargamos la coor x en edx y lo multiplicamos ) c n
+(por 3) N
+(    ) p
+(add) k
+( esi, ecx                  ) p
+(;le addiciono el valor de la coord_x a screen_) c n
+(pixeles) N
+(    ) p
+(mov) k
+( eax, coord_y              ) p
+(;cargo la coord y en eax ) c n
+(            ) p n
+(    ) S
+(mul) k
+( edx                        ) p
+(; \(pierdo edx\)) c n
+(    ) p
+(add) k
+( esi, eax                  ) p
+(;eax posee la cantidad de bytes q hay q sumarl) c n
+(e al puntero a screen) N
+(    ) p n
+(    ) S
+(mov) k
+( edx, ancho_screen_bytes) p n
+(    ) S
+(mov) k
+( eax, altoSprite) p n
+(    ) S
+(mul) k
+( edx                        ) p
+(;guardo en ecx la cantidad de bytes q usa el ) c n
+(sprite              ) N
+(    ) p
+(add) k
+( eax, esi                  ) p
+(;sumo el punto \(0,0\)) c n
+(    ) p
+(mov) k
+( final, eax) p n
+(    ) N
+(;edi apunta todo el tiempo a la posicion dentro de la pantalla) C n
+(;las coordenadas \(x, y\) \(x+p, y\) \(x, y+q\) \(x+p, y+q\)) N
+(nueva_fila:                         ) p n
+(  ) S
+(mov) k
+( ecx, anchoSprite) p n
+(while:) N
+(  ) S
+(;edi es el puntero al byte actual del sprite) c n
+(  ) p
+(;reviso q el primer byte \(red\) sea igual) c n
+(  ) p
+(mov) k
+( bl, [edi]     ) p n
+(blit.asm) (Page 1/2) (Apr 30, 09 2:43) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(  ) p
+(mov) k
+( al, color_off  ) p n
+(  ) S
+(cmp) k
+( al, bl) p n
+(  ) S
+(jne) k
+( no_cambio_color  ) p n
+(  ) N
+(  ) S
+(;reviso q los 2 ultimos bytes \(green-blue\) sean iguales) c n
+(  ) p
+(mov) k
+( bx, [edi + 1]) p n
+(  ) S
+(mov) k
+( eax, color_off) p n
+(  ) S
+(ror) k
+( eax, 8                      ) p
+(;realizo un desplazamiento para q los bytes gr) c n
+(een-blue queden en ax) N
+(  ) p
+(cmp) k
+( ax, bx) p n
+(  ) S
+(jne) k
+( no_cambio_color) p n
+() N
+(  ) S
+(;cambio el color_off por el fondo) c n
+(  ) p
+(mov) k
+( bl, [esi]     ) p
+(;esi es el puntero al byte actual del screen) c n
+(  ) p
+(mov) k
+( [edi], bl) p n
+(  ) N
+(  ) S
+(mov) k
+( bx, [esi + 1]     ) p n
+(  ) S
+(mov) k
+( [edi + 1], bx) p n
+(  ) N
+(no_cambio_color:   ) N
+(  ) S
+(add) k
+( edi, 03h) p n
+(  ) S
+(add) k
+( esi, 03h) p n
+(  ) S
+(loopne) k
+( while) p n
+(  ) N
+(  ) S
+(add) k
+( edi, basura_sprite) p n
+(  ) S
+(sub) k
+( esi, ancho_sprite_bytes) p n
+(  ) S
+(add) k
+( esi, ancho_screen_bytes  ) p
+(; edx queda apuntando al principio de la siguient) c n
+(e fila) N
+(  ) p n
+(  ) S
+(cmp) k
+( esi, final) p n
+(  ) S
+(je) k
+( finBlit) p n
+(  ) N
+(  ) S
+(jmp) k
+( nueva_fila) p n
+( ) N
+(finBlit:) N
+(  ) N
+(salida_funcion 16) N
+() N
+(blit.asm) (Page 2/2) (Apr 30, 09 2:43) title
+border
+grestore
+(Printed by Pablo) rhead
+(blit.asm) (1/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(global) K
+( smooth) p n
+() N
+(smooth:) N
+(    ) S
+(ret) k
+(    ) p n
+(dull_smooth.asm) (Page 1/1) (Apr 24, 09 5:59) title
+border
+grestore
+(Printed by Pablo) rhead
+(dull_smooth.asm) (2/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(%include ") p
+(./asm/macros_globales.inc) str
+(") p n
+() N
+(global) K
+( constructor_iterador) p n
+(global) K
+( hay_proximo) p n
+(global) K
+( proximo) p n
+(global) K
+( item) p n
+(global) K
+( liberar_iterador) p n
+() N
+(section ) S
+(.text) l n
+() p n
+(%define const_it_lista [ebp + 8]) N
+(; Iterador* constructor_iterador\(Lista *lista\)) C n
+(constructor_iterador:) p n
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, 4) p n
+() N
+(    ) S
+(push) k
+( eax) p n
+(    ) S
+(call) k
+( malloc) p n
+(    ) S
+(add) k
+( esp, 4) p n
+() N
+(    ) S
+(cmp) k
+( eax, 0) p n
+() N
+(    ) S
+(; si malloc no me pudo dar memoria) c n
+(    ) p
+(je) k
+( retornar) p n
+() N
+(    ) S
+(mov) k
+( ebx, const_it_lista     ) p
+(; ebx = direccion que apunta a la Lista) c n
+(    ) p
+(mov) k
+( ebx, [ebx]              ) p
+(; ebx = direccion que apunta al Nodo) c n
+(    ) p
+(mov) k
+( [eax], ebx              ) p
+(; En el espacio creado en memoria guardo) c n
+(                                ) p
+(; la direccion que apunta al nodo.) c n
+() p n
+(retornar:) N
+(    salida_funcion 0) N
+() N
+() N
+(%define hay_prox_pit [ebp + 8]) N
+(; bool hay_proximo\(Iterador *iter\)) C n
+(; Recordar: La especificacion de esta funcion en el enunciado esta _mal_.) N
+(; hay_proximo\(\) es, mas bien, hay_actual\(\)) N
+(hay_proximo:) p n
+(    entrada_funcion 0) N
+(    ) S
+(xor) k
+( eax, eax) p n
+(    ) S
+(mov) k
+( ebx, hay_prox_pit       ) p
+(; ebx = direccion que apunta al Iterador) c n
+(    ) p
+(mov) k
+( ebx, [ebx]              ) p
+(; ebx = direccion que apunta al Nodo actual) c n
+(    ) p
+(;cmp dword [ebx + prox], 0         ; el proximo es NULL?) c n
+(    ) p
+(cmp) k
+( ebx, 0            ) p
+(; el actual es NULL?) c n
+() p n
+(    ) S
+(je) k
+( es_null) p n
+(    ) S
+(; si no lo es, retorno 1) c n
+(    ) p
+(mov) k
+( eax, 1) p n
+(es_null:) N
+(    salida_funcion 0) N
+(    ) N
+(%define prox_pit [ebp + 8]) N
+(; void proximo\(Iterador *iter\)) C n
+(proximo:) p n
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, prox_pit       ) p
+(; eax = direccion que apunta al Iterador) c n
+(    ) p
+(mov) k
+( ebx, [eax]          ) p
+(; ebx = direccion que apunta al Nodo actual) c n
+(    ) p
+(mov) k
+( ebx, [ebx + prox]   ) p
+(; ebx = direccion que apunta al Nodo proximo) c n
+(    ) p
+(cmp) k
+( ebx, 0) p n
+() N
+(    ) S
+(mov) k
+( [eax], ebx) p n
+() N
+(    salida_funcion 0) N
+() N
+(%define item_pit [ebp + 8]) N
+(; Nodo* item\(Iterador *iter\)) C n
+(funciones_iterador.asm) (Page 1/2) (Apr 26, 09 6:00) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(item:) p n
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, prox_pit       ) p
+(; eax = direccion que apunta al Iterador) c n
+(    ) p
+(mov) k
+( eax, [eax]          ) p
+(; ebx = direccion que apunta al Nodo actual) c n
+(    salida_funcion 0) p n
+() N
+() N
+(%define lib_pit [ebp + 8]) N
+(; void liberar_iterador\(Iterador *iter\)) C n
+(liberar_iterador:) p n
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, lib_pit) p n
+(    ) S
+(push) k
+( eax) p n
+(    ) S
+(call) k
+( free) p n
+(    ) S
+(add) k
+( esp, 4) p n
+() N
+(    salida_funcion 0) N
+() N
+() N
+(funciones_iterador.asm) (Page 2/2) (Apr 26, 09 6:00) title
+border
+grestore
+(Printed by Pablo) rhead
+(funciones_iterador.asm) (3/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 4
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(%include ") p
+(./asm/macros_globales.inc) str
+(") p n
+() N
+(global) K
+( constructor_lista) p n
+() N
+(; inicializar_nodo es opcional. En nuestro caso, podriamos haberla usado) C n
+(; en agregar_item_ordenado pero no lo hicimos.) N
+(global) K
+( inicializar_nodo) p n
+() N
+(global) K
+( verificar_id) p n
+(global) K
+( agregar_item_ordenado) p n
+(global) K
+( borrar) p n
+(global) K
+( liberar_lista) p n
+() N
+() N
+(section ) S
+(.text) l n
+() p n
+(; Lista* constructor_lista\(\)) C n
+(constructor_lista:) p n
+() N
+(    entrada_funcion 0) N
+() N
+(    ) S
+(push) k
+( 4) p n
+(    ) S
+(call) k
+( malloc) p n
+(    ) S
+(add) k
+( esp, 4) p n
+() N
+(    ) S
+(cmp) k
+( eax, 0) p n
+() N
+(    ) S
+(; si malloc no me pudo dar memoria) c n
+(    ) p
+(je) k
+( retornar) p n
+() N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( [eax], 0) p n
+() N
+(retornar:) N
+(    salida_funcion 0) N
+() N
+() N
+(%define verif_lista [ebp + 8]) N
+(%define verif_id [ebp + 12]) N
+() N
+(; bool verificar_id \(Lista* la_lista, Uint32 id\)) C n
+(verificar_id:) p n
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, verif_lista ) p
+(;aca tengo el nodo* primero) c n
+() p n
+(ver_seguir:) N
+() N
+(    ) S
+(mov) k
+( ebx, [eax]           ) p
+(;cargo la parte menos significativa del Id del nodo) c n
+(    ) p
+(mov) k
+( ecx, [eax+4]         ) p
+(;porq ID es de 64 bits) c n
+() p n
+(    ) S
+(cmp) k
+( ebx, verificar_id) p n
+(    ) S
+(jne) k
+( siguiente) p n
+(    ) S
+(cmp) k
+( ecx, 0) p n
+(    ) S
+(jne) k
+( siguiente) p n
+() N
+(    ) S
+(mov) k
+( eax, 0               ) p
+(;se encontro ) c n
+(    salida_funcion 0) p n
+() N
+(siguiente: ) N
+(    ) S
+(mov) k
+( eax, [eax+prox]) p n
+(    ) S
+(cmp) k
+( eax, 0) p n
+(    ) S
+(jne) k
+( ver_seguir) p n
+(    ) S
+(mov) k
+( eax, 1) p n
+() N
+(    salida_funcion 0) N
+() N
+(%macro connect_nodos 2   ) S
+(; 1 y 2 registros apuntando a nodos) c n
+(    ) p
+(mov) k
+( [%1 + prox], %2) p n
+(    ) S
+(mov) k
+( [%2 + prev], %1) p n
+(funciones_lista.asm) (Page 1/5) (Apr 27, 09 23:10) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(%endmacro) p n
+() N
+() N
+(%macro asignar_miembro 3-5 edi,esi   ) S
+(; 1->2 = 3 \(4 y 5 reg auxiliares\)) c n
+(    ) p
+(lea) k
+( %4, [%1 + %2]) p n
+(    ) S
+(mov) k
+( %5, %3) p n
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( [%4],%5 ) p n
+(%endmacro) N
+() N
+(%define ag_lista [ebp + 8]) N
+(%define ag_surf_pers [ebp + 12]) N
+(%define ag_surf_gen [ebp + 16]) N
+(%define ag_x [ebp + 20]) N
+(%define ag_y [ebp + 24]) N
+(%define ag_id [ebp + 28]) N
+(; void agregar_item_ordenado\(Lista* la_lista, SDL_Surface* surfacePers,) C n
+(; SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID\);) N
+(agregar_item_ordenado:) p n
+() N
+(    entrada_funcion 0) N
+(    ) S
+(push) k
+( 32) p n
+(    ) S
+(call) k
+( malloc                   ) p
+(; creo el nodo que voy a agregar) c n
+(    ) p
+(add) k
+( esp, 4) p n
+(    ) S
+(cmp) k
+( eax, 0) p n
+(    ) S
+(jne) k
+( inicializar) p n
+(    salida_funcion 0) N
+() N
+(inicializar:) N
+(    ) S
+(; inicializo la estructura del nodo) c n
+(    asignar_miembro eax,parte_baja_id,ag_id) p n
+() N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+([eax + parte_alta_id], 0) p n
+() N
+(    asignar_miembro eax,surf_gen,ag_surf_gen) N
+() N
+(    asignar_miembro eax,surf_pers,ag_surf_pers) N
+() N
+(    asignar_miembro eax,coord_x,ag_x) N
+() N
+(    asignar_miembro eax,coord_y,ag_y) N
+() N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( [eax + prox], 0) p n
+() N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( [eax + prev], 0) p n
+() N
+() N
+(; en eax esta todo el tiempo el puntero al nodo nuevo y en ebx esta el puntero a) C n
+(l nodo actual) N
+(inicio: ) p n
+(    ) S
+(mov) k
+( edx, ag_lista           ) p
+(; cargo en edx el puntero a la lista) c n
+(    ) p
+(mov) k
+( ebx, [edx]              ) p
+(; cargo en ebx el puntero al primer nodo de la l) c n
+(ista) N
+(    ) p
+(cmp) k
+( ebx, 0                  ) p
+(; reviso si la lista esta vacia) c n
+() p n
+(    ) S
+(jz) k
+( insertar_primer_nodo     ) p
+(; si no hay ningun nodo, agregar el nuevo \(eax\) ) c n
+(al principio) N
+() p n
+(    ) S
+(mov) k
+( ecx, [ebx + coord_x]    ) p
+(; guardo en ecx la coord x del primer nodo) c n
+(    ) p
+(cmp) k
+( ag_x, ecx               ) p
+(; reviso si la coord x del primer nodo es menor ) c n
+(a la que me pasaron por parametro) N
+(    ) p
+(jg) k
+( ag_seguir                ) p
+(; mayor sin signo?) c n
+() p n
+(;esta guardado en edx la dir de la lista y en ebx la dir del primer nodo) C n
+(caso_va_primero: ) p n
+(    connect_nodos eax,ebx       ) S
+(; pongo el elemento en eax antes del q esta en e) c n
+(bx) N
+(    ) p
+(jmp) k
+( insertar_primer_nodo    ) p
+(; guardo en la lista un puntero al nuevo nodo \(e) c n
+(ax\)) N
+(    salida_funcion 0) p n
+(funciones_lista.asm) (Page 2/5) (Apr 27, 09 23:10) title
+border
+grestore
+(Printed by Pablo) rhead
+(funciones_lista.asm) (4/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (3-4) 5
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+(ag_seguir:                      ) S
+(; ebx tiene un puntero al nodo actual) c n
+(    ) p
+(cmp) k
+( ) p
+(dword) K
+( [ebx + prox], 0   ) p
+(; me fijo si hay prox) c n
+(    ) p
+(je) k
+( caso_va_al_final         ) p
+(; No hay proximo) c n
+(    ) p n
+(    ) S
+(mov) k
+( edx, ebx                ) p
+(; salvo en edi el nodo actual) c n
+(    ) p
+(mov) k
+( ebx, [ebx + prox]       ) p
+(; Muevo ebx al proximo elemento) c n
+(    ) p
+(mov) k
+( ecx, [ebx + coord_x]    ) p
+(; Guardo en ecx la coord x del siguiente nodo) c n
+(    ) p
+(cmp) k
+( ag_x, ecx) p n
+(    ) S
+(jg) k
+( ag_seguir                ) p
+(; Si nodo_actual.x > nodo_nuevo.x sigo buscando) c n
+(   ) p n
+(    connect_nodos edx,eax        ) S
+(; pongo el elemento nuevo \(eax\) despues del nod) c n
+(o actual \(edx\)) N
+(    connect_nodos eax,ebx        ) p
+(; pongo el elemento nuevo \(eax\) antes del proxi) c n
+(mo \(ebx\)) N
+(    salida_funcion 0) p n
+() N
+(caso_va_al_final:               ) S
+(; ebx tiene un puntero al ultimo) c n
+(    connect_nodos ebx,eax        ) p
+(; pongo el elemento nuevo \(eax\) despues del nod) c n
+(o actual \(ebx\)) N
+(    salida_funcion 0) p n
+(    ) N
+(insertar_primer_nodo:) N
+(    ) S
+(mov) k
+( [edx], eax              ) p
+(; guardo en la lista el puntero al nodo nuevo) c n
+(    salida_funcion 0) p n
+() N
+() N
+() N
+(%macro en_rango 2-3 50 ) S
+(; 1: direccion de memoria del centro del rango 2: direcci) c n
+(on de memoria del valor a chequear) N
+(    ) p
+(mov) k
+( edi, %1) p n
+(    ) S
+(sub) k
+( edi, %3 ) p
+(; en edi esta la cota inferior) c n
+() p n
+(    ) S
+(mov) k
+( esi, %2 ) p
+(; en esi esta el valor a chequear) c n
+(    ) p
+(cmp) k
+( edi, esi) p n
+(    ) S
+(jg) k
+( %%no_esta) p n
+() N
+(    ) S
+(add) k
+( edi, %3*2 ) p
+(; ahora en edi esta la cota superior) c n
+(    ) p
+(cmp) k
+( %2, edi) p n
+(    ) S
+(jg) k
+( %%no_esta) p n
+() N
+(    ) S
+(mov) k
+( edi, 0) p n
+(    ) S
+(jmp) k
+( %%esta ) p n
+(%%no_esta:) N
+(    ) S
+(mov) k
+( edi, 1) p n
+(%%esta:) N
+(    ) S
+(cmp) k
+( edi, 0) p n
+() N
+(%endmacro) N
+() N
+(%define b_lista [ebp + 8]) N
+(%define b_x [ebp + 12]) N
+(%define b_y [ebp + 16]) N
+(; void borrar\(Lista* la_lista, Uint32 x, Uint32 y\)) C n
+(borrar:) p n
+(    entrada_funcion 0) N
+(    ) N
+(    ) S
+(mov) k
+( edx, b_lista            ) p
+(; cargo en edx el puntero a la lista) c n
+(    ) p
+(mov) k
+( ebx, [edx]              ) p
+(; cargo en ebx el puntero al primer nodo de la l) c n
+(ista) N
+(b_seguir:) p n
+(; asumo q en ebx esta siempre el puntero al nodo actual y en edx el puntero a la) C n
+( lista) N
+(    ) p
+(cmp) k
+( ebx, 0) p n
+(    ) S
+(jne) k
+( revisar_rango           ) p
+(; reviso si la lista esta vacia) c n
+(    salida_funcion 0) p n
+() N
+(; si no esta vacia) C n
+(revisar_rango:) p n
+(funciones_lista.asm) (Page 3/5) (Apr 27, 09 23:10) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p 8 T () S
+(mov) k
+( ecx, [ebx + prox]       ) p
+(; guardo en ecx el nodo siguiente al actual) c n
+(    ) p 8 T () N
+(    en_rango b_x,[ebx + coord_x]) N
+(    ) S
+(jne) k
+( ir_avanzar) p n
+(    en_rango b_y,[ebx + coord_y]) N
+(    ) S
+(jne) k
+( ir_avanzar) p n
+() N
+(; eax - ebx - ecx y elimino ebx) C n
+(eliminar_elemento:) p n
+(    ) S
+(push) k
+( ) p
+(dword) K
+( [ebx + prev]) p n
+(    ) S
+(push) k
+( ) p
+(dword) K
+( [ebx + prox]) p n
+(    ) S
+(push) k
+( ebx) p n
+(    ) S
+(call) k
+( free) p n
+(    ) S
+(add) k
+( esp, 4) p n
+(    ) S
+(pop) k
+( ecx) p n
+(    ) S
+(pop) k
+( eax) p n
+() N
+(    ) S
+(cmp) k
+( eax, 0) p n
+(    ) S
+(je) k
+( caso_primer_elemento) p n
+(    ) S
+(cmp) k
+( ecx, 0) p n
+(    ) S
+(je) k
+( caso_ultimo_elemento) p n
+() N
+(caso_elemento_intermedio:) N
+(    connect_nodos eax,ecx) N
+(ir_avanzar:) N
+(    ) S
+(jmp) k
+( avanzar) p n
+() N
+(caso_primer_elemento:) N
+(    ) S
+(mov) k
+( edx, b_lista            ) p
+(; cargo en edx el puntero a la lista \(por si lo ) c n
+(destruyo free\)) N
+(    ) p
+(mov) k
+( [edx], ecx              ) p
+(; edx es la pos de memoria donde esta la lista) c n
+(    ) p
+(cmp) k
+( ecx, 0) p n
+(    ) S
+(je) k
+( avanzar                  ) p
+(; si no hay proximo elemento sigo de largo) c n
+(    ) p
+(mov) k
+( ) p
+(dword) K
+( [ecx + prev], 0   ) p
+(; pongo en null al prev del nuevo primero) c n
+(    ) p
+(jmp) k
+( avanzar) p n
+() N
+(caso_ultimo_elemento:) N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( [eax + prox], 0   ) p
+(; pongo en null al prev del nuevo primero) c n
+(    ) p n
+(avanzar:) N
+(    ) S
+(mov) k
+( ebx, ecx) p n
+(    ) S
+(jmp) k
+( b_seguir) p n
+(    ) N
+() N
+(%define l_lista [ebp + 8]) N
+(; void liberar_lista\(Lista* l\)) C n
+(liberar_lista:) p n
+(    entrada_funcion 0) N
+(    ) N
+(    ) S
+(mov) k
+( edx, l_lista            ) p
+(; cargo en edx el puntero a la lista) c n
+(    ) p
+(mov) k
+( ebx, [edx]              ) p
+(; cargo en ebx el puntero al primer nodo de la l) c n
+(ista) N
+(l_seguir:) p n
+(; asumo q en ebx esta siempre el puntero al nodo actual y en edx el puntero a la) C n
+( lista) N
+(    ) p
+(cmp) k
+( ebx, 0) p n
+(    ) S
+(jne) k
+( l_eliminar_elemento) p
+(; reviso si la lista esta vacia) c n
+() p n
+(    ) S
+(mov) k
+( edx, l_lista            ) p
+(; cargo en edx el puntero a la lista \(por si lo ) c n
+(perdi\)) N
+(    ) p
+(push) k
+( edx) p n
+(    ) S
+(call) k
+( free) p n
+(    ) S
+(add) k
+( esp, 4) p n
+() N
+(    salida_funcion 0) N
+() N
+(; si no esta vacia) C n
+() p n
+(; elimino ebx) C n
+(funciones_lista.asm) (Page 4/5) (Apr 27, 09 23:10) title
+border
+grestore
+(Printed by Pablo) rhead
+(funciones_lista.asm) (5/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (5) 6
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(l_eliminar_elemento:) p n
+(    ) S
+(mov) k
+( esi, [ebx + prox] ) p n
+(    ) S
+(push) k
+( ebx) p n
+(    ) S
+(call) k
+( free) p n
+(    ) S
+(add) k
+( esp, 4) p n
+() S 8 T () S
+(mov) k
+( ebx, esi) p n
+() N
+(    ) S
+(jmp) k
+( l_seguir) p n
+() N
+(funciones_lista.asm) (Page 5/5) (Apr 27, 09 23:10) title
+border
+grestore
+(Printed by Pablo) rhead
+(funciones_lista.asm) (6/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 7
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(%include ") p
+(./asm/macros_globales.inc) str
+(") p n
+() N
+(extern screen_pixeles) N
+() N
+(; lleva registro %1 al multiplo de 4 mayor mas cercano, usando %2 como) C n
+(; registro auxiliar) N
+(%macro multiplo_de_4 2) p n
+(%%chequear:) N
+(    ) S
+(mov) k
+( %2, %1) p n
+(    ) S
+(and) k
+( %2, 0x00000003) p n
+(    ) S
+(jz) k
+( %%salir) p n
+() N
+(    ) S
+(inc) k
+( %1) p n
+(    ) S
+(jmp) k
+( %%chequear) p n
+(%%salir:) N
+(%endmacro) N
+() N
+(global) K
+( generarFondo) p n
+() N
+(section ) S
+(.text) l n
+() p n
+(%define fondo [ebp + 8]) N
+(%define fondo_w [ebp + 12]) N
+(%define fondo_h [ebp + 16]) N
+(%define coord [ebp + 20]) N
+(; void generarFondo \(Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screen) C n
+(AbsPos\)) N
+() p n
+(generarFondo:) N
+(    entrada_funcion 0) N
+() N
+(    ) S
+(mov) k
+( eax, coord) p n
+(    ) S
+(mov) k
+( edx, eax        ) p
+(; edx = coord) c n
+(    ) p
+(add) k
+( eax, SCREEN_W   ) p
+(; eax = coord + SCREEN_W) c n
+() p n
+(    ) S
+(mov) k
+( ebx, fondo_w    ) p
+(; ebx = fondo_w) c n
+() p n
+(    ) S
+(cmp) k
+( eax, ebx) p n
+(    ) S
+(jle) k
+( seguir) p n
+() N
+(    ) S
+(mov) k
+( edx, ebx) p n
+(    ) S
+(sub) k
+( edx, SCREEN_W   ) p
+(; edx = "coordenada posta") c n
+() p n
+(seguir:) N
+(    ) S
+(mov) k
+( ecx, [screen_pixeles]      ) p
+(; ecx es la base en la pantalla) c n
+() p n
+(    ) S
+(mov) k
+( esi, edx ) p n
+(    ) S
+(shl) k
+( edx, 1) p n
+(    ) S
+(add) k
+( edx, esi        ) p
+(; multiplicacion por 3) c n
+() p n
+(    ) S
+(add) k
+( edx, fondo      ) p
+(; edx es la base en el fondo) c n
+() p n
+(    ) S
+(mov) k
+( esi, ebx) p n
+(    ) S
+(shl) k
+( ebx, 1) p n
+(    ) S
+(add) k
+( ebx, esi        ) p
+(; multipliacion por 3) c n
+(    multiplo_de_4 ebx,esi) p n
+() N
+(    ) S
+(xor) k
+( esi, esi        ) p
+(; esi es la fila actual) c n
+() p n
+(    ) S
+(push) k
+( ebp) p n
+(    ) S
+(mov) k
+( ebp, SCREEN_W*SCREEN_H*3) p n
+(    ) S
+(add) k
+( ebp, ecx) p n
+() N
+(recorrer_y:) N
+(    ) S
+(xor) k
+( edi, edi        ) p
+(; edi es el offset \(del fondo y la pantalla\)) c n
+() p n
+(recorrer_x:) N
+(    ) S
+(mov) k
+( eax, [edx + edi]) p n
+(    ) S
+(mov) k
+( [ecx + edi], eax) p n
+(generarFondo.asm) (Page 1/2) (Apr 30, 09 5:06) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+(    ) S
+(mov) k
+( eax, [edx + edi + 1]) p n
+(    ) S
+(mov) k
+( [ecx + edi + 1], eax) p n
+() N
+(    ) S
+(mov) k
+( eax, [edx + edi + 2]) p n
+(    ) S
+(mov) k
+( [ecx + edi + 2], eax) p n
+() N
+() N
+(    ) S
+(add) k
+( edi, 3) p n
+(    ) S
+(cmp) k
+( edi, SCREEN_W*3 - 3) p n
+(    ) S
+(jl) k
+( recorrer_x           ) p
+(; ver si hay que pasar por x = SCREEN_W) c n
+(    ) p n
+(    ) S
+(add) k
+( edx, ebx            ) p
+(; ebx era fondo_w*3 llevado a multiplo de 4) c n
+() p n
+(    ) S
+(mov) k
+( esi, SCREEN_W*3) p n
+() N
+(    ) S
+(add) k
+( ecx, esi) p n
+() N
+(    ) S
+(cmp) k
+( ecx, ebp) p n
+(    ) S
+(jl) k
+( recorrer_y       ) p
+(; ver si hay que pasar por y = SCREEN_H) c n
+() p n
+(    ) S
+(pop) k
+( ebp) p n
+() N
+(    salida_funcion 0) N
+(generarFondo.asm) (Page 2/2) (Apr 30, 09 5:06) title
+border
+grestore
+(Printed by Pablo) rhead
+(generarFondo.asm) (7/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 8
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(%include ") p
+(asm/macros_globales.inc) str
+(") p n
+() N
+(extern screen_pixeles) N
+(extern colores) N
+(extern g_ver0) N
+(extern g_ver1) N
+(extern g_hor0) N
+(extern g_hor1) N
+() N
+(; color_de_fondo escribe en el valor %1 del pixel \(i, j\) de la pantalla) C n
+(; el numero %2. %1 puede ser: 0 \(R\), 1 \(G\) o 2 \(B\) \(debe ser inmediato\). %2) N
+(; puede ser un registro o un inmediato de 8 bits. color_de_fondo utiliza) N
+(; internamente eax y edx para realizar calculos.) N
+(%macro color_de_fondo_old 2) p n
+() N
+(    load_screenw_pixels) N
+() N
+(    ) S
+(; uso edx porque total ya lo arruine con el mul...) c n
+(    ) p
+(lea) k
+( edx, [j + j * 2] ) p
+(; edx = j + j*2 = j*3) c n
+(    ) p
+(add) k
+( edx, eax        ) p
+(; edx = j*3 + i*SCREEN_W*3) c n
+() p n
+(    ) S
+(mov) k
+( eax, [screen_pixeles]) p n
+(    ) N
+(    ) S
+(mov) k
+( ) p
+(byte) K
+( [eax + edx +%1], %2) p n
+() N
+(%endmacro) N
+() N
+(%macro color_de_fondo 3) N
+(    ) S
+(mov) k
+( ) p
+(byte) K
+( [%1 + %2], %3) p n
+(%endmacro) N
+() N
+(%macro load_screenw_pixels 0) N
+(    ) S
+(cmp) k
+( ) p
+(dword) K
+( res_mult, mult_invalid) p n
+(    ) S
+(je) k
+( %%calcular) p n
+(    ) S
+(mov) k
+( eax, res_mult) p n
+(    ) S
+(jmp) k
+( %%mult_salida) p n
+(%%calcular:) N
+(    ) S
+(mov) k
+( eax, SCREEN_W*3) p n
+(    ) S
+(; tener en cuenta que esto toca edx) c n
+(    ) p
+(mul) k
+( i                               ) p
+(; eax = j*SCREEN_W*3) c n
+(    ) p
+(mov) k
+( res_mult, eax                   ) p
+(; cacheo el resultado de mult) c n
+(%%mult_salida:) p n
+(%endmacro) N
+() N
+(%define mult_invalid 0xFFFFFFFF) N
+(    ) N
+(global) K
+( generarPlasma) p n
+() N
+(%define i esi) N
+(%define j edi) N
+() N
+(%define rgb [ebp + 8]) N
+(%define res_mult [ebp - 4]) N
+(generarPlasma:) N
+(    entrada_funcion 4) N
+() N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( res_mult, mult_invalid    ) p
+(;resetear valor de mult) c n
+(    ) p
+(xor) k
+( i, i) p n
+(loop_i:) N
+() N
+(    ) S
+(xor) k
+( j, j) p n
+(loop_j:) N
+() N
+(    ) S
+(lea) k
+( ecx, [j + j*4]) p n
+() N
+(    ) S
+(xor) k
+( edx, edx) p n
+(    ) S
+(mov) k
+( dx, [g_ver0] ) p n
+(    ) S
+(add) k
+( ecx, edx) p n
+() N
+(generarPlasma.asm) (Page 1/4) (Apr 29, 09 14:06) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(    ) p
+(and) k
+( ecx, 0x000001FF) p n
+(    ) N
+(    ) S
+(mov) k
+( ecx, [colores + ecx*4]) p n
+() N
+(    ) S
+(lea) k
+( eax, [j + j*2]) p n
+() N
+(    ) S
+(xor) k
+( edx, edx) p n
+(    ) S
+(mov) k
+( dx, [g_ver1]) p n
+(    ) S
+(add) k
+( eax, edx) p n
+() N
+(    ) S
+(and) k
+( eax, 0x000001FF) p n
+() N
+(    ) S
+(add) k
+( ecx, [colores + eax*4]) p n
+() N
+(    ) S
+(lea) k
+( eax, [i + 2*i]) p n
+() N
+(    ) S
+(xor) k
+( edx, edx) p n
+(    ) S
+(mov) k
+( dx, [g_hor0]) p n
+(    ) S
+(add) k
+( eax, edx) p n
+() N
+(    ) S
+(and) k
+( eax, 0x000001FF) p n
+() N
+(    ) S
+(add) k
+( ecx, [colores + eax*4]) p n
+() N
+(    ) S
+(mov) k
+( eax, i) p n
+(    ) S
+(xor) k
+( edx, edx) p n
+(    ) S
+(mov) k
+( dx, [g_hor1]) p n
+(    ) S
+(add) k
+( eax, edx) p n
+() N
+(    ) S
+(and) k
+( eax, 0x000001FF) p n
+() N
+(    ) S
+(add) k
+( ecx, [colores + eax*4]) p n
+() N
+(    ) S
+(sar) k
+( ecx, 4) p n
+(    ) S
+(add) k
+( ecx, 128                        ) p
+(; ecx es index) c n
+(    ) p
+(and) k
+( ecx, 0xFF) p n
+() N
+(    load_screenw_pixels) N
+() N
+(    ) S
+(mov) k
+( ebx, [screen_pixeles]) p n
+(    ) S
+(lea) k
+( edx, [ j + j * 2 ]) p n
+(    ) S
+(add) k
+( ebx, edx                          ) p
+(; ebx = [screen_pixeles] + 3*i) c n
+() p n
+(    ) S
+(mov) k
+( dh, [ebx + eax + 2]) p n
+(    ) S
+(shl) k
+( edx, 8) p n
+(    ) S
+(mov) k
+( dx, [ebx + eax]) p n
+(    ) S
+(mov) k
+( eax, edx) p n
+() N
+(    ) S
+(and) k
+( eax, 0x00FFFFFF) p n
+(    ) S
+(mov) k
+( ebx, rgb) p n
+(    ) S
+(and) k
+( ebx, 0x00FFFFFF                 ) p
+(; me quedo con los 3 bytes menos sign.) c n
+(    ) p
+(cmp) k
+( eax, ebx) p n
+(    ) S
+(jne) k
+( ir_a_seguir) p n
+(    ) S
+(jmp) k
+( entrar_al_switch) p n
+() N
+(ir_a_seguir:) N
+(    ) S
+(jmp) k
+( seguir) p n
+() N
+(    ) S
+(; aca viene el switch) c n
+(entrar_al_switch:) p n
+() N
+(    load_screenw_pixels ) S
+(;cargo en eax, el desplazamiento vertical \(en bytes\)) c n
+(    ) p
+(lea) k
+( edx, [j + j * 2] ) p
+(; edx = j + j*2 = j*3) c n
+(    ) p
+(add) k
+( eax, edx        ) p
+(; eax = j*3 + i*SCREEN_W*3) c n
+(    ) p
+(add) k
+( eax, [screen_pixeles]   ) p
+(;queda todo el offset completo en eax \(y se calc) c n
+(ula solo la primera vez\)) N
+() p n
+(case_1:) N
+(    ) S
+(cmp) k
+( cl, 64) p n
+(generarPlasma.asm) (Page 2/4) (Apr 29, 09 14:06) title
+border
+grestore
+(Printed by Pablo) rhead
+(generarPlasma.asm) (8/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (3-4) 9
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(    ) p
+(jae) k
+( case_2                          ) p
+(; fallaba por q jge es signed) c n
+(    ) p n
+(    ) S
+(shl) k
+( cl, 2                           ) p
+(; cl = index << 2) c n
+(    ) p
+(mov) k
+( bl, 255) p n
+(    ) S
+(sub) k
+( bl, cl) p n
+(    ) S
+(dec) k
+( bl                              ) p
+(; bl = 255 - \(\(index << 2\) + 1\)) c n
+() p n
+(    color_de_fondo eax,0,bl) N
+(    color_de_fondo eax,1,cl) N
+(    color_de_fondo eax,2,0) N
+(    ) N
+(    ) S
+(jmp) k
+( seguir) p n
+() N
+(case_2:) N
+(    ) S
+(cmp) k
+( cl, 128) p n
+(    ) S
+(jae) k
+( case_3) p n
+() N
+(    ) S
+(shl) k
+( cl, 2) p n
+(    ) S
+(inc) k
+( cl                              ) p
+(; cl = \(index << 2\) + 1) c n
+() p n
+(    color_de_fondo eax,0,cl) N
+(    color_de_fondo eax,1,255) N
+(    color_de_fondo eax,2,0) N
+() N
+(    ) S
+(jmp) k
+( seguir) p n
+() N
+(case_3:) N
+(    ) S
+(cmp) k
+( cl, 192) p n
+(    ) S
+(jae) k
+( case_4) p n
+() N
+(    ) S
+(shl) k
+( cl, 2) p n
+(    ) S
+(mov) k
+( bl, 255) p n
+(    ) S
+(sub) k
+( bl, cl) p n
+(    ) S
+(dec) k
+( bl                             ) p
+(; bl = 255 - \(\(index << 2\) + 1\)) c n
+() p n
+(    color_de_fondo eax,0,bl) N
+(    color_de_fondo eax,1,bl) N
+(    color_de_fondo eax,2,0) N
+() N
+(    ) S
+(jmp) k
+( seguir) p n
+() N
+(case_4:) N
+(    ) S
+(cmp) k
+( cx, 256                        ) p
+(;256 no entra en 8 bits \(por eso us cx\)) c n
+(    ) p
+(jae) k
+( case_5) p n
+() N
+(    ) S
+(shl) k
+( cl, 2) p n
+(    ) S
+(inc) k
+( cl                             ) p
+(; cl = \(index << 2\) + 1) c n
+() p n
+(    color_de_fondo eax,0,cl) N
+(    color_de_fondo eax,1,0) N
+(    color_de_fondo eax,2,0) N
+(    ) N
+(    ) S
+(jmp) k
+( seguir) p n
+() N
+(case_5:) N
+() N
+(    color_de_fondo eax,0,0) N
+(    color_de_fondo eax,1,0) N
+(    color_de_fondo eax,2,0) N
+() N
+() N
+(seguir:) N
+(    ) N
+(    ) S
+(inc) k
+( j) p n
+(    ) S
+(cmp) k
+( j, SCREEN_W) p n
+(    ) S
+(jl) k
+( loop_j) p n
+(    ) N
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( res_mult, mult_invalid    ) p
+(;resetear valor de mult    ) c n
+() p n
+(generarPlasma.asm) (Page 3/4) (Apr 29, 09 14:06) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(    ) p
+(inc) k
+( i) p n
+(    ) S
+(cmp) k
+( i, SCREEN_H) p n
+(    ) S
+(jl) k
+( loop_i) p n
+() N
+(    ) S
+(add) k
+( ) p
+(word) K
+( [g_ver0], 9) p n
+(    ) S
+(add) k
+( ) p
+(word) K
+( [g_hor0], 8) p n
+() N
+(    salida_funcion 4) N
+(generarPlasma.asm) (Page 4/4) (Apr 29, 09 14:06) title
+border
+grestore
+(Printed by Pablo) rhead
+(generarPlasma.asm) (9/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1-2) 10
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(;void recortar\(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 a) C n
+(ncho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion\);) N
+() p n
+(%include ') S
+(asm/macros_globales.inc) str
+(') p n
+(%include ') S
+(asm/macros_pixels.inc) str
+(') p n
+() N
+(%define ptrSprite [ebp+8]) N
+(%define instancia [ebp+12]) N
+(%define ancho_instancia [ebp+16]) N
+(%define ancho_sprite [ebp+20]) N
+(%define alto_sprite [ebp+24]) N
+(%define ptrResultado [ebp+28]) N
+(%define orientacion [ebp+32]) N
+() N
+(%define ancho_sprite_bytes [ebp-4]) N
+(%define basura_instancia [ebp-8]) N
+(%define defasaje [ebp-12]) N
+(%define final [ebp-16]) N
+() N
+(global) K
+( recortar) p n
+() N
+(recortar:) N
+() N
+(entrada_funcion 12) N
+() N
+(    ) S
+(mov) k
+( esi, ptrSprite) p n
+(    ) S
+(mov) k
+( edi, ptrResultado) p n
+(    calcular_pixels ebx,ancho_instancia      ) S
+(;ebx: ancho de la instancia sobre e) c n
+(l sprite en pixeles \(sin la basura\)) N
+(    calcular_basura eax, ebx                 ) p
+(;basura para la instancia) c n
+(    ) p
+(mov) k
+( basura_instancia,eax                ) p n
+(    ) N
+(    ) S
+(mov) k
+( eax, instancia) p n
+(    ) S
+(mul) k
+( ebx                                  ) p
+(;tengo en edx:eax la cant de bytes ) c n
+(hasta la primera instancia) N
+(    ) p
+(add) k
+( esi, eax                             ) p
+(;en esi tengo el comienzo de la ins) c n
+(tancia dentro del sprite) N
+(  ) p n
+(    ) S
+(sub) k
+( ebx, 03h                             ) p
+(;cantidad de bytes para avanzar del) c n
+( primer al ultimo pixel de una fila) N
+(    ) p
+(mov) k
+( defasaje, ebx                        ) p n
+(  ) N
+(    calcular_pixels ecx, ancho_sprite        ) S
+(;cantidad de pixeles q ocupa el spr) c n
+(ite) N
+(    calcular_basura ebx,ecx                  ) p
+(;basura del sprite) c n
+(    ) p
+(add) k
+( ecx, ebx) p n
+(    ) S
+(mov) k
+( ancho_sprite_bytes, ecx              ) p
+(;ancho del sprite en pixeles \(ecx\)) c n
+() p n
+(    ) S
+(mov) k
+( eax, alto_sprite                     ) p
+(;cantida de filas que tiene el spri) c n
+(te \(eax\)) N
+(    ) p
+(mul) k
+( ecx                                  ) p
+(;en eax, queda la cantidad de bytes) c n
+( q ocupa el sprite) N
+(    ) p
+(add) k
+( eax,esi                              ) p
+(;a esto le sumo el principio de la ) c n
+(instancia para obtener donde termina esta) N
+(    ) p
+(mov) k
+( final, eax                           ) p
+(;salvo el final de la instancia) c n
+() p n
+(    ) S
+(mov) k
+( eax, -03h                            ) p
+(;guardar en eax, el sentido en que ) c n
+(se mueve esi) N
+(    ) p
+(cmp) k
+( ) p
+(dword) K
+( orientacion, 0) p n
+(    ) S
+(je) k
+( seguir) p n
+(    ) S
+(mov) k
+( ) p
+(dword) K
+( defasaje, 0                    ) p
+(;si se mueve hacia la derecha:) c n
+(    ) p
+(neg) k
+( eax ) p n
+(seguir:  ) N
+(    ) S
+(mov) k
+( ecx, ancho_instancia                 ) p
+(;ecx funciona de contador, indica p) c n
+(or q pixel de la fila se encuenta el bucle) N
+(    ) p
+(mov) k
+( edx, esi                             ) p
+(;guardar en edx, la pos al principi) c n
+(o de la iteracion) N
+(    ) p
+(add) k
+( esi, defasaje                        ) p
+(;si hay q espejar, ir hasta el ulti) c n
+(mo elemento de la fila) N
+(recortar.asm) (Page 1/2) (Apr 28, 09 0:57) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(ciclo:                                    ) p n
+(    ) S
+(mov) k
+( bl, [esi]                            ) p
+(;voy copiando los bytes de cada fil) c n
+(a de la instancia y dejandolos en *res) N
+(    ) p
+(mov) k
+( [edi], bl                            ) p
+(;edi es el puntero al byte actual d) c n
+(e la instancia) N
+(  ) p n
+(    ) S
+(mov) k
+( bx, [esi + 1]     ) p n
+(    ) S
+(mov) k
+( [edi + 1], bx) p n
+() N
+(    ) S
+(add) k
+( edi, 03h                             ) p
+(;anvanzo un pixel en el buffer dest) c n
+(ino) N
+(    ) p
+(add) k
+( esi, eax                             ) p
+(;anvanzo o retrocedo un pixel en el) c n
+( sprite origen) N
+(    ) p
+(loopne) k
+( ciclo                             ) p
+(;cuando el contador se hace 0 salir) c n
+( del bucle) N
+(finalizacion:  ) p n
+(    ) S
+(add) k
+( edi, basura_instancia) p n
+(    ) S
+(mov) k
+( esi, edx                             ) p
+(;recupero el valor al principio del) c n
+( iteracion) N
+(    ) p
+(add) k
+( esi, ancho_sprite_bytes              ) p
+(;y sumo para pasar a la siguiente f) c n
+(ila) N
+(    ) p
+(cmp) k
+( esi, final                           ) p
+(;si se llego al final del sprite, t) c n
+(erminar) N
+(    ) p
+(jne) k
+( seguir) p n
+(  ) N
+(    salida_funcion 12) N
+() N
+(recortar.asm) (Page 2/2) (Apr 28, 09 0:57) title
+border
+grestore
+(Printed by Pablo) rhead
+(recortar.asm) (10/10) (Thursday April 30, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF
