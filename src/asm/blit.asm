@@ -3,9 +3,6 @@
 %include 'asm/macros_globales.inc'
 %include 'asm/macros_pixels.inc'
   
-%define SCREEN_W 800
-%define SCREEN_H 400
-
 %define ptrSprite       [ebp+8]
 %define anchoSprite     [ebp+12]
 %define altoSprite      [ebp+16]
