@@ -23,7 +23,7 @@
 \paperfontsize 11
 \spacing single
 \use_hyperref false
-\papersize default
+\papersize a4paper
 \use_geometry false
 \use_amsmath 1
 \use_esint 1
@@ -57,6 +57,7 @@ Organización del Computador II
 \align center
 
 \shape italic
+\size large
 Departamento de Computación,
 \begin_inset Newline newline
 \end_inset
@@ -69,7 +70,7 @@ Universidad de Buenos Aires
 \end_layout
 
 \begin_layout Standard
-\begin_inset VSpace medskip
+\begin_inset VSpace vfill
 \end_inset
 
 
@@ -78,13 +79,40 @@ Universidad de Buenos Aires
 \begin_layout Standard
 \align center
 
+\series bold
+\shape smallcaps
+\size larger
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
 \shape smallcaps
 \size larger
 Trabajo Práctico 1: “Oportuncrisis”
 \end_layout
 
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \align center
+
+\shape italic
 Primer Cuatrimestre de 2009
 \end_layout
 
@@ -99,7 +127,7 @@ Primer Cuatrimestre de 2009
 \align center
 
 \series bold
-Grupo "UNPCKHPD":
+Grupo "UNPCKHPD"
 \end_layout
 
 \begin_layout Standard
@@ -110,7 +138,7 @@ Grupo "UNPCKHPD":
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
-<row>
+<row topspace="default">
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -139,7 +167,7 @@ pabloa@gmail.com
 \end_inset
 </cell>
 </row>
-<row>
+<row topspace="default">
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -168,7 +196,7 @@ pablodherrero@gmail.com
 \end_inset
 </cell>
 </row>
-<row>
+<row topspace="default">
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -279,7 +307,11 @@ Se optó por el ensamblador nasm, y se escribió el código en el lenguaje
 
 \end_inset
 
- de la arquitectura x86 de Intel, ciertas funciones de un videojuego.
+ de la 
+\emph on
+arquitectura x86 de Intel
+\emph default
+, ciertas funciones de un videojuego.
  La lógica del videojuego se halla programada en C/C++, y utiliza un número
  de funciones que, en principio, no se encuentran implementadas.
  Nuestra tarea fue implementar dichas funciones.
@@ -290,11 +322,17 @@ Las funciones faltantas se encargan de implementar:
 \end_layout
 
 \begin_layout Itemize
-las funcionalidades básicas de una lista doblemente enlazada
+las funcionalidades básicas de una 
+\emph on
+lista doblemente enlazada
 \end_layout
 
 \begin_layout Itemize
-las funcionalidades de un iterador que sirva para recorrer dicha lista
+las funcionalidades de un 
+\emph on
+iterador
+\emph default
+ que sirva para recorrer dicha lista
 \end_layout
 
 \begin_layout Itemize
@@ -314,6 +352,20 @@ sprite
 \begin_layout Itemize
 una función 
 \family typewriter
+blit 
+\family default
+que deberá, dada una imagen con un fondo de un color dado (el 
+\emph on
+color-off
+\emph default
+) y otra imagen, reemplazar en la primera los pixeles de dicho color por
+ los pixeles correspondientes en la segunda imagen, a partir de un par de
+ coordenadas especificado
+\end_layout
+
+\begin_layout Itemize
+una función 
+\family typewriter
 generarFondo
 \family default
 , capaz de, a partir de una imagen para el fondo y una coordenada 
@@ -321,11 +373,28 @@ generarFondo
 \end_inset
 
  en este, dibujarlo en pantalla tomando como inicio del fondo la coordenada
- especifidada.
+ especificada.
  De no contar con suficiente ancho en el fondo a partir de dicha coordenada
  como para llenar el ancho de la pantalla por completo, deberá tomar como
  valor de dicha coordenada, el valor máximo suficiente que permita llenar
  la pantalla.
+\end_layout
+
+\begin_layout Itemize
+una función 
+\family typewriter
+generarPlasma
+\family default
+, encargada de crear un efecto visual llamado 
+\begin_inset Quotes eld
+\end_inset
+
+plasma
+\begin_inset Quotes erd
+\end_inset
+
+, y de reemplazar en la pantalla ciertos pixeles de un color, por los correspond
+ientes a este efecto
 \end_layout
 
 \begin_layout Standard
@@ -340,7 +409,113 @@ bitmaps
 \end_layout
 
 \begin_layout Standard
-El juego hace uso de la biblioteca multiplataforma libre SDL.
+El juego hace uso de la 
+\emph on
+biblioteca multiplataforma libre SDL
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+¿Qué se muestra por pantalla?
+\end_layout
+
+\begin_layout Standard
+Muy básicamente, el juego consta de un ciclo que se repite todo el tiempo:
+\end_layout
+
+\begin_layout Verse
+\begin_inset listings
+lstparams "numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+procesar eventos de entrada
+\end_layout
+
+\begin_layout Plain Layout
+
+actualizar posiciones, estados, etc.
+\end_layout
+
+\begin_layout Plain Layout
+
+chequear IA, colisiones, física, etc.
+\end_layout
+
+\begin_layout Plain Layout
+
+mostrar resultados por pantalla
+\end_layout
+
+\begin_layout Plain Layout
+
+ira a 1.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En la etapa 4 (
+\begin_inset Quotes eld
+\end_inset
+
+mostrar resultados por pantalla
+\begin_inset Quotes erd
+\end_inset
+
+), que es la que nos atañe en este trabajo, la secuencia que se sigue es
+ la siguiente:
+\end_layout
+
+\begin_layout Verse
+\begin_inset listings
+lstparams "breaklines=true,numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+generar el fondo actual (generarFondo)
+\end_layout
+
+\begin_layout Plain Layout
+
+generar el plasma, usando como color-off el color del cielo del fondo (generarPl
+asma)
+\end_layout
+
+\begin_layout Plain Layout
+
+para cada sprite de cada personaje:
+\end_layout
+
+\begin_layout Plain Layout
+
+	recortar la instancia que se quiere del personaje
+\end_layout
+
+\begin_layout Plain Layout
+
+	aplicar blit (cambiar el color-off del personaje por lo que haya en la
+ pantalla)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Tener este esquema en mente nos ayudará a entender mejor las explicaciones
+ que vienen a continuación.
+ A su vez, las explicaciones que vienen a continuación, completarán y darán
+ sentido al esquema.
 \end_layout
 
 \begin_layout Subsection
@@ -388,7 +563,9 @@ En nuestro juego, tenemos dos fondos; uno para cada escenario.
 \end_layout
 
 \begin_layout Subsection
-El color-off
+El 
+\emph on
+color-off
 \end_layout
 
 \begin_layout Standard
@@ -420,22 +597,23 @@ color-off
 \end_layout
 
 \begin_layout Subsection
-El plasma
+El 
+\emph on
+plasma
 \end_layout
 
 \begin_layout Standard
 Para colaborar con la ambientación de las escenas, se utilizó un fondo de
- plasma.
+ 
+\emph on
+plasma
+\emph default
+.
  Básicamente, se trata de una imagen que se genera a partir de una función
  senoidal y ciertas designaciones de colores a los puntos.
  El efecto resultante podría describirse como una serie de círculos y circunfere
-ncias de distintos colores agrandándose, achicándose y trasladándose a lo
- largo de la pantalla.
-\end_layout
-
-\begin_layout Standard
-De este modo, tanto el color-off de los personajes como el del fondo del
- escenario fueron reemplazados 
+ncias de distintos colores (en nuestro caso, mayormente verde azul y negro)
+ agrandándose, achicándose y trasladándose a lo largo de la pantalla.
 \end_layout
 
 \begin_layout Standard
@@ -462,53 +640,229 @@ Llegué hasta acá retocando el informe.
 
 \end_layout
 
-\begin_layout Standard
-* Los BMP
+\begin_layout Section
+Desarrollo
+\end_layout
+
+\begin_layout Subsection
+Basura en los bitmaps
 \end_layout
 
 \begin_layout Standard
+El formato de los bitmaps que utilizamos alineaba cada fila de pixeles a
+ un múltiplo de 32 bits.
+ Esto quiere decir que, cuando la fila de pixeles no ocupaba un múltiplo
+ de 32 bits, el bitmap contenía, luego de los datos correspondientes a los
+ colores de los pixeles, datos 
+\begin_inset Quotes eld
+\end_inset
+
+basura
+\begin_inset Quotes erd
+\end_inset
+
+ para llevar la fila a un múltiplo de 32 bits.
+\end_layout
+
+\begin_layout Standard
+En cada una de las funciones que se ocupaban de leer o bien de escribir
+ en los bitmaps cargados en memoria, tuvimos que tener en cuenta esto.
+ Como el direccionamiento en la arquitectura que utilizamos es a byte, tuvimos
+ que prestar atención al hecho de que cada fila de pixeles tendría que empezar
+ en una dirección múltiplo de 4.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+* Los BMP
+\end_layout
+
+\begin_layout Plain Layout
 Notamos que este tipo de archivos a veces su longitud no es múltiplo de
  cuatro, entonces encontramos bytes con "basura", este comportamiento lo
  encapsulamos en una macro para que el código assembrer sea más legible.
 \end_layout
 
-\begin_layout Standard
-*2.1.
- Generar Fondo*
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Función 
+\family typewriter
+generarFondo
 \end_layout
 
 \begin_layout Standard
-*void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32
- screenAbsPos);*
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32
+ screenAbsPos);
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Recibe como parametros un puntero al lugar donde esta la pantalla y sus
- dimensiones en pixeles (w de ancho y h de alto).
- Estos pixeles RGB también hay que tener en cuenta que los bytes tienen
- "basura" (no siendo mod 4) por lo que hacemos el tratamiento para eliminarla.
+\begin_inset VSpace defskip
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-*2.2.
- Recortar*
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fondo
+\family default
+ es un puntero al lugar en el que se encuentra el fondo cargado en memoria
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fondo_w
+\family default
+ es el ancho de la imagen del fondo
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fondo_h
+\family default
+ es la altura de la imagen del fondo
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+screenAbsPos
+\family default
+ es la posición en 
+\begin_inset Formula $X$
+\end_inset
+
+ del fondo a partir de la cual se quiere comenzar a dibujar
+\end_layout
+
+\begin_layout Subsection
+Función 
+\family typewriter
+recortar
 \end_layout
 
 \begin_layout Standard
-*void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia,
- Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);*
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32
+ ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Una imagen BMP puede guardar varios Sprites, en este caso se tiene que optar
- por la imagen necesaria, debiendose recortar el Sprite indicado por la
- instancia.
- Recibe como parametros un puntero a la imagen, y sus dimensiones en pixeles.
- El número de instancia comenzando desde cero, y el ancho de la misma.
- También un booleano que indicará la orientación del personaje dentro del
- escenario (esto es para que tenga un buen efecto a la hora de hacerlo cambiar
- de dirección, que camina hacia un lado u otro de la pantalla) y estos bytes
- serán devueltos en el puntero res.
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+sprite
+\family default
+ es un puntero a la imagen que contiene el sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+instancia
+\family default
+ es el número correspondiente a la figura que se quiere obtener recortando
+ del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+ancho_instancia
+\family default
+ es el ancho de cada una de las instancias (figuras) en el sprite (asumimos
+ que todas las instancias tienen un mismo ancho)
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+ancho_sprite
+\family default
+ es el ancho de la imagen del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+alto_sprite
+\family default
+ es la altura de la imagen del sprite
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+res
+\family default
+ es un puntero a un espacio en memoria reservado para depositar la imagen
+ recortada
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+orientacion
+\family default
+ indica la orientación que tendrá la imagen recortada (si el valor de orientació
+n así lo indica, la figura recortada se mostrará orientada hacia el lado
+ contrario al que aparece en el sprite)
 \end_layout
 
 \begin_layout Standard
