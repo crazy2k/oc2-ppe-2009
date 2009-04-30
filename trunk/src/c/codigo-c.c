@@ -77,9 +77,9 @@ extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint
 	if (screenAbsPos > fondo_w - SCREEN_WIDTH)
 		screenAbsPos = fondo_w - SCREEN_WIDTH;
 	int basura_fondo = calcular_basura(fondo_w);
-	Color *pos_screen = screen_pixeles, *pos_fondo = ((Color*) fondo);// + screenAbsPos;
+	Color *pos_screen = screen_pixeles, *pos_fondo = ((Color*) fondo) + screenAbsPos;
 	for (Uint32 i = 0; i < SCREEN_HEIGHT; i++) {
-		Color* comienzo = pos_screen;
+		Color* comienzo = pos_fondo;
 		for (Uint32 j = 0; j < SCREEN_WIDTH; j++, pos_screen++, pos_fondo++)
 			copiar_color(pos_screen, pos_fondo);
 		pos_fondo = ajustar_arreglo(comienzo + fondo_w,basura_fondo);
