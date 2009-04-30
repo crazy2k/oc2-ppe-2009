@@ -81,7 +81,6 @@ recorrer_x:
     add edx, ebx            ; ebx era fondo_w*3 llevado a multiplo de 4
 
     mov esi, SCREEN_W*3
-    multiplo_de_4 esi,eax   ; esi es SCREEN_W*3 llevado a multiplo de 4
 
     add ecx, esi
 
