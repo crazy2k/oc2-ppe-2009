@@ -1,0 +1,18 @@
+Los archivos de bash compilar_asm.sh, compilar_tests.sh y compilar_cpp.sh
+sirven para compilar/ensamblar y crear un ejecutable del trabajo.
+
+Basta con ejecutarlos en orden si se quiere tener los ejecutables.
+
+$ bash compilar_asm.sh
+Elimina todos los .o en ./asm/, y ensambla todos los archivos presentes
+en ese directorio.
+
+$ bash compilar_tests.sh
+Compila el test en ./tests/test_lista_iterador.cpp y ensambla usando
+algunos .o (los especificados en el archivo) correspondientes al código
+assembly. El ejecutable que genera se llama "test_lista_iterador".
+
+$ bash compilar_cpp.sh
+Compila el main.cpp y crea el ejecutable linkeando con los .o en ./asm.
+El ejecutable que genera se llama "prg".
+

@@ -2751,6 +2751,20 @@ Resultados
 \end_layout
 
 \begin_layout Subsection
+Ensamblaje/compilación y ejecución
+\end_layout
+
+\begin_layout Standard
+En el archivo 
+\family typewriter
+src/COMPILAR
+\family default
+, se hallan instrucciones para compilar el código en C/C++ y ensamblar el
+ código en assembly, y para realizar el enlace y creación de un archivo
+ ejecutable.
+\end_layout
+
+\begin_layout Subsection
 
 \emph on
 Debugging
