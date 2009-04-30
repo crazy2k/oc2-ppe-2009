@@ -9,19 +9,21 @@ extern int g_ver0, g_ver1, g_hor0, g_hor1, colores[512];
 extern Color* screen_pixeles;
 
 bool color_igual(Color* a ,Color* b) { //*a == *b
-    return a->r == b->r && a->g == b->g && a->b == b->b;
+    return (a->r == b->r) && (a->g == b->g) && (a->b == b->b);
 }
 
 void copiar_color (Color* a ,Color* b) { //*a = *b
-    a->r = b ->r;
-    a->g = b ->g;
-    a->b = b ->b;
+    a->r = b->r;
+    a->g = b->g;
+    a->b = b->b;
 }
 
 Uint32 calcular_basura (Uint32 ancho) {
-	return (ancho * 3) % 4;
+	return (-ancho * 3) % 4;
 }
 
+
+//Ajusta la posicion de un puntero dentro de un arreglo de pixels
 Color* ajustar_arreglo (Color* arr, Uint32 basura) {
 	return (Color*) ((Uint32) arr + basura);
 }
@@ -68,45 +70,59 @@ extern "C" void generarPlasma (Color rgb)
   g_hor0 += 8;
 }
 
-extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos);
+/////
+// Genera la parte est�tica del Fondo de acuerdo a una imagen seleccionada
+////
+extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos) {
+	if (screenAbsPos > fondo_w - SCREEN_WIDTH)
+		screenAbsPos = fondo_w - SCREEN_WIDTH;
+	int basura_fondo = calcular_basura(fondo_w);
+	Color *pos_screen = screen_pixeles, *pos_fondo = ((Color*) fondo);// + screenAbsPos;
+	for (Uint32 i = 0; i < SCREEN_HEIGHT; i++) {
+		Color* comienzo = pos_screen;
+		for (Uint32 j = 0; j < SCREEN_WIDTH; j++, pos_screen++, pos_fondo++)
+			copiar_color(pos_screen, pos_fondo);
+		pos_fondo = ajustar_arreglo(comienzo + fondo_w,basura_fondo);
+	} 
+}
 
 /////
 // Recorta de una tira de Sprites uno en particular
 /////
-
 extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion) {
     Color *pos_sprite = ((Color*) sprite) + (instancia * ancho_instancia),
     *pos_res = (Color*) res;
     int basura_sprite = calcular_basura(ancho_sprite), 
     	basura_instancia = calcular_basura(ancho_instancia),
     	sentido = 1, defasaje = 0;
-    if (orientacion) {
+    if (orientacion == false) {
     	sentido = -1;
     	defasaje = ancho_instancia -1;
     }
 	for (Uint32 i = 0; i < alto_sprite; i++) {
 		Color* comienzo = pos_sprite;
 		pos_sprite += defasaje;
-		for (Uint32 j = 0; i < ancho_instancia; j++, pos_sprite+=sentido, pos_res++) {
+		for (Uint32 j = 0; j < ancho_instancia; j++, pos_sprite+=sentido, pos_res++) {
 			copiar_color(pos_res,pos_sprite);			
 		}
-		pos_sprite = ajustar_arreglo(comienzo + ancho_sprite,basura_sprite)
+		pos_sprite = ajustar_arreglo(comienzo + ancho_sprite,basura_sprite);
 		pos_res = ajustar_arreglo(pos_res,basura_instancia);
 	}
 }
+
 
 /////
 // Cambia el color off en una imagen por el color del Fondo
 ////
 extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
-    Color *comienzo = screen_pixeles + SCREEN_WIDTH + x,
+    Color *comienzo = screen_pixeles + y * SCREEN_WIDTH + x,
     *pos_buff = (Color*) image;
     int basura = calcular_basura(w);
     
     for (Uint32 i = 0; i < h; i++) {
         Color *actual = comienzo;
         for (Uint32 j = 0; j < w; j++, actual++, pos_buff++) {
-        if (color_igual(actual,&rgb))
+        if (color_igual(pos_buff,&rgb))
             copiar_color(pos_buff,actual);
         }
         pos_buff = ajustar_arreglo(pos_buff,basura);
@@ -136,10 +152,11 @@ extern "C" void conectar (Nodo* a, Nodo* b) {
 }
 
 extern "C" void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers, SDL_Surface* surfaceGen, Uint32 x, Uint32 y, Uint32 ID) {
-    Nodo *sgte = la_lista->primero;
-    while (sgte && sgte->ID < ID)
-        sgte = sgte->prox;
-        
+    Nodo *sgte = la_lista->primero, *anterior = NULL;
+    while (sgte && sgte->ID < ID) {
+        anterior = sgte;
+        sgte = sgte->prox;        
+    }
     if (sgte == NULL || (sgte->ID =! ID)) {
         Nodo* nuevo = (Nodo*) malloc(sizeof(Nodo));
         nuevo->ID = ID;
@@ -150,7 +167,7 @@ extern "C" void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers,
 	    nuevo->prox = NULL;
 	    nuevo->prev = NULL;
 	    
-	    if (sgte->prev) conectar(sgte->prev,nuevo);
+	    if (anterior) conectar(anterior,nuevo);
 	    else la_lista->primero = nuevo;
 	    
         if (sgte) conectar(nuevo,sgte);
@@ -207,4 +224,6 @@ extern "C" void liberar_iterador(Iterador *iter) {
     free(iter);
 }
 
+
+extern "C" bool smooth() {return false;}
 
