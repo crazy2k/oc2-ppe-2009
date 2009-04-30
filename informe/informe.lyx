@@ -1831,7 +1831,15 @@ e* surfaceGen, Uint32 x, Uint32 y, Uint32 ID) {
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
     Nodo *sgte = la_lista->primero, *anterior = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -1852,6 +1860,10 @@ e* surfaceGen, Uint32 x, Uint32 y, Uint32 ID) {
 \begin_layout Plain Layout
 
     }
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -1949,7 +1961,15 @@ void borrar(Lista* la_lista, Uint32 x, Uint32 y) {
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
     Nodo *sgte = la_lista->primero, *proximo = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -1964,8 +1984,16 @@ void borrar(Lista* la_lista, Uint32 x, Uint32 y) {
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
         if ( abs(sgte->coord_x - x) < 50 && abs(sgte->coord_y - y) < 50
  ) {
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -1991,6 +2019,10 @@ void borrar(Lista* la_lista, Uint32 x, Uint32 y) {
 \begin_layout Plain Layout
 
             else conectar(sgte->prev,sgte->prox);
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -2029,7 +2061,15 @@ void liberar_lista(Lista* l) {
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
     Nodo* sgte = l->primero;
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -2055,6 +2095,10 @@ void liberar_lista(Lista* l) {
 \begin_layout Plain Layout
 
     }
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -2158,6 +2202,122 @@ Todas estas funciones se hallan en el archivo
 funciones_iterador.asm
 \family default
 .
+\end_layout
+
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+extern "C" Iterador* constructor_iterador(Lista *lista) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Iterador* res = (Iterador*) malloc(sizeof(Iterador));
+\end_layout
+
+\begin_layout Plain Layout
+
+    res->actual = lista->primero;
+\end_layout
+
+\begin_layout Plain Layout
+
+    return res;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+extern "C" void proximo(Iterador *iter) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    iter->actual = iter->actual->prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+extern "C" Nodo* item(Iterador *iter) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    return iter->actual;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+extern "C" bool hay_proximo(Iterador *iter){
+\end_layout
+
+\begin_layout Plain Layout
+
+    return iter->actual != NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+extern "C" void liberar_iterador(Iterador *iter) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    free(iter);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
