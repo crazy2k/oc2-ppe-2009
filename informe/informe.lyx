@@ -24,7 +24,7 @@
 \spacing single
 \use_hyperref false
 \papersize a4paper
-\use_geometry false
+\use_geometry true
 \use_amsmath 1
 \use_esint 1
 \cite_engine basic
@@ -743,6 +743,147 @@ n así lo indica, la figura recortada se mostrará orientada hacia el lado
  contrario al que aparece en el sprite)
 \end_layout
 
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32
+ ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion) {
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    Color *pos_sprite = ((Color*) sprite) + (instancia * ancho_instancia),
+\end_layout
+
+\begin_layout Plain Layout
+
+    *pos_res = (Color*) res;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    int basura_sprite = calcular_basura(ancho_sprite), 
+\end_layout
+
+\begin_layout Plain Layout
+
+    	basura_instancia = calcular_basura(ancho_instancia),
+\end_layout
+
+\begin_layout Plain Layout
+
+    	sentido = 1, defasaje = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (orientacion == false) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    	sentido = -1;
+\end_layout
+
+\begin_layout Plain Layout
+
+    	defasaje = ancho_instancia -1;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	for (Uint32 i = 0; i < alto_sprite; i++) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		Color* comienzo = pos_sprite;
+\end_layout
+
+\begin_layout Plain Layout
+
+		pos_sprite += defasaje;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		for (Uint32 j=0; j < ancho_instancia; j++, pos_sprite+=sentido, pos_res++)
+ {
+\end_layout
+
+\begin_layout Plain Layout
+
+			copiar_color(pos_res,pos_sprite);			
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		pos_sprite = ajustar_arreglo(comienzo + ancho_sprite,basura_sprite);
+\end_layout
+
+\begin_layout Plain Layout
+
+		pos_res = ajustar_arreglo(pos_res,basura_instancia);
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Función 
 \family typewriter
@@ -832,6 +973,113 @@ rgb
  la imagen los pixeles a ser reemplazados
 \end_layout
 
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb)
+ {
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    Color *comienzo = screen_pixeles + y * SCREEN_WIDTH + x,
+\end_layout
+
+\begin_layout Plain Layout
+
+    *pos_buff = (Color*) image;
+\end_layout
+
+\begin_layout Plain Layout
+
+    int basura = calcular_basura(w);
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+    for (Uint32 i = 0; i < h; i++) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        Color *actual = comienzo;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        for (Uint32 j = 0; j < w; j++, actual++, pos_buff++) {
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        	if (color_igual(pos_buff,&rgb))
+\end_layout
+
+\begin_layout Plain Layout
+
+            	copiar_color(pos_buff,actual);
+\end_layout
+
+\begin_layout Plain Layout
+
+        	}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        	pos_buff = ajustar_arreglo(pos_buff,basura);
+\end_layout
+
+\begin_layout Plain Layout
+
+        	comienzo += SCREEN_WIDTH;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }        
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Función 
 \family typewriter
@@ -910,6 +1158,103 @@ screenAbsPos
  del fondo a partir de la cual se quiere comenzar a dibujar
 \end_layout
 
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32
+ screenAbsPos) {
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (screenAbsPos > fondo_w - SCREEN_WIDTH)
+\end_layout
+
+\begin_layout Plain Layout
+
+		screenAbsPos = fondo_w - SCREEN_WIDTH;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	int basura_fondo = calcular_basura(fondo_w);
+\end_layout
+
+\begin_layout Plain Layout
+
+	Color *pos_screen = screen_pixeles, *pos_fondo = ((Color*) fondo) + screenAbsPo
+s;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	for (Uint32 i = 0; i < SCREEN_HEIGHT; i++) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		Color* comienzo = pos_fondo;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		for (Uint32 j = 0; j < SCREEN_WIDTH; j++, pos_screen++, pos_fondo++)
+\end_layout
+
+\begin_layout Plain Layout
+
+			copiar_color(pos_screen, pos_fondo);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		pos_fondo = ajustar_arreglo(comienzo + fondo_w,basura_fondo);
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Función 
 \family typewriter
@@ -960,6 +1305,243 @@ rgb
 \family default
  es el color del que estarán pintados los pixeles que serán reemplazados
  por el efecto de plasma
+\end_layout
+
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void generarPlasma (Color rgb)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+  int x;
+\end_layout
+
+\begin_layout Plain Layout
+
+  for (int i = 0; i < SCREEN_HEIGHT; i++)
+\end_layout
+
+\begin_layout Plain Layout
+
+  {
+\end_layout
+
+\begin_layout Plain Layout
+
+     for (int j = 0; j < SCREEN_WIDTH; j++)
+\end_layout
+
+\begin_layout Plain Layout
+
+     {
+\end_layout
+
+\begin_layout Plain Layout
+
+         x = colores[(g_ver0 + 5*j) % 512] +
+\end_layout
+
+\begin_layout Plain Layout
+
+           colores[(g_ver1 + 3*j) % 512] +
+\end_layout
+
+\begin_layout Plain Layout
+
+           colores[(g_hor0 + 3*i) % 512] +
+\end_layout
+
+\begin_layout Plain Layout
+
+           colores[(g_hor1 + i) % 512];
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+         Uint8 index = 128 + (x >> 4);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+         if (color_igual(&screen_pixeles[i * SCREEN_WIDTH + j],&rgb))
+\end_layout
+
+\begin_layout Plain Layout
+
+         {
+\end_layout
+
+\begin_layout Plain Layout
+
+             if (index < 64) {
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].r = 255 - ((index
+ << 2) + 1);
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].g = index << 2;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+            } else if (index < 128) {
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].r = (index << 2) +
+ 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].g = 255;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+            } else if (index < 192) {
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].r = 255 - ((index<<2)
+ + 1);
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].g = 255 - ((index<<2)
+ + 1);
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+            } else if (index < 256) {
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].r = (index << 2) +
+ 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].g = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+            } else if (index >= 256) {
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].r = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].g = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+            }
+\end_layout
+
+\begin_layout Plain Layout
+
+         }
+\end_layout
+
+\begin_layout Plain Layout
+
+     }
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+  g_ver0 += 9;
+\end_layout
+
+\begin_layout Plain Layout
+
+  g_hor0 += 8;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -1127,6 +1709,367 @@ Todas las funciones que atañen a la lista se encuentran en el mismo archivo,
 funciones_lista.asm
 \family default
 .
+\end_layout
+
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Lista* constructor_lista() {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Lista *res = (Lista*) malloc(sizeof(Lista));
+\end_layout
+
+\begin_layout Plain Layout
+
+    res->primero = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+    return res;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+bool verificar_id (Lista* la_lista, Uint32 id) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Nodo* sgte = la_lista->primero;
+\end_layout
+
+\begin_layout Plain Layout
+
+    while (sgte) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        Nodo* prox = sgte->prox; 
+\end_layout
+
+\begin_layout Plain Layout
+
+        if (sgte->ID == id) return false;
+\end_layout
+
+\begin_layout Plain Layout
+
+        sgte = prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+    return true;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void conectar (Nodo* a, Nodo* b) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    a->prox = b;
+\end_layout
+
+\begin_layout Plain Layout
+
+    b->prev = a;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void agregar_item_ordenado(Lista* la_lista, SDL_Surface* surfacePers, SDL_Surfac
+e* surfaceGen, Uint32 x, Uint32 y, Uint32 ID) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Nodo *sgte = la_lista->primero, *anterior = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+    while (sgte && sgte->ID < ID) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        anterior = sgte;
+\end_layout
+
+\begin_layout Plain Layout
+
+        sgte = sgte->prox;        
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (sgte == NULL || (sgte->ID =! ID)) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        Nodo* nuevo = (Nodo*) malloc(sizeof(Nodo));
+\end_layout
+
+\begin_layout Plain Layout
+
+        nuevo->ID = ID;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    nuevo->surfaceGen = surfaceGen;
+\end_layout
+
+\begin_layout Plain Layout
+
+        nuevo->surfacePers = surfacePers;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    nuevo->coord_x = x;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    nuevo->coord_y = y;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    nuevo->prox = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    nuevo->prev = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    
+\end_layout
+
+\begin_layout Plain Layout
+
+	    if (anterior) conectar(anterior,nuevo);
+\end_layout
+
+\begin_layout Plain Layout
+
+	    else la_lista->primero = nuevo;
+\end_layout
+
+\begin_layout Plain Layout
+
+	    
+\end_layout
+
+\begin_layout Plain Layout
+
+        if (sgte) conectar(nuevo,sgte);
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void borrar(Lista* la_lista, Uint32 x, Uint32 y) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Nodo *sgte = la_lista->primero, *proximo = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+    while (sgte) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        proximo = sgte->prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+        if ( abs(sgte->coord_x - x) < 50 && abs(sgte->coord_y - y) < 50
+ ) {
+\end_layout
+
+\begin_layout Plain Layout
+
+            if (sgte->prev == NULL) { 
+\end_layout
+
+\begin_layout Plain Layout
+
+                la_lista->primero = sgte->prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+                if (sgte->prox != NULL) sgte->prox->prev = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+            } else if (sgte->prox == NULL) sgte->prev->prox = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+            else conectar(sgte->prev,sgte->prox);
+\end_layout
+
+\begin_layout Plain Layout
+
+            free(sgte);
+\end_layout
+
+\begin_layout Plain Layout
+
+        }
+\end_layout
+
+\begin_layout Plain Layout
+
+        sgte = proximo;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void liberar_lista(Lista* l) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Nodo* sgte = l->primero;
+\end_layout
+
+\begin_layout Plain Layout
+
+    while (sgte) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        Nodo* prox = sgte->prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+        free(sgte);
+\end_layout
+
+\begin_layout Plain Layout
+
+        sgte = prox;
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+    free(l);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
