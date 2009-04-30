@@ -18,6 +18,14 @@ void copiar_color (Color* a ,Color* b) { //*a = *b
     a->b = b ->b;
 }
 
+Uint32 calcular_basura (Uint32 ancho) {
+	return (ancho * 3) % 4;
+}
+
+Color* acomodar_arreglo (Color* arr, Uint32 basura) {
+	return (Color*) ((Uint32) arr + basura);
+}
+
 extern "C" void generarPlasma (Color rgb)
 {
   int x;
@@ -58,6 +66,34 @@ extern "C" void generarPlasma (Color rgb)
   }
   g_ver0 += 9;
   g_hor0 += 8;
+}
+
+extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos);
+
+/////
+// Recorta de una tira de Sprites uno en particular
+/////
+//extern void recortar(Uint8 *imagen, Uint32 instancia, Uint32 ancho_instancia, Uint32 w, Uint32 h, Uint8 *res, bool dir);
+extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
+ //recortar(item(iter)->surfaceGen->pixels, ciclo%24, item(iter)->surfacePers->w, item(iter)->surfaceGen->w, item(iter)->surfaceGen->h, item(iter)->surfacePers->pixels, true);
+
+/////
+// Cambia el color off en una imagen por el color del Fondo
+////
+extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
+    Color *comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
+    *pos_buff = (Color*) image;
+    int basura = calcular_basura(w);
+    
+    for (Uint32 i = 0; i < h; i++) {
+        Color *actual = comienzo;
+        for (Uint32 j = 0; j < w; j++, actual++, pos_buff++) {
+        if (color_igual(actual,&rgb))
+            copiar_color(pos_buff,actual);
+        }
+        pos_buff = acomodar_arreglo(pos_buff,basura);
+        comienzo += SCREEN_WIDTH;
+    }        
 }
 
 extern "C" Lista* constructor_lista() {
@@ -151,33 +187,5 @@ extern "C" bool hay_proximo(Iterador *iter){
 
 extern "C" void liberar_iterador(Iterador *iter) {
     free(iter);
-}
-
-extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos);
-
-/////
-// Recorta de una tira de Sprites uno en particular
-/////
-//extern void recortar(Uint8 *imagen, Uint32 instancia, Uint32 ancho_instancia, Uint32 w, Uint32 h, Uint8 *res, bool dir);
-extern "C" void recortar(Uint8* sprite, Uint32 instancia, Uint32 ancho_instancia, Uint32 ancho_sprite, Uint32 alto_sprite, Uint8* res, bool orientacion);
- //recortar(item(iter)->surfaceGen->pixels, ciclo%24, item(iter)->surfacePers->w, item(iter)->surfaceGen->w, item(iter)->surfaceGen->h, item(iter)->surfacePers->pixels, true);
-
-/////
-// Cambia el color off en una imagen por el color del Fondo
-////
-extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color rgb) {
-    Color *comienzo = ((SCREEN_WIDTH) + x + screen_pixeles),
-    *pos_buff = (Color*) image;
-    int basura = (w * 3) % 4;
-    
-    for (Uint32 i = 0; i < h; i++) {
-        Color *actual = comienzo;
-        for (Uint32 j = 0; j < w; j++, actual++, pos_buff++) {
-        if (color_igual(actual,&rgb))
-            copiar_color(pos_buff,actual);
-        }
-        pos_buff = (Color*) ((Uint32) pos_buff + basura);
-        comienzo += SCREEN_WIDTH;
-    }        
-}
+}
 
