@@ -12,7 +12,7 @@
 %define orientacion [ebp+32]
 
 %define ancho_sprite_bytes [ebp-4]
-%define basura_instancia [ebp-8]
+%define ancho_total_instancia [ebp-8]
 %define defasaje [ebp-12]
 %define linea_final [ebp-16]
 %define cant_fila [ebp-20]
@@ -29,7 +29,8 @@ entrada_funcion 28
     mov edi, ptrResultado
     calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en pixeles (sin la basura)
     calcular_basura eax, ebx                 ;basura para la instancia
-    mov basura_instancia,eax                
+    add eax, ebx
+    mov ancho_total_instancia, eax
     
     mov eax, instancia
     mul ebx                                  ;tengo en edx:eax la cant de bytes hasta la primera instancia
@@ -40,9 +41,10 @@ entrada_funcion 28
     add ecx, ebx
     mov ancho_sprite_bytes, eax              ;ancho del sprite en pixeles (ecx)
 
+    mov eax, ancho_instancia
     mov ebx, 15
     div ebx                              ; 15 bytes (5 pixels)
-    cmp edx, 0                               ;cociente en eax y resto en edx
+    cmp edx, 0                           ;cociente en eax y resto en edx
     je es_multiplo
     inc eax
 es_multiplo:
@@ -67,7 +69,7 @@ es_multiplo:
 
     mov eax, -15                            ;guardar en eax, el sentido en que se mueve esi
     cmp dword orientacion, 0
-    je seguir
+    ;je seguir
     mov dword defasaje, 0                    ;si se mueve hacia la derecha:
     neg eax 
 seguir:  
@@ -77,6 +79,7 @@ seguir:
     dec ecx
 no_es_linea_final:
     mov edx, esi                             ;guardar en edx, la pos al principio de la iteracion
+    mov ebx, edi                             ;guardar en ebx, la pos al principio de la iteracion
     add esi, defasaje                        ;si hay q espejar, ir hasta el ultimo elemento de la fila
 ciclo:
 
@@ -87,12 +90,14 @@ ciclo:
     add esi, eax                             ;anvanzo o retrocedo un pixel en el sprite origen
     loopne ciclo                             ;cuando el contador se hace 0 salir del bucle
 finalizacion:  
-    add edi, basura_instancia
+    cmp esi, final                           ;si se llego al final del sprite, terminar
+    je ultimo_chunk
+    mov edi, ebx
+    add edi, ancho_total_instancia
     mov esi, edx                             ;recupero el valor al principio del iteracion
     add esi, ancho_sprite_bytes              ;y sumo para pasar a la siguiente fila
-    cmp esi, final                           ;si se llego al final del sprite, terminar
-    jne seguir
-    
+    jmp seguir
+ultimo_chunk: 
     sub edi, ultimos_bytes
     sub esi, ultimos_bytes
     movdqu xmm0, [esi]
