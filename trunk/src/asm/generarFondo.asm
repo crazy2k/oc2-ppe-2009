@@ -69,14 +69,9 @@ recorrer_x:
 
     movdqu [ecx + edi], xmm0
 
-
-
-    add edi, 15
+    add edi, 16
     cmp edi, SCREEN_W*3 - 3
     jl recorrer_x           ; ver si hay que pasar por x = SCREEN_W
-
-    ; ya procesamos en paralelo todo lo que podiamos; lo que
-    ; resta lo procesamos como siempre
     
     add edx, ebx            ; ebx era fondo_w*3 llevado a multiplo de 4
 
