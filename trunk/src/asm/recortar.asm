@@ -27,21 +27,21 @@ entrada_funcion 28
 
     mov esi, ptrSprite
     mov edi, ptrResultado
-    calcular_pixels ebx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en pixeles (sin la basura)
-    calcular_basura eax, ebx                 ;basura para la instancia
-    add eax, ebx
+    calcular_pixels ecx,ancho_instancia      ;ebx: ancho de la instancia sobre el sprite en pixeles (sin la basura)
+    calcular_basura eax, ecx                 ;basura para la instancia
+    add eax, ecx
     mov ancho_total_instancia, eax
     
     mov eax, instancia
-    mul ebx                                  ;tengo en edx:eax la cant de bytes hasta la primera instancia
+    mul ecx                                  ;tengo en edx:eax la cant de bytes hasta la primera instancia
     add esi, eax                             ;en esi tengo el comienzo de la instancia dentro del sprite
   
     calcular_pixels eax, ancho_sprite        ;cantidad de pixeles q ocupa el sprite
     calcular_basura ebx,eax                  ;basura del sprite
-    add ecx, ebx
+    add eax, ebx
     mov ancho_sprite_bytes, eax              ;ancho del sprite en pixeles (ecx)
 
-    mov eax, ancho_instancia
+    mov eax, ecx                        ;tengo en ebx el ancho de la instancia en pixeles (sin la basura)
     mov ebx, 15
     div ebx                              ; 15 bytes (5 pixels)
     cmp edx, 0                           ;cociente en eax y resto en edx
