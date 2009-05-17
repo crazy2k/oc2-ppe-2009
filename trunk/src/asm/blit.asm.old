@@ -2,10 +2,7 @@
 
 %include 'asm/macros_globales.inc'
 %include 'asm/macros_pixels.inc'
-
-mask_repeat_3bytes: dq 0x0100020100020100, 0x0002010002010002
-mask_repeat_first_byte: dq 0x0202010101000000, 0x1004040403030302
-
+  
 %define ptrSprite       [ebp+8]
 %define anchoSprite     [ebp+12]
 %define altoSprite      [ebp+16]
@@ -31,14 +28,14 @@ completo:
     
     ;esi <-- coord_y*(3*SCREEN_W + basura) + coord_x*3 + screen_pixeles
     
-    calcular_pixels ebx,anchoSprite
+    calcular_pixels ebx, anchoSprite
     calcular_basura edx,ebx
     mov basura_sprite,edx
     mov ancho_sprite_bytes,ebx
     
     mov edx, SCREEN_W*3           ;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
-    ;calcular_basura ebx,edx                 ;calculo la basura en ebx, desde edx
-    ;add edx, ebx                            ;sumo el valor de la basura a edx
+    calcular_basura ebx,edx                 ;calculo la basura en ebx, desde edx
+    add edx, ebx                            ;sumo el valor de la basura a edx
     mov ancho_screen_bytes,edx
     
     mov esi, [screen_pixeles]      ;cargo el puntero a pantalla en esi    
@@ -60,60 +57,41 @@ completo:
 nueva_fila:                         
   mov ecx, anchoSprite
 while:
+  ;edi es el puntero al byte actual del sprite
+  ;reviso q el primer byte (red) sea igual
+  mov bl, [edi]     
+  mov al, color_off  
+  cmp al, bl
+  jne no_cambio_color  
+  
+  ;reviso q los 2 ultimos bytes (green-blue) sean iguales
+  mov bx, [edi + 1]
+  mov eax, color_off
+  ror eax, 8                      ;realizo un desplazamiento para q los bytes green-blue queden en ax
+  cmp ax, bx
+  jne no_cambio_color
 
-    movdqu xmm0, [edi]          ; xmm0 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
-                                ; (de la instancia)
-    movdqu xmm2, xmm0
-
-    pxor xmm1, xmm1
-    mov eax, color_off
-    and eax, 0x00FFFFFF
-    movd xmm1, eax              ; xmm1 = [0|0|0|0|0|0|0|0|0|0|0|0|0|B|G|R]
-                                ; (del color-off)
-
-    pshufb xmm1, mask_repeat_3bytes 
-                                ; xmm1 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
-                                ; (color-off replicado)
-
-    pcmpeqb xmm0, xmm1          ; xmm0 = [X|F/0|                 ... |F/0]
-
-    movdqu xmm3, xmm0
-    movdqu xmm4, xmm0
-
-    psrldq xmm3, 1
-    psrldq xmm4, 2
-
-    pand xmm0, xmm3             ; comparo los dos bytes menos significativos
-    pand xmm0, xmm4             ; comparo los 3 bytes menos significativos
-
-    pshufb xmm0, mask_repeat_first_byte
-
-    ; en xmm2 tengo los bytes de la instancia
-    movdqu xmm3, [esi]
-    ; en xmm3 tengo los bytes de la pantalla
-    
-    pand xmm3, xmm0
-
-    pandn xmm0, xmm0            ; xmm0 = not(xmm0)
-    pand xmm2, xmm0
-
-    por xmm2, xmm3
-
-    movdqu [edi], xmm2
-
-    add edi, 15
-    add esi, 15
-    loopne while
-
-    add edi, basura_sprite
-    sub esi, ancho_sprite_bytes
-    add esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
-
-    cmp esi, final
-    je finBlit
-
-    jmp nueva_fila
-
+  ;cambio el color_off por el fondo
+  mov bl, [esi]     ;esi es el puntero al byte actual del screen
+  mov [edi], bl
+  
+  mov bx, [esi + 1]     
+  mov [edi + 1], bx
+  
+no_cambio_color:   
+  add edi, 03h
+  add esi, 03h
+  loopne while
+  
+  add edi, basura_sprite
+  sub esi, ancho_sprite_bytes
+  add esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
+  
+  cmp esi, final
+  je finBlit
+  
+  jmp nueva_fila
+ 
 finBlit:
   
 salida_funcion 16
