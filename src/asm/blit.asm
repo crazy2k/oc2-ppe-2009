@@ -3,8 +3,10 @@
 %include 'asm/macros_globales.inc'
 %include 'asm/macros_pixels.inc'
 
-mask_repeat_3bytes: dq 0x0100020100020100, 0x0002010002010002
-mask_repeat_first_byte: dq 0x0202010101000000, 0x1004040403030302
+mask_repeat_3bytes: dq 0x0100020100020100, 0x1002010002010002
+mask_repeat_first_byte: dq 0x06_06_03_03_03_00_00_00, 0x10_0C_0C_0C_09_09_09_06
+mask_origen: dq 0xFFFFFFFFFFFFFFFF, 0x00FFFFFFFFFFFFFF
+uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
 
 %define ptrSprite       [ebp+8]
 %define anchoSprite     [ebp+12]
@@ -15,50 +17,85 @@ mask_repeat_first_byte: dq 0x0202010101000000, 0x1004040403030302
 
 %define ancho_screen_bytes [ebp-4]
 %define ancho_sprite_bytes [ebp-8]
-%define basura_sprite [ebp-12]
+%define ancho_total_sprite [ebp-12]
 %define final  [ebp-16]
+%define cant_elem  [ebp-20]
+%define linea_final  [ebp-24]
+%define offset_final  [ebp-28]
     
 extern screen_pixeles
 
 global blit
 
 blit:
-entrada_funcion 16
+entrada_funcion 28
      
 completo:
       
-    mov edi, ptrSprite                      ;edi apunta todo el tiempo a la posicion dentro de sprite
-    
-    ;esi <-- coord_y*(3*SCREEN_W + basura) + coord_x*3 + screen_pixeles
+    mov edi, ptrSprite                  ; edi = posicion actual dentro del sprite
+
+    ; quiero:
+    ;   esi = [screen_pixeles] + coord_y*(SCREEN_W*3) + en_bytes(coord_x)
     
     calcular_pixels ebx,anchoSprite
     calcular_basura edx,ebx
-    mov basura_sprite,edx
+
     mov ancho_sprite_bytes,ebx
+    add ebx ,edx
+    mov ancho_total_sprite, ebx
     
-    mov edx, SCREEN_W*3           ;cargamos el ancho de la pantalla en edx y lo multiplicamos por 3
-    ;calcular_basura ebx,edx                 ;calculo la basura en ebx, desde edx
-    ;add edx, ebx                            ;sumo el valor de la basura a edx
-    mov ancho_screen_bytes,edx
+    mov edx, SCREEN_W*3             ; edx = SCREEN_W*3
+    mov ancho_screen_bytes, edx
     
-    mov esi, [screen_pixeles]      ;cargo el puntero a pantalla en esi    
-    calcular_pixels ecx, coord_x  ;cargamos la coor x en edx y lo multiplicamos por 3
-    add esi, ecx                  ;le addiciono el valor de la coord_x a screen_pixeles
-    mov eax, coord_y              ;cargo la coord y en eax 
+    mov esi, [screen_pixeles]       ; esi = [screen_pixeles]
+
+    calcular_pixels ecx, coord_x    ; ecx = en_bytes(coord_x)
+    add esi, ecx                    ; esi = [screen_pixeles] + en_bytes(coord_x)
+
+    mov eax, coord_y                ; eax = coord_y
             
-    mul edx                        ; (pierdo edx)
-    add esi, eax                  ;eax posee la cantidad de bytes q hay q sumarle al puntero a screen
+    mul edx                         ; eax = coord_y*SCREEN_W*3 (pierdo edx)
+    add esi, eax                    ; esi tiene ahora la primera posicion en
+                                    ; la pantalla correspondiente al sprite
     
+    
+
     mov edx, ancho_screen_bytes
+    ;dec edx
     mov eax, altoSprite
-    mul edx                        ;guardo en ecx la cantidad de bytes q usa el sprite              
-    add eax, esi                  ;sumo el punto (0,0)
+    dec eax
+    mul edx
+    add eax, esi
+    mov linea_final, eax
+
+    mov eax, ancho_sprite_bytes
+    sub eax, 16
+    mov offset_final, eax           ; final es el ultimo cacho de 128 bits
+                                    ; para leer de la pantalla
+    add eax, linea_final
     mov final, eax
-    
-;edi apunta todo el tiempo a la posicion dentro de la pantalla
-;las coordenadas (x, y) (x+p, y) (x, y+q) (x+p, y+q)
+
+    mov eax, ancho_sprite_bytes
+    xor edx, edx
+    mov ecx, 15
+    div ecx
+    cmp edx, 0
+    je es_mult 
+    inc eax
+es_mult:    
+    mov cant_elem , eax
+
+    movdqu xmm7,[uno] 
+
 nueva_fila:                         
-  mov ecx, anchoSprite
+    mov ecx, cant_elem
+    mov ebx, edi
+    mov edx, esi
+
+    cmp edx, linea_final
+    jb while
+    dec ecx
+
 while:
 
     movdqu xmm0, [edi]          ; xmm0 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
@@ -71,7 +108,7 @@ while:
     movd xmm1, eax              ; xmm1 = [0|0|0|0|0|0|0|0|0|0|0|0|0|B|G|R]
                                 ; (del color-off)
 
-    pshufb xmm1, mask_repeat_3bytes 
+    pshufb xmm1, [mask_repeat_3bytes]
                                 ; xmm1 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
                                 ; (color-off replicado)
 
@@ -86,15 +123,16 @@ while:
     pand xmm0, xmm3             ; comparo los dos bytes menos significativos
     pand xmm0, xmm4             ; comparo los 3 bytes menos significativos
 
-    pshufb xmm0, mask_repeat_first_byte
-
+    pshufb xmm0, [mask_repeat_first_byte]
+    pand xmm0, [mask_origen]
+    
     ; en xmm2 tengo los bytes de la instancia
     movdqu xmm3, [esi]
     ; en xmm3 tengo los bytes de la pantalla
     
     pand xmm3, xmm0
 
-    pandn xmm0, xmm0            ; xmm0 = not(xmm0)
+    pxor xmm0, xmm7            ; xmm0 = not(xmm0)
     pand xmm2, xmm0
 
     por xmm2, xmm3
@@ -105,16 +143,28 @@ while:
     add esi, 15
     loopne while
 
-    add edi, basura_sprite
-    sub esi, ancho_sprite_bytes
+    mov edi, ebx
+    add edi, ancho_total_sprite  ; edx queda apuntando al principio de la siguiente fila
+    mov esi, edx
     add esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
 
     cmp esi, final
-    je finBlit
+    jae finBlit
 
     jmp nueva_fila
 
 finBlit:
-  
-salida_funcion 16
+    
+    mov edi, ebx
+    sub edi, ancho_total_sprite  ; edx queda apuntando al principio de la siguiente fila
+    add edi, offset_final
+
+    mov esi, edx
+    sub esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
+    add esi, offset_final
+    
+    movdqu xmm0, [esi]
+    movdqu [edi], xmm0
+
+salida_funcion 28
 
