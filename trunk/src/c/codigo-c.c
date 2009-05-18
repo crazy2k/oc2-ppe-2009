@@ -30,38 +30,40 @@ Color* ajustar_arreglo (Color* arr, Uint32 basura) {
 
 extern "C" void generarPlasma (Color rgb)
 {
-  int x;
+  int x,pos;
   for (int i = 0; i < SCREEN_HEIGHT; i++)
   {
+  	 int fila = SCREEN_WIDTH * i;
      for (int j = 0; j < SCREEN_WIDTH; j++)
      {
+     	 pos = fila + j;
          x = colores[(g_ver0 + 5*j) % 512] +
            colores[(g_ver1 + 3*j) % 512] +
            colores[(g_hor0 + 3*i) % 512] +
            colores[(g_hor1 + i) % 512];
          Uint8 index = 128 + (x >> 4);
-         if (color_igual(&screen_pixeles[i * SCREEN_WIDTH + j],&rgb))
+         if (color_igual(&screen_pixeles[pos],&rgb))
          {
              if (index < 64) {
-                  screen_pixeles[i * SCREEN_WIDTH + j].r = 255 - ( (index << 2) + 1);
-                  screen_pixeles[i * SCREEN_WIDTH + j].g = index << 2;
-                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+                  screen_pixeles[pos].r = 255 - ( (index << 2) + 1);
+                  screen_pixeles[pos].g = index << 2;
+                  screen_pixeles[pos].b = 0;
             } else if (index < 128) {
-                  screen_pixeles[i * SCREEN_WIDTH + j].r = (index << 2) + 1;
-                  screen_pixeles[i * SCREEN_WIDTH + j].g = 255;
-                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+                  screen_pixeles[pos].r = (index << 2) + 1;
+                  screen_pixeles[pos].g = 255;
+                  screen_pixeles[pos].b = 0;
             } else if (index < 192) {
-                  screen_pixeles[i * SCREEN_WIDTH + j].r = 255 - ( (index << 2) + 1);
-                  screen_pixeles[i * SCREEN_WIDTH + j].g = 255 - ( (index << 2) + 1);
-                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+                  screen_pixeles[pos].r = 255 - ( (index << 2) + 1);
+                  screen_pixeles[pos].g = 255 - ( (index << 2) + 1);
+                  screen_pixeles[pos].b = 0;
             } else if (index < 256) {
-                  screen_pixeles[i * SCREEN_WIDTH + j].r = (index << 2) + 1;
-                  screen_pixeles[i * SCREEN_WIDTH + j].g = 0;
-                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+                  screen_pixeles[pos].r = (index << 2) + 1;
+                  screen_pixeles[pos].g = 0;
+                  screen_pixeles[pos].b = 0;
             } else if (index >= 256) {
-                  screen_pixeles[i * SCREEN_WIDTH + j].r = 0;
-                  screen_pixeles[i * SCREEN_WIDTH + j].g = 0;
-                  screen_pixeles[i * SCREEN_WIDTH + j].b = 0;
+                  screen_pixeles[pos].r = 0;
+                  screen_pixeles[pos].g = 0;
+                  screen_pixeles[pos].b = 0;
             }
          }
      }
@@ -73,6 +75,7 @@ extern "C" void generarPlasma (Color rgb)
 /////
 // Genera la parte est�tica del Fondo de acuerdo a una imagen seleccionada
 ////
+
 extern "C" void generarFondo (Uint8 *fondo, Uint32 fondo_w, Uint32 fondo_h, Uint32 screenAbsPos) {
 	if (screenAbsPos > fondo_w - SCREEN_WIDTH)
 		screenAbsPos = fondo_w - SCREEN_WIDTH;
@@ -129,6 +132,7 @@ extern "C" void blit(Uint8 *image, Uint32 w, Uint32 h, Uint32 x, Uint32 y, Color
         comienzo += SCREEN_WIDTH;
     }        
 }
+
 
 extern "C" Lista* constructor_lista() {
     Lista *res = (Lista*) malloc(sizeof(Lista));
@@ -224,6 +228,4 @@ extern "C" void liberar_iterador(Iterador *iter) {
     free(iter);
 }
 
-
-extern "C" bool smooth() {return false;}
-
+extern "C" bool smooth() {return true;}
