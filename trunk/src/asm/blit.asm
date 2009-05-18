@@ -156,11 +156,11 @@ while:
 finBlit:
     
     mov edi, ebx
-    sub edi, ancho_total_sprite  ; edx queda apuntando al principio de la siguiente fila
+    ;sub edi, ancho_total_sprite  ; edx queda apuntando al principio de la siguiente fila
     add edi, offset_final
 
     mov esi, edx
-    sub esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
+    ;sub esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
     add esi, offset_final
     
     movdqu xmm0, [esi]
