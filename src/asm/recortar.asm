@@ -3,8 +3,9 @@
 
 section .data
 
-mask: dq 0000000000000000h, 8000000000000000h 
-shuff_ult: dq 06_0B_0A_09_0E_0D_0C_0Fh, 02_01_00_05_04_03_08_07h
+mask: dq 00000000000000FFh, 000000000000000h
+maskn: dq 0xFFFFFFFFFFFFFF00, 0xFFFFFFFFFFFFFFFF
+shuff_ult: dq 06_0B_0A_09_1E_1D_1C_0Fh, 02_01_00_05_04_03_08_07h
 shuff_prs: dq 08_07_0C_0B_0A_0F_0E_0Dh, 00_03_02_01_06_05_04_09h
 shuff_no: dq 07_06_05_04_03_02_01_00h, 0F_0E_0D_0C_0B_0A_09_08h
 
@@ -29,12 +30,13 @@ section .text
 %define ultimos_bytes [ebp-24]
 %define final [ebp-28]
 %define offset_comienzo [ebp-32]
+;%define resto [ebp-36]
 
 global recortar
 
 recortar:
 
-entrada_funcion 32
+entrada_funcion 36
 
     mov esi, ptrSprite
     mov edi, ptrResultado
@@ -59,6 +61,7 @@ entrada_funcion 32
     je es_multiplo
     inc eax
 es_multiplo:
+;	mov resto, edx
     neg edx
     add edx, 16
     mov ultimos_bytes, edx
@@ -82,10 +85,9 @@ es_multiplo:
 
 	movdqu xmm1, [shuff_prs]
 	movdqu xmm2, [shuff_ult]
-	movdqu xmm3, [mask]						;guardo en xmm4 el la mascara negada
-	movdqu xmm4, xmm3
-	pandn xmm4, xmm4						;guardo en xmm4 el la mascara negada
-
+	movdqu xmm3, [mask]						;guardo en xmm3 el la mascara negada
+	movdqu xmm4, [maskn]					;guardo en xmm4 el la mascara negada
+	
     mov eax, -15                            ;guardar en eax, el sentido en que se mueve esi
     cmp dword orientacion, 0
     je seguir
@@ -103,20 +105,33 @@ seguir:
 no_es_linea_final:
     mov edx, esi                             ;guardar en edx, la pos al principio de la iteracion
     mov ebx, edi                             ;guardar en ebx, la pos al principio de la iteracion
-    add esi, offset_comienzo                       ;si hay q espejar, ir hasta el ultimo elemento de la fila
-ciclo:
+    add esi, offset_comienzo                 ;si hay q espejar, ir hasta el ultimo elemento de la fila
 
+ciclo:
     movdqu xmm0, [esi]
 	pshufb xmm0, xmm1
     movdqu [edi], xmm0
 
-    add edi, 15                             ;anvanzo un pixel en el buffer destino
+    add edi, 15                              ;anvanzo un pixel en el buffer destino
     add esi, eax                             ;anvanzo o retrocedo un pixel en el sprite origen
     loopne ciclo                             ;cuando el contador se hace 0 salir del bucle
 finalizacion:
 	cmp dword orientacion, 0
-	je reconf_vars
+	jne reconf_vars
 	
+	mov edi, ebx
+	mov esi, edx
+	add edi, offset_comienzo
+	
+	movdqu xmm5, [esi]						 ;acomodar el ultimo elem para el caso hacia la izq
+	pshufb xmm5, xmm2
+	pand xmm5, xmm4
+	
+	movdqu xmm6, [edi]
+	pand xmm6, xmm3
+	
+	por xmm5, xmm6
+	movdqu [edi], xmm5
 reconf_vars:
     mov edi, ebx
     add edi, ancho_total_instancia
@@ -125,13 +140,20 @@ reconf_vars:
     cmp esi, final                           ;si se llego al final del sprite, terminar
 	jl seguir
 ultimo_chunk:
-    sub esi, ultimos_bytes
-	sub esi, 15
-	;sub esi, 15
-	sub edi, 15
-    sub edi, ultimos_bytes
+	cmp dword orientacion, 0
+	jne salir
+	sub edi, ancho_total_instancia
+	;sub edi, ultimos_bytes
+	;add edi, dist_utl_elem
+	add edi, offset_comienzo
+	
+    
+	sub esi, ancho_sprite_bytes
+	;sub esi, ultimos_bytes
+	;add esi, dist_utl_elem
+	add esi, offset_comienzo
     movdqu xmm0, [esi]
     movdqu [edi], xmm0
-
-    salida_funcion 32
+salir:
+    salida_funcion 36
 
