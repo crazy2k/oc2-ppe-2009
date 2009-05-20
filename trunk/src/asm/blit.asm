@@ -5,12 +5,19 @@
 
 mask_repeat_3bytes: dq 0x0100020100020100, 0x1002010002010002
 mask_repeat_first_byte: dq 0x06_06_03_03_03_00_00_00, 0x10_0C_0C_0C_09_09_09_06
+mask_rol: dq 0x070605040302010F, 0x0E0D0C0B0A0908
+mask_ror: dq 0x0807060504030201, 0x000F0E0D0C0B0A09
 mask_origen: dq 0xFFFFFFFFFFFFFFFF, 0x00FFFFFFFFFFFFFF
 uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
 
-%macro copiar 0
+%macro copiar 0-1 0
     movdqu xmm0, [edi]          ; xmm0 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
                                 ; (de la instancia)
+    %if %1 <> 0
+        ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
+        pshufb xmm0, [mask_rol]
+    %endif
+
     movdqu xmm2, xmm0
 
     pxor xmm1, xmm1
@@ -47,6 +54,11 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
     pand xmm2, xmm0
 
     por xmm2, xmm3
+
+    %if %1 <> 0
+        ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
+        pshufb xmm2, [mask_ror]
+    %endif
 
     movdqu [edi], xmm2
 
@@ -112,8 +124,8 @@ completo:
     add eax, esi
     mov linea_final, eax
 
-    mov eax, ancho_total_sprite
-    sub eax, 32
+    mov eax, ancho_sprite_bytes
+    sub eax, 16
     mov offset_final, eax           ; final es el ultimo cacho de 128 bits
                                     ; para leer de la pantalla
     add eax, linea_final
@@ -162,19 +174,22 @@ finBlit:
     
     mov edi, ebx
     add edi, offset_final
+    sub edi, 16
 
     mov esi, edx
     add esi, offset_final
+    sub esi, 16
     
-    copiar
-    add edi, 15
-    add esi, 15
+    copiar 1
+
+    ;add edi, 15
+    ;add esi, 15
 
     ;movdqu xmm0, [uno]
     ;movdqu [edi], xmm0
 
 
-    copiar
+    ;copiar
 
 
 salida_funcion 28
