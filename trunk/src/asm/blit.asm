@@ -47,6 +47,11 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
     ; en xmm2 tengo los bytes de la instancia
     movdqu xmm3, [esi]
     ; en xmm3 tengo los bytes de la pantalla
+    %if %1 <> 0
+        ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
+        pshufb xmm3, [mask_rol]
+    %endif
+
     
     pand xmm3, xmm0
 
