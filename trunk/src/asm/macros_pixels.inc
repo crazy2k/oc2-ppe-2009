@@ -1,6 +1,6 @@
 
 %macro calcular_pixels 2   ; registro y pos de memoria
-		mov %1, %2						;cargamos la coor x en %1 y lo multiplicamos por 3
+	mov %1, %2						;cargamos la coor x en %1 y lo multiplicamos por 3
     shl %1, 1
     add %1, %2
 %endmacro

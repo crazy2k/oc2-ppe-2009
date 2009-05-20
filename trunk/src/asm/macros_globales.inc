@@ -6,7 +6,7 @@ extern free
     push ebp
     mov ebp, esp
     %if %1 <> 0
-    sub esp, %1
+    	sub esp, %1
     %endif
     push edi
     push esi
@@ -19,7 +19,7 @@ extern free
     pop esi
     pop edi
     %if %1 <> 0
-    add esp, %1
+    	add esp, %1
     %endif
     pop ebp
 
