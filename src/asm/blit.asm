@@ -166,14 +166,15 @@ finBlit:
     mov esi, edx
     add esi, offset_final
     
-    ;movdqu xmm0, [esi]
-    ;movdqu [edi], xmm0
-
     copiar
-    add edi, 15
-    add esi, 15
+    add edi, 16
+    add esi, 16
 
-    copiar
+    movdqu xmm0, [uno]
+    movdqu [edi], xmm0
+
+
+    ;copiar
 
 
 salida_funcion 28
