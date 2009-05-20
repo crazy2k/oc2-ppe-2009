@@ -179,11 +179,11 @@ finBlit:
     
     mov edi, ebx
     add edi, offset_final
-    sub edi, 16
+    ;sub edi, 16
 
     mov esi, edx
     add esi, offset_final
-    sub esi, 16
+    ;sub esi, 16
     
     copiar 1
 
