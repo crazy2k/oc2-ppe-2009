@@ -7,42 +7,39 @@ extern g_ver1
 extern g_hor0
 extern g_hor1
 
-; color_de_fondo escribe en el valor %1 del pixel (i, j) de la pantalla
-; el numero %2. %1 puede ser: 0 (R), 1 (G) o 2 (B) (debe ser inmediato). %2
-; puede ser un registro o un inmediato de 8 bits. color_de_fondo utiliza
-; internamente eax y edx para realizar calculos.
-%macro color_de_fondo_old 2
+section .bss
 
-    load_screenw_pixels
+%define size_buffer 80; (8 * 5) * 2
 
-    ; uso edx porque total ya lo arruine con el mul...
-    lea edx, [j + j * 2] ; edx = j + j*2 = j*3
-    add edx, eax        ; edx = j*3 + i*SCREEN_W*3
+buffer: resb size_buffer
 
-    mov eax, [screen_pixeles]
+section .data
+
+mod512: dd 01FFh,01FFh,01FFh,01FFh
+b1: db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+w128: dw 80h,80h,80h,80h,80h,80h,80h,80h
+compm64: db -65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65
+b255:
+comp0: db -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+comp64: db 63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63
+mask: dw 0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
+offsets1: dd 00h,01h,02h,03h,04h,05h,06h,07h
+offsets2: dd 08h,09h,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh
+copiar_sw: dw 0100h,0100h,0100h,0100h,0100h,0100h,0100h,0100h
+
+section	.text
+
+%macro traer_colores_dw 2
     
-    mov byte [eax + edx +%1], %2
+%endmacro
 
+%macro traer_colores_w 2
+    
 %endmacro
 
 %macro color_de_fondo 3
     mov byte [%1 + %2], %3
 %endmacro
-
-%macro load_screenw_pixels 0
-    cmp dword res_mult, mult_invalid
-    je %%calcular
-    mov eax, res_mult
-    jmp %%mult_salida
-%%calcular:
-    mov eax, SCREEN_W*3
-    ; tener en cuenta que esto toca edx
-    mul i                               ; eax = j*SCREEN_W*3
-    mov res_mult, eax                   ; cacheo el resultado de mult
-%%mult_salida:
-%endmacro
-
-%define mult_invalid 0xFFFFFFFF
     
 global generarPlasma
 
@@ -50,155 +47,136 @@ global generarPlasma
 %define j edi
 
 %define rgb [ebp + 8]
-%define res_mult [ebp - 4]
+%define indices [ebp - 4]
 generarPlasma:
-    entrada_funcion 4
+    entrada_funcion 16
 
-    mov dword res_mult, mult_invalid    ;resetear valor de mult
+;cargar buffer
+
+continuar:
     xor i, i
+	
+	movdqu xmm5, [copiar_sw]
+	movdqu xmm6, [mod512]
+	movd xmm7, [g_hor1]
+	pslldq xmm0, 4
+	movd xmm7, [g_hor0]
+	pslldq xmm0, 4
+	movd xmm7, [g_ver1]
+	pslldq xmm0, 4
+	movd xmm7, [g_ver0]
+	
 loop_i:
 
     xor j, j
+	
+	pxor xmm0, xmm0
+	movd xmm0, i
+	pshufd xmm1, xmm0, 00_00_00_01B	; guardo en xmm1 i - i - i - 0
+	pshufd xmm0, xmm0, 01_00_00_10B	; guardo en xmm0 0 - i - i - 0
+	
+	pslld xmm0, 1					; guardo en xmm0 0 - 2*i - 2*i - 0 
+	paddd xmm0, xmm1				; guardo en xmm0 i - 3*i - 3*i - 0
+	paddd xmm0, xmm7				; xmm0 (i - 3*i - 3*i - 0) + xmm7 (H1 + H0 + V1 + V0)
+	
+	pand xmm0, xmm6					; xmm0 = xmm0 % 512 (x c/dword)
+	
+	psrldq xmm0, 4					;borrar el primer dword de xmm0
+	traer_colores_dw xmm0, 3
+	
+	phaddd xmm0,xmm0
+	phaddd xmm0,xmm0					
+	movd ebx, xmm0					;guardar el resultado parcial en ebx
+	
 loop_j:
 
-    lea ecx, [j + j*4]
 
-    xor edx, edx
-    mov dx, [g_ver0] 
-    add ecx, edx
+calc_indices:
 
-    and ecx, 0x000001FF
+    movd xmm0, j					
+	pshufb xmm0, xmm5				;copio j en cada word de xmm0
+	
+	movdqu xmm3, xmm7			
+	pshufb xmm3, xmm5				;copio en xmm3, g_ver0, en cada word
+	
+	movdqu xmm4, xmm6
+	pshufb xmm4, xmm5				;copio en xmm4, 512, en cada word
+
+	;calculo de los 1ros 8 indices
+	
+	xor ecx, ecx
+
+	movdqu xmm2, [offsets1]	
+	paddw xmm0, xmm2				;guardo en xmm0: j , j+1, j+2, j+4, j+5, ...
+	movdqu xmm1, xmm0				;copio en xmm0 y xmm1, el valor de j, en cada word
+	
+	movd xmm2, ebx
+	pshufb xmm2, xmm5				;copio en cada word de xmm2, el resultado parcial para el valor de i actual
+					
+	psllw xmm0, 2					;mult por 4 a c/word
+	paddw xmm0, xmm1
+	paddw xmm0, xmm3				;sumo g_ver0 a c/word
+	pand xmm0, xmm4					;hago modulo 512 de c/word
+	traer_colores_w xmm0, 8			;traigo los 8 colores calculados de memoria
+	paddw xmm0, xmm2				;sumo a cada resultado el res parcial de i
+	psrlw xmm0, 4					; >> 4, a cada index
+		
+	movdqu xmm2, [w128]
+	paddw xmm0, xmm2				;sumo 128 en cada word
+	movdqu xmm2, [mask]
+	pand xmm0, xmm2					;me quedo con el byte menos significativo de cada word
+
+	movdqu indices, xmm0			;guardo el primer valor calculado
+
+	;calculo de los 2dos 8 indices
+	
+	movd xmm0, j					
+	pshufb xmm0, xmm5				;copio j en cada word de xmm0
+	
+	movdqu xmm2, [offsets2]
+	paddw xmm0, xmm2				;guardo en xmm1: j+8 , j+9, j+A, j+B, j+C, ...
+	movdqu xmm1, xmm0				;copio en xmm0 y xmm1, el valor de j, en cada word
+	
+	movd xmm2, ebx
+	pshufb xmm2, xmm5				;copio en cada word de xmm2, el resultado parcial para el valor de i actual
+					
+	psllw xmm0, 2					;mult por 4 a c/word
+	paddw xmm0, xmm1
+	paddw xmm0, xmm3				;sumo g_ver0 a c/word
+	pand xmm0, xmm4					;hago modulo 512 de c/word
+	traer_colores_w xmm0, 8			;traigo los 8 colores calculados de memoria
+	paddw xmm0, xmm2				;sumo a cada resultado el res parcial de i
+	psrlw xmm0, 4					; >> 4, a cada index
+	
+	movdqu xmm2, [w128]
+	paddw xmm0, xmm2				;sumo 128 en cada word
+	movdqu xmm2, [mask]
+	pand xmm0, xmm2					;me quedo con el byte menos significativo de cada word
+	
+	;copio todos los index al mismo reg
+	movdqu xmm1, indices		
+	
+	packuswb xmm1,xmm0
+
+;comparo mayor o igual a 64 ( > 63)	
+	movdqu xmm0, xmm1
+	movdqu xmm2, [comp64]
+	pcmpgtb xmm0, xmm2
+
+;comparo mayor o igual a 0 ( > -1)	
+	movdqu xmm0, xmm1
+	movdqu xmm2, [comp0]
+	pcmpgtb xmm0, xmm2
+
+;comparo mayor o igual a -64 ( > -65)
+	movdqu xmm0, xmm1
+	movdqu xmm2, [compm64]
+	pcmpgtb xmm0, xmm2
+
+
+
     
-    mov ecx, [colores + ecx*4]
-
-    lea eax, [j + j*2]
-
-    xor edx, edx
-    mov dx, [g_ver1]
-    add eax, edx
-
-    and eax, 0x000001FF
-
-    add ecx, [colores + eax*4]
-
-    lea eax, [i + 2*i]
-
-    xor edx, edx
-    mov dx, [g_hor0]
-    add eax, edx
-
-    and eax, 0x000001FF
-
-    add ecx, [colores + eax*4]
-
-    mov eax, i
-    xor edx, edx
-    mov dx, [g_hor1]
-    add eax, edx
-
-    and eax, 0x000001FF
-
-    add ecx, [colores + eax*4]
-
-    sar ecx, 4
-    add ecx, 128                        ; ecx es index
-    and ecx, 0xFF
-
-    load_screenw_pixels
-
-    mov ebx, [screen_pixeles]
-    lea edx, [ j + j * 2 ]
-    add ebx, edx                          ; ebx = [screen_pixeles] + 3*i
-
-    mov dh, [ebx + eax + 2]
-    shl edx, 8
-    mov dx, [ebx + eax]
-    mov eax, edx
-
-    and eax, 0x00FFFFFF
-    mov ebx, rgb
-    and ebx, 0x00FFFFFF                 ; me quedo con los 3 bytes menos sign.
-    cmp eax, ebx
-    jne ir_a_seguir
-    jmp entrar_al_switch
-
-ir_a_seguir:
-    jmp seguir
-
-    ; aca viene el switch
-entrar_al_switch:
-
-    load_screenw_pixels ;cargo en eax, el desplazamiento vertical (en bytes)
-    lea edx, [j + j * 2] ; edx = j + j*2 = j*3
-    add eax, edx        ; eax = j*3 + i*SCREEN_W*3
-    add eax, [screen_pixeles]   ;queda todo el offset completo en eax (y se calcula solo la primera vez)
-
-case_1:
-    cmp cl, 64
-    jae case_2                          ; fallaba por q jge es signed
-    
-    shl cl, 2                           ; cl = index << 2
-    mov bl, 255
-    sub bl, cl
-    dec bl                              ; bl = 255 - ((index << 2) + 1)
-
-    color_de_fondo eax,0,bl
-    color_de_fondo eax,1,cl
-    color_de_fondo eax,2,0
-    
-    jmp seguir
-
-case_2:
-    cmp cl, 128
-    jae case_3
-
-    shl cl, 2
-    inc cl                              ; cl = (index << 2) + 1
-
-    color_de_fondo eax,0,cl
-    color_de_fondo eax,1,255
-    color_de_fondo eax,2,0
-
-    jmp seguir
-
-case_3:
-    cmp cl, 192
-    jae case_4
-
-    shl cl, 2
-    mov bl, 255
-    sub bl, cl
-    dec bl                             ; bl = 255 - ((index << 2) + 1)
-
-    color_de_fondo eax,0,bl
-    color_de_fondo eax,1,bl
-    color_de_fondo eax,2,0
-
-    jmp seguir
-
-case_4:
-    cmp cx, 256                        ;256 no entra en 8 bits (por eso us cx)
-    jae case_5
-
-    shl cl, 2
-    inc cl                             ; cl = (index << 2) + 1
-
-    color_de_fondo eax,0,cl
-    color_de_fondo eax,1,0
-    color_de_fondo eax,2,0
-    
-    jmp seguir
-
-case_5:
-
-    color_de_fondo eax,0,0
-    color_de_fondo eax,1,0
-    color_de_fondo eax,2,0
-
-
-seguir:
-    
-    inc j
+    add j, 16
     cmp j, SCREEN_W
     jl loop_j
     
