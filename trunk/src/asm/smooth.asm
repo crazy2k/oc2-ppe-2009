@@ -2,12 +2,9 @@ extern screen_pixeles
 
 section .data
 
-w4: dw 4,4,4,4,4,4,4,4
-mask_unos: db 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,0
-pack_pixel_word dq: 
-blancos: dq -1, -1
-negros: dq 0, 0
-
+mask_unos: dw 1,1,1,1,1,1,1,1
+pack_pixel_word: dq 80_09_80_06_80_03_80_00h , 80_80_80_80_80_80_80_0Ch
+blancos: dq -1,-1
 section .text
 
 %include 'asm/macros_globales.inc'
@@ -32,7 +29,7 @@ section .text
 	movdqu xmm2, [edi + %2]
 	punpcklbw xmm2,xmm7
 	
-	movdqu xmm3, [ebx + offset1 + %4] ;inferior
+	movdqu xmm3, [edi + offset1 + %4] ;inferior
 	punpcklbw xmm3,xmm7
 %endmacro
 
@@ -41,7 +38,37 @@ section .text
 	paddw xmm0, xmm2
 	paddw xmm0, xmm3
 
-	psllw xmm0, xmm6 ;divido por 4 a c/color
+	psrlw xmm0, 2 ;divido por 4 a c/color
+%endmacro
+
+%macro contar_colores 1
+	pcmpeqw %1, xmm7
+	movdqu xmm1, %1
+	movdqu xmm2, %1
+
+	psrldq xmm1, 1
+	psrldq xmm2, 2
+	
+	pand %1, xmm1
+	pand %1, xmm2
+
+	movdqu xmm1, [pack_pixel_word]
+	pshufb %1, xmm1
+	movdqu xmm1, [mask_unos]
+	pand %1, xmm1
+	phaddw %1, %1
+	phaddw %1, %1
+	phaddw %1, %1
+	
+	movd edx, %1
+	and edx, 0xFF
+	
+	add eax, edx
+	
+	neg edx
+	add edx, 5
+	
+	add ebx, edx
 %endmacro
 
 global smooth
@@ -50,8 +77,8 @@ smooth:
 ;extern "C" bool smooth();
 	entrada_funcion 0
 	
-	xor eax, eax
-	xor ebx, ebx
+	xor eax, eax				;pixels negros
+	xor ebx, ebx				;pixels blancos
 
 	;1er caso (primera linea)
 
@@ -62,49 +89,71 @@ smooth:
 	lea edi, [edi + offset1]
 
 	pxor xmm7, xmm7; cargo ceros en xmm7
-	movdqu xmm6, [w4]; cargo words de valor 4 en xmm6
-	movdqu xmm5, [blancos]
+	movdqu xmm6, [blancos]
 
-primeros:
-
+	mov esi, SCREEN_H - 1 -1 
+centrales:
 	load_words 0;3,0,0; cargo los primeros 8 bytes
-	psrldq xmm1, 6; pongo el primer pixel en cero
+	pslldq xmm1, 6; pongo el primer pixel en cero
+	calc_proms
+	movdqu xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
+
+	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
+	calc_proms
+	packuswb xmm4, xmm0
+	movdqu [edi], xmm4
+	
+	contar_colores xmm4
+	add edi,15
+
+	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
+ciclo:
+
+	load_words ;-3,3,0,0; cargo los primeros 8 bytes
 	calc_proms
 	movdqu xmm4, xmm0
 
 	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
 	calc_proms
-
+	packuswb xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
+	movdqu [edi],xmm4
+	
 ;caculo de bls y ngrs
-	packuswb xmm4, xmm0
-	movdqu xmm0, xmm4
-
-	pcmpeqw xmm4, xmm7
-	movdqu xmm1, xmm4
-	movdqu xmm2, xmm4
-
-	psrldq xmm1, 1
-	psrldq xmm2, 2
 	
-	pand xmm4, xmm1
-	pand xmm4, xmm2
-	
-	
-
-	pshufb xmm
-
-
-	pcmpeqw xmm0, xmm5
-
-
-;caculo de bls y ngrs
-
-	movdqu xmm4, [edi]
+	contar_colores xmm4;, xmm7, eax; contar negros
+	;contar_colores xmm0, xmm5, ebx; contar blancos
 
 	add edi,15
 
-ciclo:
+	dec ecx
+	jne ciclo
+ultimos:
+	load_words -3,0,0,0; cargo los primeros 8 bytes
+	psrldq xmm2, 6; pongo el ultimo pixel en cero
+	calc_proms
+	movdqu xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
 
+	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
+	calc_proms
+	packuswb xmm4, xmm0
+	movdqu [edi], xmm4
+	
+;caculo de bls y ngrs
+	
+	contar_colores xmm4;, xmm7, eax; contar negros
+	;contar_colores xmm0, xmm5, ebx; contar blancos
+	add edi,15
+
+	dec esi
+	jne centrales
+	
+	cmp eax, ebx
+	
+	mov eax, 0
+	
+	jbe salir
+	
+	mov eax, 1
 
 ;3er caso (ultima linea)
 
