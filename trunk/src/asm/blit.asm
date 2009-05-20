@@ -8,6 +8,50 @@ mask_repeat_first_byte: dq 0x06_06_03_03_03_00_00_00, 0x10_0C_0C_0C_09_09_09_06
 mask_origen: dq 0xFFFFFFFFFFFFFFFF, 0x00FFFFFFFFFFFFFF
 uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
 
+%macro copiar 0
+    movdqu xmm0, [edi]          ; xmm0 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
+                                ; (de la instancia)
+    movdqu xmm2, xmm0
+
+    pxor xmm1, xmm1
+    mov eax, color_off
+    and eax, 0x00FFFFFF
+    movd xmm1, eax              ; xmm1 = [0|0|0|0|0|0|0|0|0|0|0|0|0|B|G|R]
+                                ; (del color-off)
+
+    pshufb xmm1, [mask_repeat_3bytes]
+                                ; xmm1 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
+                                ; (color-off replicado)
+
+    pcmpeqb xmm0, xmm1          ; xmm0 = [X|F/0|                 ... |F/0]
+
+    movdqu xmm3, xmm0
+    movdqu xmm4, xmm0
+
+    psrldq xmm3, 1
+    psrldq xmm4, 2
+
+    pand xmm0, xmm3             ; comparo los dos bytes menos significativos
+    pand xmm0, xmm4             ; comparo los 3 bytes menos significativos
+
+    pshufb xmm0, [mask_repeat_first_byte]
+    pand xmm0, [mask_origen]
+    
+    ; en xmm2 tengo los bytes de la instancia
+    movdqu xmm3, [esi]
+    ; en xmm3 tengo los bytes de la pantalla
+    
+    pand xmm3, xmm0
+
+    pxor xmm0, xmm7            ; xmm0 = not(xmm0)
+    pand xmm2, xmm0
+
+    por xmm2, xmm3
+
+    movdqu [edi], xmm2
+
+%endmacro
+
 %define ptrSprite       [ebp+8]
 %define anchoSprite     [ebp+12]
 %define altoSprite      [ebp+16]
@@ -68,8 +112,8 @@ completo:
     add eax, esi
     mov linea_final, eax
 
-    mov eax, ancho_sprite_bytes
-    sub eax, 16
+    mov eax, ancho_total_sprite
+    sub eax, 32
     mov offset_final, eax           ; final es el ultimo cacho de 128 bits
                                     ; para leer de la pantalla
     add eax, linea_final
@@ -98,46 +142,7 @@ nueva_fila:
 
 while:
 
-    movdqu xmm0, [edi]          ; xmm0 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
-                                ; (de la instancia)
-    movdqu xmm2, xmm0
-
-    pxor xmm1, xmm1
-    mov eax, color_off
-    and eax, 0x00FFFFFF
-    movd xmm1, eax              ; xmm1 = [0|0|0|0|0|0|0|0|0|0|0|0|0|B|G|R]
-                                ; (del color-off)
-
-    pshufb xmm1, [mask_repeat_3bytes]
-                                ; xmm1 = [X|B|G|R|B|G|R|B|G|R|B|G|R|B|G|R]
-                                ; (color-off replicado)
-
-    pcmpeqb xmm0, xmm1          ; xmm0 = [X|F/0|                 ... |F/0]
-
-    movdqu xmm3, xmm0
-    movdqu xmm4, xmm0
-
-    psrldq xmm3, 1
-    psrldq xmm4, 2
-
-    pand xmm0, xmm3             ; comparo los dos bytes menos significativos
-    pand xmm0, xmm4             ; comparo los 3 bytes menos significativos
-
-    pshufb xmm0, [mask_repeat_first_byte]
-    pand xmm0, [mask_origen]
-    
-    ; en xmm2 tengo los bytes de la instancia
-    movdqu xmm3, [esi]
-    ; en xmm3 tengo los bytes de la pantalla
-    
-    pand xmm3, xmm0
-
-    pxor xmm0, xmm7            ; xmm0 = not(xmm0)
-    pand xmm2, xmm0
-
-    por xmm2, xmm3
-
-    movdqu [edi], xmm2
+    copiar
 
     add edi, 15
     add esi, 15
@@ -156,15 +161,20 @@ while:
 finBlit:
     
     mov edi, ebx
-    ;sub edi, ancho_total_sprite  ; edx queda apuntando al principio de la siguiente fila
     add edi, offset_final
 
     mov esi, edx
-    ;sub esi, ancho_screen_bytes  ; edx queda apuntando al principio de la siguiente fila
     add esi, offset_final
     
-    movdqu xmm0, [esi]
-    movdqu [edi], xmm0
+    ;movdqu xmm0, [esi]
+    ;movdqu [edi], xmm0
+
+    copiar
+    add edi, 15
+    add esi, 15
+
+    copiar
+
 
 salida_funcion 28
 
