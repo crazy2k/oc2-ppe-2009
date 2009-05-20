@@ -61,7 +61,6 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
     por xmm2, xmm3
 
     %if %1 <> 0
-        ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
         pshufb xmm2, [mask_rol]
     %endif
 
@@ -186,15 +185,6 @@ finBlit:
     ;sub esi, 16
     
     copiar 1
-
-    add edi, 1
-    add esi, 1
-
-    ;movdqu xmm0, [uno]
-    ;movdqu [edi], xmm0
-
-
-    ;copiar
 
 
 salida_funcion 28
