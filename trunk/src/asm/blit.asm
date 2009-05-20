@@ -15,7 +15,7 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
                                 ; (de la instancia)
     %if %1 <> 0
         ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
-        pshufb xmm0, [mask_rol]
+        pshufb xmm0, [mask_ror]
     %endif
 
     movdqu xmm2, xmm0
@@ -49,7 +49,7 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
     ; en xmm3 tengo los bytes de la pantalla
     %if %1 <> 0
         ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
-        pshufb xmm3, [mask_rol]
+        pshufb xmm3, [mask_ror]
     %endif
 
     
@@ -62,7 +62,7 @@ uno: dq 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
 
     %if %1 <> 0
         ; caso xmm0 = [BGR|BGR|BGR|BGR|BGR|X]
-        pshufb xmm2, [mask_ror]
+        pshufb xmm2, [mask_rol]
     %endif
 
     movdqu [edi], xmm2
@@ -187,8 +187,8 @@ finBlit:
     
     copiar 1
 
-    ;add edi, 15
-    ;add esi, 15
+    add edi, 1
+    add esi, 1
 
     ;movdqu xmm0, [uno]
     ;movdqu [edi], xmm0
