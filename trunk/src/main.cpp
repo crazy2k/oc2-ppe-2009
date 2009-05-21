@@ -76,8 +76,10 @@ extern "C" void generarPlasma(Color rgb);
 /////
 extern "C" bool smooth();
 
+extern "C" void negative();
+
 // Funcion Negativo
-void negative()
+/*void negative()
 {
 	Uint8* arriba;
 	Uint8* abajo;
@@ -108,7 +110,7 @@ void negative()
 			screenp++;
 		}
 	}
-}
+}*/
 
 
 
