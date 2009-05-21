@@ -42,14 +42,6 @@ section .text
 	%endif
 %endmacro
 
-%macro calc_proms 0
-	paddw xmm0, xmm1	;caculo la sumatoria de c/color
-	paddw xmm0, xmm2
-	paddw xmm0, xmm3
-
-	psrlw xmm0, 2 ;divido por 4 a c/color
-%endmacro
-
 %macro contar_colores 1
 	pcmpeqw %1, xmm7
 	movdqu xmm1, %1
@@ -80,34 +72,7 @@ section .text
 	add ebx, edx
 %endmacro
 
-
-%macro aplicar_filtro 0-1 medio ; %1 en [principio,medio, final]
-	%ifidni %1,principio
-		load_n_words 0,0;3,0,0; cargo los primeros 8 bytes  ;*
-		pslldq xmm1, 6; pongo el primer pixel en cero   ;*
-	%else
-		load_n_words 0;-3,3,0,0; cargo los primeros 8 bytes ;*
-	%endif
-	
-	calc_proms
-	movdqu xmm4, xmm0
-
-	%ifidni %1,final
-		load_n_words 0,8-3,8+3-3,8,8; cargo los segundos 8 bytes ;*
-		psrldq xmm2, 6; pongo el ultimo pixel en cero   ;*
-	%else
-		load_n_words 0,8-3,8+3,8,8; cargo los segundos 8 bytes
-	%endif
-	
-	calc_proms
-	packuswb xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
-	movdqu [edi],xmm4
-	
-	contar_colores xmm4;, xmm7, eax; contar negros
-	add edi,15
-%endmacro
-
-%macro aplicar_filtro_parcial 2; %1 en [principio,medio, final], %2 en [0,1,2]
+%macro aplicar_filtro 2; %1 en [principio,medio, final], %2 en [0,1,2]
 	%ifidni %1,principio
 		load_n_words %2,0,3,0,0; cargo los primeros 8 bytes  ;*
 		pslldq xmm1, 6; pongo el primer pixel en cero   ;*
@@ -141,8 +106,6 @@ section .text
 		paddw xmm2, xmm3
 	%endif
 	psrlw xmm2, 2 ;divido por 4 a c/color
-	
-	movdqu xmm4, xmm2
 
 	packuswb xmm4, xmm2; xmm4  = packed(xmm0) + packed(xmm4)
 	%ifidni %1,final
@@ -174,43 +137,43 @@ smooth:
 	movdqu xmm6, [blancos]
 
 ;1er caso (primera linea)
-	aplicar_filtro_parcial principio,1
+	aplicar_filtro principio,1
 	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
 pciclo:
-	aplicar_filtro_parcial medio,1
+	aplicar_filtro medio,1
 	
 	dec ecx
 	jne pciclo
 pultimos:
-	aplicar_filtro_parcial final,1
+	aplicar_filtro final,1
 	
 ;2do caso (centro)
 	mov esi, SCREEN_H - 1 -1 
 centrales:
-	aplicar_filtro principio
+	aplicar_filtro principio,0
 
 	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
 cciclo:
-	aplicar_filtro medio
+	aplicar_filtro medio,0
 
 	dec ecx
 	jne cciclo
 cultimos:
-	aplicar_filtro final
+	aplicar_filtro final,0
 	
 	dec esi
 	jne centrales
 	
 ;3er caso (ultima linea)
-	aplicar_filtro_parcial principio,2
+	aplicar_filtro principio,2
 	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
 uciclo:
-	aplicar_filtro_parcial medio,2
+	aplicar_filtro medio,2
 	
 	dec ecx
 	jne uciclo
 uultimos:
-	aplicar_filtro_parcial final,2
+	aplicar_filtro final,2
 	sub edi, 15 + 1
 	mov edx, [edi]
 	and edx, 0FFh

@@ -2,6 +2,10 @@
 extern malloc
 extern free
 
+extern memalign
+;void *memalign(size_t blocksize, size_t bytes);
+
+
 %macro entrada_funcion 1
     push ebp
     mov ebp, esp

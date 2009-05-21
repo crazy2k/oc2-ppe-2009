@@ -1,4 +1,0 @@
-global smooth
-
-smooth:
-    ret    
