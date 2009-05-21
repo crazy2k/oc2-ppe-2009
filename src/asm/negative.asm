@@ -6,48 +6,42 @@ extern screen_pixeles
 
 global  negative
 
-guardar_ultimo_byte: dq 0x0000000000000000,0xFF00000000000000
 ceros: dq 0x0000000000000000, 0x0000000000000000
 uno: dq 0x0000000000000001, 0x0000000000000000
 dos55_replicado: dq 0x000000FF000000FF, 0x000000FF000000FF
 reordenar_words_0: dq 0x808080800C080400, 0x8080808080808080
 reordenar_words_1: dq 0x0C08040080808080, 0x8080808080808080
 reordenar_words_4: dq 0x8080808080808080, 0x808080800C080400
-reordenar_words_5: dq 0x8080808080808080, 0x8008040080808080
+reordenar_words_5: dq 0x8080808080808080, 0x0C08040080808080
+dos55_32: dd 0x000000FF
 
-%define ultimo_byte [ebp - 16]
-negative:
-    entrada_funcion 16
+; asume que en edi se encuentra el puntero al primero de los 5 pixeles
+; actuales; 
+%macro procesar_pixels 1 ; puede ser: primera_fila, centro, ultima_fila
 
-    mov edi, [screen_pixeles]
 
-    ; avanzo hasta el cuerpo del medio
-    lea edi, [edi + SCREEN_W*3 + 3]     ; edi es el puntero al nodo central
+	%ifnidni %1,primera_fila    ; si no es la primera fila,
+        movdqu xmm0, [edi - SCREEN_W*3]
+    %elifnidni
+        movdqu xmm0, [ceros]
+    %endif
 
-    ; ebx es el numero de filas a recorrer
-    mov ebx, SCREEN_H - 4
-
-recorrer_nueva_fila:
-    mov esi, edi                        ; salvo en esi el principio de la fila
-
-    mov eax, edi
-    lea eax, [eax + SCREEN_W*3 - 3 - 20]  ; eax es el final de la fila
-
-seguir_recorriendo_fila:
-    movdqu xmm0, [edi]
-    pand xmm0, [guardar_ultimo_byte]
-    movdqu ultimo_byte, xmm0
-
-    movdqu xmm0, [edi - SCREEN_W*3]
     movdqu xmm1, [edi - 3]
     movdqu xmm2, [edi + 3]
-    movdqu xmm3, [edi + SCREEN_W*3] ; xmmi = [X|BGR|BGR|BGR|BGR|BGR]
-                                    ; (una posicion es un byte)
+
+	%ifnidni %1,ultima_fila    ; si no es la ultima fila,
+        movdqu xmm3, [edi + SCREEN_W*3]
+    %elifnidni
+        movdqu xmm3, [ceros]
+    %endif
+   
+    ; hasta aca, tengo xmmi = [R|BGR|BGR|BGR|BGR|BGR]
+    ; (una posicion es un byte)
 
     movdqu xmm4, xmm0
     movdqu xmm5, xmm1
     movdqu xmm6, xmm2
-    movdqu xmm7, xmm3       ; xmmi = [X|BGR|BGR|BGR|BGR|BGR]
+    movdqu xmm7, xmm3       ; xmmi = [R|BGR|BGR|BGR|BGR|BGR]
                             ; (una posicion es un byte)
 
     ; partes bajas
@@ -60,7 +54,7 @@ seguir_recorriendo_fila:
     punpckhbw xmm4, [ceros] 
     punpckhbw xmm5, [ceros]
     punpckhbw xmm6, [ceros] 
-    punpckhbw xmm7, [ceros] ; xmmi = [XX|(0B)(0G)(0R)|(0B)(0G)(0R)|(0B)]
+    punpckhbw xmm7, [ceros] ; xmmi = [(0R)|(0B)(0G)(0R)|(0B)(0G)(0R)|(0B)]
 
 
     paddw xmm0, xmm1
@@ -80,8 +74,7 @@ seguir_recorriendo_fila:
     punpcklwd xmm0, [ceros]
     punpckhwd xmm1, [ceros]
     punpcklwd xmm4, [ceros]
-    punpckhwd xmm5, [ceros] ; xmm5 = [XXXX|...  ] (los 32 bits mas sign.
-                            ; no me sirven)
+    punpckhwd xmm5, [ceros]
 
     ; ahora solo tengo libres xmm2, xmm3, xmm6, xmm7
 
@@ -117,23 +110,172 @@ seguir_recorriendo_fila:
     por xmm0, xmm4
     por xmm0, xmm5
 
-    movdqu xmm1, ultimo_byte
-    por xmm0, xmm1
-
     movdqu [edi], xmm0
 
-    add edi, 15
+%endmacro
 
-    cmp edi, eax
-    jl seguir_recorriendo_fila
+%macro procesar_byte 2 ; puede ser: (primero,ultimo,medio);(arriba,abajo,medio)
+    xor eax, eax
+    xor edx, edx
+	%ifnidni %1,primero
+        mov edx, [edi - 3]
+        and edx, 0x000000FF
+        add eax, edx
+    %endif
+	%ifnidni %1,ultimo
+        mov edx, [edi + 3]
+        and edx, 0x000000FF
+        add eax, edx
+    %endif
+	%ifnidni %2,arriba
+        mov edx, [edi - SCREEN_W*3]
+        and edx, 0x000000FF
+        add eax, edx
+    %endif
+	%ifnidni %2,abajo
+        mov edx, [edi + SCREEN_W*3]
+        and edx, 0x000000FF
+        add eax, edx
+    %endif
 
-    mov edi, esi
-    add edi, SCREEN_W*3
+    inc eax
+
+    mov aux, eax
+    finit
+    fild dword aux
+    fsqrt
+    fld1            ; st0 = 1; st1 = sqrt(sum)
+    fxch
+    fdivp           
+    fild dword [dos55_32]
+    fmulp
+    fist dword aux
+    emms
+    mov eax, aux
+
+    mov [edi], al
+%endmacro
+
+
+%define iteraciones_centro_fila (SCREEN_W*3 - 3)/16
+%define bytes_fin_fila (SCREEN_W*3 - 3) % 16
+%define aux [ebp - 4]
+negative:
+    entrada_funcion 4
+
+    mov edi, [screen_pixeles]
+
+    ; PROCESAR PRIMER BYTE
+
+    procesar_byte primero,arriba
+    inc edi
+    procesar_byte primero,arriba
+    inc edi
+    procesar_byte primero,arriba
+    inc edi
+    ; FIN PROCESAR PRIMER BYTE
+
+    mov ecx, iteraciones_centro_fila
+iterar_primera_fila:
+    procesar_pixels primera_fila
+
+    add edi, 16
+    dec ecx
+    jne iterar_primera_fila
+    
+    ; PROCESAR ULTIMOS BYTES PRIMERA FILA
+    mov ecx, bytes_fin_fila - 3
+procesar_ultimos_bytes_primera_fila:
+    procesar_byte medio, arriba
+    inc edi
+    dec ecx
+    jne procesar_ultimos_bytes_primera_fila
+
+    procesar_byte ultimo, arriba
+    inc edi
+    procesar_byte ultimo, arriba
+    inc edi
+    procesar_byte ultimo, arriba
+    inc edi
+    ; FIN PROCESAR ULTIMOS BYTES PRIMERA FILA
+
+    ; ebx es el numero de filas a recorrer
+    mov ebx, SCREEN_H - 2
+
+recorrer_nueva_fila:
+
+    ; PROCESAR PRIMER PIXEL
+
+    procesar_byte primero,medio
+    inc edi
+    procesar_byte primero,medio
+    inc edi
+    procesar_byte primero,medio
+    inc edi
+
+    ; FIN PROCESAR PRIMER PIXEL
+
+    mov ecx, iteraciones_centro_fila
+
+seguir_recorriendo_fila:
+
+    procesar_pixels centro
+
+    add edi, 16
+
+    dec ecx
+    jne seguir_recorriendo_fila
+
+
+    mov ecx, bytes_fin_fila - 3
+procesar_bytes_fin_fila:
+
+    procesar_byte medio, medio
+
+    inc edi
+    dec ecx
+    jne procesar_bytes_fin_fila
+
+    procesar_byte ultimo, medio
+    inc edi
+    procesar_byte ultimo, medio
+    inc edi
+    procesar_byte ultimo, medio
+    inc edi
 
     dec ebx
     cmp ebx, 0
     jne recorrer_nueva_fila
 
+    procesar_byte primero,abajo
+    inc edi
+    procesar_byte primero,abajo
+    inc edi
+    procesar_byte primero,abajo
+    inc edi
 
-    salida_funcion 16
+    mov ecx, iteraciones_centro_fila
+iterar_ultima_fila:
+    procesar_pixels ultima_fila
+
+    add edi, 16
+    dec ecx
+    jne iterar_ultima_fila
+
+    mov ecx, bytes_fin_fila - 3
+procesar_ultimos_bytes_ultima_fila:
+    procesar_byte medio, abajo
+    inc edi
+    dec ecx
+    jne procesar_ultimos_bytes_ultima_fila
+
+    procesar_byte ultimo, abajo
+    inc edi
+    procesar_byte ultimo, abajo
+    inc edi
+    procesar_byte ultimo, abajo
+    inc edi
+
+
+    salida_funcion 4
 
