@@ -536,7 +536,6 @@ int main(int argc, char *argv[])
 			negative();
 		}
 
-        negative();
 		if (!cambio_escenario) 
 		{
 			cambio_escenario = smooth();
