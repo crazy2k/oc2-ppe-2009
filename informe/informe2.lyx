@@ -1,0 +1,788 @@
+#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\date{}
+\setcounter{page}{-1}
+\end_preamble
+\use_default_options false
+\language spanish
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+\shape smallcaps
+Organización del Computador II
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
+\size large
+Departamento de Computación,
+\begin_inset Newline newline
+\end_inset
+
+ Facultad de Ciencias Exactas y Naturales,
+\begin_inset Newline newline
+\end_inset
+
+Universidad de Buenos Aires
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace vfill
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\shape smallcaps
+\size larger
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape smallcaps
+\size larger
+Trabajo Práctico 1: “Oportuncrisis” (Segunda Entrega)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
+Primer Cuatrimestre de 2009
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+Grupo "UNPCKHPD"
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Pablo Antonio
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+290/08
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pabloa@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Pablo Herrero
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+332/07
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pablodherrero@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Estefanía Porta
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+451/04
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+estef.barbara@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introducción
+\end_layout
+
+\begin_layout Standard
+La segunda entrega de este trabajo práctico consiste, básicamente, en:
+\end_layout
+
+\begin_layout Itemize
+la 
+\emph on
+optimización
+\emph default
+ de las funciones que formaron parte de la primera entrega, y
+\end_layout
+
+\begin_layout Itemize
+la inclusión de 
+\emph on
+dos nuevas funciones
+\emph default
+: 
+\family typewriter
+smooth()
+\family default
+ y 
+\family typewriter
+negative()
+\end_layout
+
+\begin_layout Standard
+La intención principal de este segundo trabajo es sacarle provecho a las
+ distintas facilidades que proveen las extensiones SIMD
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+
+\emph on
+Single Instruction, Multiple Data
+\end_layout
+
+\end_inset
+
+ de la arquitectura x86 de Intel, así como aplicar distintas técnicas para
+ la optimización del código que se ejecuta en dicha arquitectura.
+\end_layout
+
+\begin_layout Subsection
+¿Qué se muestra ahora por pantalla?
+\end_layout
+
+\begin_layout Standard
+Recordemos cuál era el ciclo que se repetía todo el tiempo en el juego:
+\end_layout
+
+\begin_layout Verse
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+procesar eventos de entrada
+\end_layout
+
+\begin_layout Plain Layout
+
+actualizar posiciones, estados, etc.
+\end_layout
+
+\begin_layout Plain Layout
+
+chequear IA, colisiones, física, etc.
+\end_layout
+
+\begin_layout Plain Layout
+
+mostrar resultados por pantalla
+\end_layout
+
+\begin_layout Plain Layout
+
+ira a 1.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ahora, en la etapa 4 (
+\begin_inset Quotes eld
+\end_inset
+
+mostrar resultados por pantalla
+\begin_inset Quotes erd
+\end_inset
+
+), tiene lugar la siguiente secuencia (extendida):
+\end_layout
+
+\begin_layout Verse
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},breaklines=true,numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+generar el fondo actual (generarFondo)
+\end_layout
+
+\begin_layout Plain Layout
+
+generar el plasma, usando como color-off el color del cielo del fondo (generarPl
+asma)
+\end_layout
+
+\begin_layout Plain Layout
+
+para cada sprite de cada personaje:
+\end_layout
+
+\begin_layout Plain Layout
+
+	recortar la instancia que se quiere del personaje
+\end_layout
+
+\begin_layout Plain Layout
+
+	aplicar blit (cambiar el color-off del personaje por lo que haya en la
+ pantalla)
+\end_layout
+
+\begin_layout Plain Layout
+
+si la tecla 1 o 3 se encuentra oprimida, comenzar la transición a un nuevo
+ escenario
+\end_layout
+
+\begin_layout Plain Layout
+
+si la tecla 1 o 3 se encuentra oprimida, aplicar el efecto negative
+\end_layout
+
+\begin_layout Plain Layout
+
+si se esta realizando la transición a un nuevo escenario:
+\end_layout
+
+\begin_layout Plain Layout
+
+	aplicar el efecto smooth
+\end_layout
+
+\begin_layout Plain Layout
+
+	si hay más pixels negros que de otro color:
+\end_layout
+
+\begin_layout Plain Layout
+
+		finalizar el cambio de escenario
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+El efecto 
+\emph on
+negative
+\end_layout
+
+\begin_layout Subsection
+El efecto 
+\emph on
+smooth
+\end_layout
+
+\begin_layout Section
+Desarrollo
+\end_layout
+
+\begin_layout Subsection
+Funciones desarrolladas
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+negative
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+void negative();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+Ninguno.
+\end_layout
+
+\begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/negative.asm
+\end_layout
+
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void negative():
+\end_layout
+
+\begin_layout Plain Layout
+
+	para cada componente RGB c de cada pixel de la pantalla:
+\end_layout
+
+\begin_layout Plain Layout
+
+		sumatoria = superior(c) + inferior(c) + anterior(c) + posterior(c) + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		c = f(sumatoria)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Donde la función 
+\begin_inset Formula $f$
+\end_inset
+
+ es:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+f(x)=\frac{1}{\sqrt{sumatoria}}\times255\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+smooth
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+bool smooth();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+Ninguno.
+\end_layout
+
+\begin_layout Standard
+Archivo en el que se halla la función: 
+\family typewriter
+src/asm/smooth.asm
+\end_layout
+
+\begin_layout Standard
+Pseudocódigo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},breaklines=true,language={C++},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+bool smooth():
+\end_layout
+
+\begin_layout Plain Layout
+
+	para cada componente RGB c de cada pixel de la pantalla:
+\end_layout
+
+\begin_layout Plain Layout
+
+		sumatoria = superior(c) + inferior(c) + anterior(c) + posterior(c)
+\end_layout
+
+\begin_layout Plain Layout
+
+		c = sumatoria/4
+\end_layout
+
+\begin_layout Plain Layout
+
+		si sumatoria == 0:
+\end_layout
+
+\begin_layout Plain Layout
+
+			contador_negros += 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		si no:
+\end_layout
+
+\begin_layout Plain Layout
+
+			contador_blancos +=1
+\end_layout
+
+\begin_layout Plain Layout
+
+	retornar evaluar(contador_negros > contador_blancos)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Funciones optimizadas
+\end_layout
+
+\begin_layout Subsection
+Optimización
+\end_layout
+
+\begin_layout Subsubsection
+Realizando operaciones en paralelo (SIMD)
+\end_layout
+
+\begin_layout Standard
+Desde la aparición del procesador 
+\emph on
+Pentium II
+\emph default
+ de 
+\emph on
+Intel
+\emph default
+, se agregaron a la arquitectura varias extensiones que proveen soporte
+ para instrucciones SIMD.
+ Entre ellas se encuentran: MMX, SSE, SSE2, SSE3 y SSE4.
+\end_layout
+
+\begin_layout Standard
+Las instrucciones SIMD se utilizan para realizar operaciones en paralelo;
+ se suele trabajar con vectores de datos en lugar de datos individuales.
+ Las mejoras en 
+\emph on
+performance
+\emph default
+ son generalmente apreciables, y muchas veces determinan la utilidad de
+ ciertas aplicaciones.
+\end_layout
+
+\begin_layout Subsubsection
+Evitando saltos
+\end_layout
+
+\begin_layout Subsubsection
+Acceder a memoria no es tan lento (gracias a la memoria caché)
+\end_layout
+
+\begin_layout Subsubsection
+Operaciones aritméticas con 
+\family typewriter
+lea
+\family default
+ y 
+\emph on
+shifts
+\end_layout
+
+\begin_layout Section
+Resultados
+\end_layout
+
+\begin_layout Section
+Conclusiones
+\end_layout
+
+\begin_layout Section*
+Referencias
+\end_layout
+
+\begin_layout Itemize
+Intel R .
+ 64 and IA-32 Architectures Software 1: Basic Architecture
+\end_layout
+
+\begin_layout Itemize
+Intel R.
+ 64 and IA-32 Architectures Software 2A: Instruction Set Reference, A-M
+\end_layout
+
+\begin_layout Itemize
+Intel R.
+ 64 and IA-32 Architectures Software 2B: Instruction Set Reference, N-Z
+\end_layout
+
+\begin_layout Itemize
+Información sobre bitmaps: http://en.wikipedia.org/wiki/BMP_file_format
+\end_layout
+
+\begin_layout Itemize
+Documentación del NASM: http://www.nasm.us/doc/ 
+\end_layout
+
+\end_body
+\end_document
