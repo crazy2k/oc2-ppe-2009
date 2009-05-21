@@ -20,20 +20,29 @@ section .text
 %define offset1 (SCREEN_W * 3)
 %define offset2 offset1 * 2
 
-%macro load_words 0-4 -3,3,0,0
-	movdqu xmm0, [edi - offset1 + %3] ; superior
-	punpcklbw xmm0,xmm7
+%macro load_n_words	1-5 -3,3,0,0
+	%if %1 <> 1
+		movdqu xmm0, [edi - offset1 + %4] ; superior
+		punpcklbw xmm0,xmm7
+	%endif
+
+	%if %1 <> 3
+		movdqu xmm1, [edi + %2]	; medio
+		punpcklbw xmm1,xmm7
+	%endif
 	
-	movdqu xmm1, [edi + %1]	; medio
-	punpcklbw xmm1,xmm7
-	movdqu xmm2, [edi + %2]
-	punpcklbw xmm2,xmm7
+	%if %1 <> 4
+		movdqu xmm2, [edi + %3]
+		punpcklbw xmm2,xmm7
+	%endif
 	
-	movdqu xmm3, [edi + offset1 + %4] ;inferior
-	punpcklbw xmm3,xmm7
+	%if %1 <> 2
+		movdqu xmm3, [edi + offset1 + %5] ;inferior
+		punpcklbw xmm3,xmm7
+	%endif
 %endmacro
 
-%macro calc_proms 0-4 -3,3,0,0
+%macro calc_proms 0
 	paddw xmm0, xmm1	;caculo la sumatoria de c/color
 	paddw xmm0, xmm2
 	paddw xmm0, xmm3
@@ -71,6 +80,85 @@ section .text
 	add ebx, edx
 %endmacro
 
+
+%macro aplicar_filtro 0-1 medio ; %1 en [principio,medio, final]
+	%ifidni %1,principio
+		load_n_words 0,0;3,0,0; cargo los primeros 8 bytes  ;*
+		pslldq xmm1, 6; pongo el primer pixel en cero   ;*
+	%else
+		load_n_words 0;-3,3,0,0; cargo los primeros 8 bytes ;*
+	%endif
+	
+	calc_proms
+	movdqu xmm4, xmm0
+
+	%ifidni %1,final
+		load_n_words 0,8-3,8+3-3,8,8; cargo los segundos 8 bytes ;*
+		psrldq xmm2, 6; pongo el ultimo pixel en cero   ;*
+	%else
+		load_n_words 0,8-3,8+3,8,8; cargo los segundos 8 bytes
+	%endif
+	
+	calc_proms
+	packuswb xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
+	movdqu [edi],xmm4
+	
+	contar_colores xmm4;, xmm7, eax; contar negros
+	add edi,15
+%endmacro
+
+%macro aplicar_filtro_parcial 2; %1 en [principio,medio, final], %2 en [0,1,2]
+	%ifidni %1,principio
+		load_n_words %2,0,3,0,0; cargo los primeros 8 bytes  ;*
+		pslldq xmm1, 6; pongo el primer pixel en cero   ;*
+	%else
+		load_n_words %2;-3,3,0,0; cargo los primeros 8 bytes ;*
+	%endif
+	
+	%if %2 <> 1
+		paddw xmm2, xmm0
+	%endif
+	paddw xmm2, xmm1
+	%if %2 <> 2
+		paddw xmm2, xmm3
+	%endif
+	psrlw xmm2, 2 ;divido por 4 a c/color
+	
+	movdqu xmm4, xmm2
+	
+	%ifidni %1,final
+		load_n_words %2,8-3,8+3-3,8,8; cargo los segundos 8 bytes ;*
+		psrldq xmm2, 6; pongo el ultimo pixel en cero   ;*
+	%else
+		load_n_words %2,8-3,8+3,8,8; cargo los segundos 8 bytes
+	%endif
+
+	%if %2 <> 1
+		paddw xmm2, xmm0
+	%endif
+	paddw xmm2, xmm1
+	%if %2 <> 2
+		paddw xmm2, xmm3
+	%endif
+	psrlw xmm2, 2 ;divido por 4 a c/color
+	
+	movdqu xmm4, xmm2
+
+	packuswb xmm4, xmm2; xmm4  = packed(xmm0) + packed(xmm4)
+	%ifidni %1,final
+		%if %2 == 2
+			movdqu xmm0,xmm4
+		%else
+			movdqu [edi],xmm4
+		%endif
+	%else
+		movdqu [edi],xmm4
+	%endif
+	
+	contar_colores xmm4;, xmm7, eax; contar negros
+	add edi,15
+%endmacro
+
 global smooth
 
 smooth:
@@ -80,82 +168,63 @@ smooth:
 	xor eax, eax				;pixels negros
 	xor ebx, ebx				;pixels blancos
 
-	;1er caso (primera linea)
-
-
-
-	;2do caso
 	mov edi, [screen_pixeles]
-	lea edi, [edi + offset1]
-
+	lea edi, [edi]
 	pxor xmm7, xmm7; cargo ceros en xmm7
 	movdqu xmm6, [blancos]
 
+;1er caso (primera linea)
+	aplicar_filtro_parcial principio,1
+	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
+pciclo:
+	aplicar_filtro_parcial medio,1
+	
+	dec ecx
+	jne pciclo
+pultimos:
+	aplicar_filtro_parcial final,1
+	
+;2do caso (centro)
 	mov esi, SCREEN_H - 1 -1 
 centrales:
-	load_words 0;3,0,0; cargo los primeros 8 bytes
-	pslldq xmm1, 6; pongo el primer pixel en cero
-	calc_proms
-	movdqu xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
-
-	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
-	calc_proms
-	packuswb xmm4, xmm0
-	movdqu [edi], xmm4
-	
-	contar_colores xmm4
-	add edi,15
+	aplicar_filtro principio
 
 	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
-ciclo:
-
-	load_words ;-3,3,0,0; cargo los primeros 8 bytes
-	calc_proms
-	movdqu xmm4, xmm0
-
-	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
-	calc_proms
-	packuswb xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
-	movdqu [edi],xmm4
-	
-;caculo de bls y ngrs
-	
-	contar_colores xmm4;, xmm7, eax; contar negros
-	;contar_colores xmm0, xmm5, ebx; contar blancos
-
-	add edi,15
+cciclo:
+	aplicar_filtro medio
 
 	dec ecx
-	jne ciclo
-ultimos:
-	load_words -3,0,0,0; cargo los primeros 8 bytes
-	psrldq xmm2, 6; pongo el ultimo pixel en cero
-	calc_proms
-	movdqu xmm4, xmm0; xmm4  = packed(xmm0) + packed(xmm4)
-
-	load_words 8-3,8+3,8,8; cargo los segundos 8 bytes
-	calc_proms
-	packuswb xmm4, xmm0
-	movdqu [edi], xmm4
+	jne cciclo
+cultimos:
+	aplicar_filtro final
 	
-;caculo de bls y ngrs
-	
-	contar_colores xmm4;, xmm7, eax; contar negros
-	;contar_colores xmm0, xmm5, ebx; contar blancos
-	add edi,15
-
 	dec esi
 	jne centrales
 	
-	cmp eax, ebx
-	
-	mov eax, 0
-	
-	jbe salir
-	
-	mov eax, 1
-
 ;3er caso (ultima linea)
+	aplicar_filtro_parcial principio,2
+	mov ecx, (SCREEN_W)/5 - 2; todos menos los 5 primeros y 5 ultimos 
+uciclo:
+	aplicar_filtro_parcial medio,2
+	
+	dec ecx
+	jne uciclo
+uultimos:
+	aplicar_filtro_parcial final,2
+	sub edi, 15 + 1
+	mov edx, [edi]
+	and edx, 0FFh
+	pxor xmm1, xmm1
+	movd xmm1, edx
+	pslldq xmm0,1
+	
+	por xmm0,xmm1
+	movdqu [edi], xmm0
+	
+	cmp eax, ebx
+	mov eax, 0
+	jbe salir
+	mov eax, 1
 
 
 salir:
