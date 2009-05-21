@@ -99,12 +99,12 @@ extern "C" void negative();
 			((j < SCREEN_W*3 - 1)? (adelante = screenp + 3) : (adelante = &cero));
 			((j > 0)? (atras = screenp - 3) : (atras = &cero));
 			
-			double ar = (double)(*arriba)/(double)255.0;
-			double ab = (double)(*abajo)/(double)255.0;
-			double at = (double)(*atras)/(double)255.0;
-			double ad = (double)(*adelante)/(double)255.0;
+			float ar = (float)(*arriba)/(float)255.0;
+			float ab = (float)(*abajo)/(float)255.0;
+			float at = (float)(*atras)/(float)255.0;
+			float ad = (float)(*adelante)/(float)255.0;
 			
-			double res = (1/sqrt((ar + ab + at + ad + 1)))*255;
+			float res = (1/sqrt((ar + ab + at + ad + 1)))*255;
 			*screenp = (Uint8)res;
 			
 			screenp++;
@@ -536,6 +536,7 @@ int main(int argc, char *argv[])
 			negative();
 		}
 
+        negative();
 		if (!cambio_escenario) 
 		{
 			cambio_escenario = smooth();
