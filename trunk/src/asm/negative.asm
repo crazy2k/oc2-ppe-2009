@@ -79,8 +79,8 @@ seguir_recorriendo_fila:
     movdqu xmm5, xmm4
     punpcklwd xmm0, [ceros]
     punpckhwd xmm1, [ceros]
-    punpcklbw xmm4, [ceros]
-    punpckhbw xmm5, [ceros] ; xmm5 = [XXXX|...  ] (los 32 bits mas sign.
+    punpcklwd xmm4, [ceros]
+    punpckhwd xmm5, [ceros] ; xmm5 = [XXXX|...  ] (los 32 bits mas sign.
                             ; no me sirven)
 
     ; ahora solo tengo libres xmm2, xmm3, xmm6, xmm7
@@ -132,7 +132,7 @@ seguir_recorriendo_fila:
 
     dec ebx
     cmp ebx, 0
-    jl seguir_recorriendo_fila
+    jne recorrer_nueva_fila
 
 
     salida_funcion 16
