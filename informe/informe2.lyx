@@ -732,34 +732,6 @@ bool smooth():
 \end_layout
 
 \begin_layout Subsection
-Funciones optimizadas
-\end_layout
-
-\begin_layout Subsubsection
-Función 
-\family typewriter
-recortar
-\end_layout
-
-\begin_layout Subsubsection
-Función 
-\family typewriter
-blit
-\end_layout
-
-\begin_layout Subsubsection
-Función 
-\family typewriter
-generarFondo
-\end_layout
-
-\begin_layout Subsubsection
-Función 
-\family typewriter
-generarPlasma
-\end_layout
-
-\begin_layout Subsection
 Optimización
 \end_layout
 
@@ -907,13 +879,53 @@ A lo largo del trabajo, tuvimos en cuentas ambas recomendaciones.
 Resultados
 \end_layout
 
+\begin_layout Standard
+Luego de realizar las optimizaciones antes mencionadas, se observan mejoras
+ en la performance del juego.
+\end_layout
+
+\begin_layout Standard
+La función 
+\family typewriter
+recortar
+\family default
+, encargada de proveer cada una de las imágenes de los 
+\emph on
+sprites
+\emph default
+ de los personajes, se ejecuta más rápidamente.
+ Consecuentemente se observa mayor fluidez en el movimiento de los personajes.
+\end_layout
+
+\begin_layout Standard
+Las funciones que no realizan ningún procesamiento de los pixels, como 
+\family typewriter
+generarFondo
+\family default
+, sólo se ven beneficiadas por la reducción de saltos y los movimientos
+ de memoria en tamaños mayores.
+ En estos casos, la diferencia de 
+\emph on
+performance
+\emph default
+ es menos apreciable.
+\end_layout
+
+\begin_layout Standard
+Las demás funciones, además de beneficiarse por las razones anteriores,
+ agilizaron el procesamiento de los pixels.
+ Como consecuencia, dado que las funciones son llamadas al menos una vez
+ en cada ciclo de la aplicación, no se observan mayores retrasos en el refresco
+ de la pantalla, como sí ocurría con las implementaciones que no sacaban
+ provecho de las instrucciones SIMD.
+\end_layout
+
 \begin_layout Section
 Conclusiones
 \end_layout
 
 \begin_layout Standard
-Estas son algunas de las conclusiones a las que arribamos luego de finalizar
- el trabajo:
+Estas son las conclusiones a las que arribamos luego de finalizar el trabajo:
 \end_layout
 
 \begin_layout Itemize
@@ -941,26 +953,29 @@ Referencias
 \end_layout
 
 \begin_layout Itemize
-Intel R .
- 64 and IA-32 Architectures Software 1: Basic Architecture
+Intel 64 and IA-32 Architectures Software 1: Basic Architecture
 \end_layout
 
 \begin_layout Itemize
-Intel R.
- 64 and IA-32 Architectures Software 2A: Instruction Set Reference, A-M
+Intel 64 and IA-32 Architectures Software 2A: Instruction Set Reference,
+ A-M
 \end_layout
 
 \begin_layout Itemize
-Intel R.
- 64 and IA-32 Architectures Software 2B: Instruction Set Reference, N-Z
+Intel 64 and IA-32 Architectures Software 2B: Instruction Set Reference,
+ N-Z
 \end_layout
 
 \begin_layout Itemize
-Información sobre bitmaps: http://en.wikipedia.org/wiki/BMP_file_format
+Documentación del NASM: http://www.nasm.us/doc/
 \end_layout
 
 \begin_layout Itemize
-Documentación del NASM: http://www.nasm.us/doc/ 
+http://en.wikipedia.org/wiki/Instruction_prefetch
+\end_layout
+
+\begin_layout Itemize
+Intel 64 and IA-32 Architectures Optimization Reference Manual 
 \end_layout
 
 \end_body
