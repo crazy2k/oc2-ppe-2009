@@ -165,15 +165,14 @@ negative:
 
     mov edi, [screen_pixeles]
 
-    ; PROCESAR PRIMER BYTE
-
+    ; PROCESAR PRIMER PIXEL
     procesar_byte primero,arriba
     inc edi
     procesar_byte primero,arriba
     inc edi
     procesar_byte primero,arriba
     inc edi
-    ; FIN PROCESAR PRIMER BYTE
+    ; FIN PROCESAR PRIMER PIXEL
 
     mov ecx, iteraciones_centro_fila
 iterar_primera_fila:
@@ -205,18 +204,16 @@ procesar_ultimos_bytes_primera_fila:
 recorrer_nueva_fila:
 
     ; PROCESAR PRIMER PIXEL
-
     procesar_byte primero,medio
     inc edi
     procesar_byte primero,medio
     inc edi
     procesar_byte primero,medio
     inc edi
-
     ; FIN PROCESAR PRIMER PIXEL
 
-    mov ecx, iteraciones_centro_fila
 
+    mov ecx, iteraciones_centro_fila
 seguir_recorriendo_fila:
 
     procesar_pixels centro
@@ -247,12 +244,14 @@ procesar_bytes_fin_fila:
     cmp ebx, 0
     jne recorrer_nueva_fila
 
+    ; PROCESAR PRIMER PIXEL ULTIMA FILA
     procesar_byte primero,abajo
     inc edi
     procesar_byte primero,abajo
     inc edi
     procesar_byte primero,abajo
     inc edi
+    ; FIN PROCESAR PRIMER PIXEL ULTIMA FILA
 
     mov ecx, iteraciones_centro_fila
 iterar_ultima_fila:
@@ -262,6 +261,7 @@ iterar_ultima_fila:
     dec ecx
     jne iterar_ultima_fila
 
+    ; PROCESAR ULTIMOS BYTES ULTIMA FILA
     mov ecx, bytes_fin_fila - 3
 procesar_ultimos_bytes_ultima_fila:
     procesar_byte medio, abajo
@@ -275,7 +275,7 @@ procesar_ultimos_bytes_ultima_fila:
     inc edi
     procesar_byte ultimo, abajo
     inc edi
-
+    ; FIN PROCESAR ULTIMOS BYTES ULTIMA FILA
 
     salida_funcion 4
 
