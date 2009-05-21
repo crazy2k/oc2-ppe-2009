@@ -466,10 +466,47 @@ El efecto
 negative
 \end_layout
 
+\begin_layout Standard
+El resultado de aplicar la función 
+\family typewriter
+negative
+\family default
+ sobre la pantalla guarda similitud con la imagen de los 
+\begin_inset Quotes eld
+\end_inset
+
+negativos
+\begin_inset Quotes erd
+\end_inset
+
+ de una fotografía (de las tomadas con cámara a rollo).
+\end_layout
+
 \begin_layout Subsection
 El efecto 
 \emph on
 smooth
+\end_layout
+
+\begin_layout Standard
+El efecto de la función 
+\family typewriter
+smooth
+\family default
+ es 
+\emph on
+suavizar
+\emph default
+ la imagen.
+ Puede pensarse en el efecto del suavizado como el contrario del 
+\begin_inset Quotes eld
+\end_inset
+
+pixelado
+\begin_inset Quotes erd
+\end_inset
+
+; en una imagen suavizada, los píxeles no se diferencian con claridad.
 \end_layout
 
 \begin_layout Section
@@ -788,7 +825,7 @@ fetches
 \emph on
 prefetch
 \emph default
- que realiza la máquina, haciendo que esta pierda 
+ que realiza la máquina, haciendo que esta última pierda 
 \emph on
 performance
 \emph default
@@ -872,6 +909,31 @@ Resultados
 
 \begin_layout Section
 Conclusiones
+\end_layout
+
+\begin_layout Standard
+Estas son algunas de las conclusiones a las que arribamos luego de finalizar
+ el trabajo:
+\end_layout
+
+\begin_layout Itemize
+Las instrucciones SIMD son herramientas muy potentes que pueden proveernos
+ 
+\emph on
+notables mejoras en la performance
+\emph default
+ de nuestras aplicaciones.
+\end_layout
+
+\begin_layout Itemize
+Sin embargo, a veces, los cambios que son necesarios para sacarle provecho
+ a dichas instrucciones 
+\emph on
+no son triviales
+\emph default
+; la dificultad principal radica en la complejidad introducida por manipular
+ numerosos datos en conjunto y el ingenio necesario para aplicar las operaciones
+ de la forma más adecuada para obtener los resultados deseados.
 \end_layout
 
 \begin_layout Section*
