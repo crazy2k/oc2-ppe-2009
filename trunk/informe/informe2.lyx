@@ -698,6 +698,30 @@ bool smooth():
 Funciones optimizadas
 \end_layout
 
+\begin_layout Subsubsection
+Función 
+\family typewriter
+recortar
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+blit
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+generarFondo
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+generarPlasma
+\end_layout
+
 \begin_layout Subsection
 Optimización
 \end_layout
@@ -731,12 +755,79 @@ performance
  ciertas aplicaciones.
 \end_layout
 
+\begin_layout Standard
+En general, las más beneficiadas por la utilización de instrucciones SIMD
+ son las aplicaciones que realizan procesamientos similares de grandes cantidade
+s de datos (por ejemplo, las aplicaciones multimedia).
+\end_layout
+
+\begin_layout Standard
+En nuestro caso, las instrucciones SIMD nos permitieron procesar, en ocasiones,
+ hasta 5 pixels en paralelo.
+ Esto produjo la agilización de muchas de nuestras rutinas que trabajan
+ sobre un gran número de pixels de la pantalla.
+\end_layout
+
 \begin_layout Subsubsection
 Evitando saltos
 \end_layout
 
+\begin_layout Standard
+En la realización de este segundo trabajo, se trató especialmente de realizar
+ la menor cantidad de saltos (incluidas las llamadas a subrutinas) posibles.
+\end_layout
+
+\begin_layout Standard
+Sucede que la máquina realiza 
+\emph on
+fetches
+\emph default
+ de instrucciones que presume serán utilizadas en el corto plazo.
+ Si bien existe un predictor de saltos, su heurística puede fallar.
+ En esos casos, los saltos pueden llegar a interrumpir la secuencia de 
+\emph on
+prefetch
+\emph default
+ que realiza la máquina, haciendo que esta pierda 
+\emph on
+performance
+\emph default
+.
+\end_layout
+
 \begin_layout Subsubsection
-Acceder a memoria no es tan lento (gracias a la memoria caché)
+Acceder a memoria no es 
+\emph on
+tan
+\emph default
+ lento (memoria cache)
+\end_layout
+
+\begin_layout Standard
+Hoy en día, las 
+\emph on
+memorias cache
+\emph default
+ son cada vez más grandes y rápidas.
+ Si bien los accesos a la memoria principal suelen tomar varios ciclos de
+ reloj, la realidad es que (siguiendo los 
+\emph on
+principios de localidad espacial y temporal
+\emph default
+) las probabilidades de que los datos que buscamos se encuentren en alguna
+ de las memorias cache de nuestra computadora, son altas.
+\end_layout
+
+\begin_layout Standard
+Esto hace que el uso de memoria para almacenar datos temporales, útiles
+ durante la ejecución de nuestro programa, cuando ya no disponemos de registros,
+ no sea algo demasiado prohibitivo.
+\end_layout
+
+\begin_layout Standard
+En lo que refiere a este trabajo, en ocasiones optamos por alojar datos
+ (cálculos, información auxiliar) en memoria, sabiendo que, dependiendo
+ de la operación, acceder a ellos podía ser más rápido que recalcularlos.
 \end_layout
 
 \begin_layout Subsubsection
@@ -747,6 +838,32 @@ lea
  y 
 \emph on
 shifts
+\end_layout
+
+\begin_layout Standard
+En ocasiones, es preferible usar 
+\family typewriter
+lea
+\family default
+ para realizar operaciones aritméticas (en lugar de otras instrucciones
+ específicas), en especial cuando el objetivo es conseguir una dirección
+ de memoria a partir de la cual obtener un dato, no sólo para ganar claridad,
+ sino también porque puede ser más rápido al momento de la ejecución de
+ nuestro programa.
+\end_layout
+
+\begin_layout Standard
+También es importante tener en cuenta que, para multiplicaciones y divisiones
+ por múltiplos de 2, es preferible utilizar 
+\emph on
+shifts
+\emph default
+ (aritméticos o lógicos, dependiendo el caso) en lugar de usar las instrucciones
+ de multiplicación y división que son notablemente más costosas.
+\end_layout
+
+\begin_layout Standard
+A lo largo del trabajo, tuvimos en cuentas ambas recomendaciones.
 \end_layout
 
 \begin_layout Section
