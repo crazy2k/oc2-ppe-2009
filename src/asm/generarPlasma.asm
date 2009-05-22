@@ -211,7 +211,7 @@ indices_loop:
 	packuswb xmm4, xmm3				;tengo (index << 2), en xmm4
 	movdqu [bindexiz2], xmm4
 
-	mov eax, 0001_0001h
+	mov eax, 0101_0101h
 	movd xmm3, eax
 	pshufb xmm3, xmm6				;pongo en 1 cada byte de xmm3
 	paddb xmm3, xmm4				;tengo ((index << 2) + 1), en xmm3
