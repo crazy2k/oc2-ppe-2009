@@ -206,7 +206,6 @@ indices_loop:
 	
 	psllw xmm3,2
 	psllw xmm4,2
-	movdqu xmm2, [mask]
 	pand xmm3, xmm2					;me quedo con el byte menos significativo de cada word
 	pand xmm4, xmm2					;me quedo con el byte menos significativo de cada word
 	
@@ -220,8 +219,14 @@ indices_loop:
 	paddb xmm3, xmm4				;tengo ((index << 2) + 1), en xmm3
 	movdqu [bindexiz2m1], xmm3
 	
-	movdqu xmm7, [b255]				;pongo en 255 cada byte de xmm3
-	psubb xmm7, xmm3				;tengo 255 - ((index << 2) + 1), en xmm2
+	movdqu xmm2, [unos]				
+	movdqu xmm7, xmm3				
+	pxor xmm7, xmm2					;niego todos los bits de xmm7 y luego les sumo 1
+	mov eax, 0101_0101h
+	movd xmm2, eax
+	pshufb xmm2, xmm6				
+	paddb xmm7, xmm2				;tengo 255 - ((index << 2) + 1), en xmm2
+	
 	movdqu [buff255mindex], xmm7
 
 	mov ecx, 0
@@ -241,9 +246,9 @@ pixels_loop:
 	movdqu xmm2, [mov_pixels]		
 	pshufb xmm1, xmm2 			;configuro los 5 pixels dentro del registro
 	pand xmm1, xmm0
-	movdqu xmm4, xmm1				;dejo el resultado parcial en xmm4
+	movdqu xmm4, xmm1			;dejo el resultado parcial en xmm4
 	
-	movdqu xmm2, xmm0			;guardo la mascara anterio negada en xmm2
+	movdqu xmm2, xmm0			;guardo la mascara anterior negada en xmm2
 	movdqu xmm1, [unos]
 	pxor xmm2, xmm1
 
