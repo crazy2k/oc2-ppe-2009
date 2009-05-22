@@ -206,6 +206,9 @@ indices_loop:
 	
 	psllw xmm3,2
 	psllw xmm4,2
+	movdqu xmm2, [mask]
+	pand xmm3, xmm2					;me quedo con el byte menos significativo de cada word
+	pand xmm4, xmm2					;me quedo con el byte menos significativo de cada word
 	
 	packuswb xmm5, xmm1				;tengo los 16 index en xmm5
 	packuswb xmm4, xmm3				;tengo (index << 2), en xmm4
