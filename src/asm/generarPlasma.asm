@@ -7,7 +7,7 @@ extern g_ver1
 extern g_hor0
 extern g_hor1
 
-section .bss
+section .bss align=16
 
 %define size_buffer 16
 
@@ -19,7 +19,7 @@ color_fondo: resb size_buffer
 ctes: resb size_buffer
 fila_actual: resd 1
 
-section .data
+section .data align=16
 
 mod512: dd 01FFh,01FFh,01FFh,01FFh
 b1: db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
@@ -28,9 +28,9 @@ compm64: db -65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65,-65
 unos:
 b255:
 comp0: db -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
-comp64: dw 63,63,63,63,63,63,63,63
-comp128: db 127,127,127,127,127,127,127,127
-comp192: db 191,191,191,191,191,191,191,191
+comp64: db 63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63
+comp128: db 127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127
+comp192: db 191,191,191,191,191,191,191,191,191,191,191,191,191,191,191,191
 mask: dw 0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
 offsets1: dw 00h,01h,02h,03h,04h,05h,06h,07h
 offsets2: dw 08h,09h,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh
@@ -107,26 +107,26 @@ continuar:
 	
 	movdqa xmm6, [copiar_sw] ;copia la mask de repeticion registro xmm6
 	
-	mov eax, [g_hor1]
+	mov ax, [g_hor1]
 	and eax, 0FFFFh
 	movd xmm0, eax
 	movss xmm7, xmm0
-	pslldq xmm0, 4
-	mov eax, [g_hor0]
+	pslldq xmm7, 4
+	mov ax, [g_hor0]
 	and eax, 0FFFFh
 	movd xmm0, eax
 	movss xmm7, xmm0
-	pslldq xmm0, 4
-	mov eax, [g_ver1]
+	pslldq xmm7, 4
+	mov ax, [g_ver1]
 	and eax, 0FFFFh
 	movd xmm0, eax
 	movss xmm7, xmm0
-	pslldq xmm0, 4
-	mov eax, [g_ver0]
+	pslldq xmm7, 4
+	mov ax, [g_ver0]
 	and eax, 0FFFFh
 	movd xmm0, eax
 	movss xmm7, xmm0
-	movdqu xmm0 ,xmm7
+	movdqu [ctes],xmm7
 	
 loop_i:
 
@@ -213,8 +213,7 @@ indices_loop:
 	packuswb xmm4, xmm3				;tengo (index << 2), en xmm4
 	movdqu [bindexiz2], xmm4
 
-	mov eax, 0101_0101h
-	movd xmm3, eax
+	movdqu xmm3, [b1]
 	pshufb xmm3, xmm6				;pongo en 1 cada byte de xmm3
 	paddb xmm3, xmm4				;tengo ((index << 2) + 1), en xmm3
 	movdqu [bindexiz2m1], xmm3
@@ -222,8 +221,7 @@ indices_loop:
 	movdqu xmm2, [unos]				
 	movdqu xmm7, xmm3				
 	pxor xmm7, xmm2					;niego todos los bits de xmm7 y luego les sumo 1
-	mov eax, 0101_0101h
-	movd xmm2, eax
+	movdqu xmm2, [b1]
 	pshufb xmm2, xmm6				
 	paddb xmm7, xmm2				;tengo 255 - ((index << 2) + 1), en xmm2
 	
@@ -233,8 +231,8 @@ indices_loop:
 pixels_loop:
 	
 ;Caso 3: 64 <= index < 128
-;comparo mayor o igual a 64 ( > 63)	
-	movdqu xmm0, xmm5
+;comparo mayor o igual a 64 ( > 63)
+	movdqa xmm0, xmm5
 	movdqu xmm1, [comp64]
 	pcmpgtb xmm0, xmm1
 	movdqu xmm1, [unpack_comp]
@@ -246,9 +244,9 @@ pixels_loop:
 	movdqu xmm2, [mov_pixels]		
 	pshufb xmm1, xmm2 			;configuro los 5 pixels dentro del registro
 	pand xmm1, xmm0
-	movdqu xmm4, xmm1			;dejo el resultado parcial en xmm4
+	movdqa xmm4, xmm1			;dejo el resultado parcial en xmm4
 	
-	movdqu xmm2, xmm0			;guardo la mascara anterior negada en xmm2
+	movdqa xmm2, xmm0			;guardo la mascara anterior negada en xmm2
 	movdqu xmm1, [unos]
 	pxor xmm2, xmm1
 
@@ -259,11 +257,11 @@ pixels_loop:
 	pcmpgtb xmm0, xmm1
 	movdqu xmm1, [unpack_comp]
 	pshufb xmm0, xmm1			;tengo la mascara para este valor en xmm0
-	pand xmm0, xmm2				;anulo los q ya tome con las mascaras anteriores
+	pand xmm0, xmm2				;anulo los q ya tome con las mascaras anteriores(y dejo la nueva mask en xmm0)
 	
 	movdqu xmm1, xmm7			;cargo 255 - ((index << 2) + 1)
-	movdqu xmm2, [bindexiz2]
-	punpcklbw xmm1,xmm2			;cargo (index << 2)
+	movdqu xmm2, [bindexiz2]	;cargo (index << 2)
+	punpcklbw xmm1,xmm2			
 	movdqu xmm2, [mov_pixels]		
 	pshufb xmm1, xmm2 			;configuro los 5 pixels dentro del registro
 	pand xmm1, xmm0
@@ -313,8 +311,6 @@ pixels_loop:
 	movdqu xmm2, [mask_origen]
 	pand xmm2, xmm1					;elimino el byte del extremo del registro de la mascara
 	
-	movdqu xmm4, [unos]
-		
 	pand xmm4, xmm2
 	
 	movdqu xmm2, [unos]
