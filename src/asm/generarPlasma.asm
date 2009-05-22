@@ -15,6 +15,7 @@ bindex: resb size_buffer * 2
 bindexiz2: resb size_buffer
 bindexiz2m1: resb size_buffer
 buff255mindex: resb size_buffer
+color_fondo: resb size_buffer
 ctes: resb size_buffer
 fila_actual: resd 1
 
@@ -31,34 +32,39 @@ comp64: dw 63,63,63,63,63,63,63,63
 comp128: db 127,127,127,127,127,127,127,127
 comp192: db 191,191,191,191,191,191,191,191
 mask: dw 0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh,0FFh
-offsets1: dd 00h,01h,02h,03h,04h,05h,06h,07h
-offsets2: dd 08h,09h,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh
+offsets1: dw 00h,01h,02h,03h,04h,05h,06h,07h
+offsets2: dw 08h,09h,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh
 copiar_sw: dw 0100h,0100h,0100h,0100h,0100h,0100h,0100h,0100h
-unpack_comp: dq 02_02_01_01_01_00_00_00h, 10_04_04_04_03_03_03_02h 
-mov_pixels: dq 05_04__10_03_02__10_01_00h, 10__10_09_08__10_07_06__10h
+unpack_comp: dq 02_02_01_01_01_00_00_00h, 80_04_04_04_03_03_03_02h 
+mov_pixels: dq 05_04__80_03_02__80_01_00h, 80__80_09_08__80_07_06__80h
 proldw: dq 0x03_02_01_00_0F_0E_0D_0C, 0x_0B_0A_09_08_07_06_05_04
 prolw: dq 0x05_04_03_02_01_00_0F_0E, 0x_0D_0C_0B_0A_09_08_07_06
+rep_color: dq 0x0100_020100_020100, 0x80_020100_020100_02
+mask_origen: dq 0xFFFFFFFFFFFFFFFF, 0x00FFFFFFFFFFFFFF
+mask_dest: dq 0x0000000000000000, 0xFF00000000000000
 
 section	.text
 
-%macro traer_colores_dw 1-2 xmm5
+%macro traer_colores_dw 1-3 xmm5, xmm7
 	mov ebx, colores
 	movdqu %2, [proldw]
 	
 	%rep 3
 		movd eax, %1
 		mov eax, [ebx + eax * 4]	
-		movd %1, eax
+		movd %3, eax
+		movss %1, %3
 		pshufb %1, %2	
 	%endrep
 	xor eax, eax
-	movd %1, eax
+	movd %3, eax
+	movss %1, %3
 	pshufb %1, %2
 %endmacro
 
-%macro traer_colores_w 1-2 xmm5
+%macro traer_colores_w 1-3 xmm5, xmm7
     mov ebx, colores
-	movdqu %2, [prolw]
+	movdqu %2, [proldw]
 	
 	%rep 8
 		movd eax, %1
@@ -68,8 +74,9 @@ section	.text
 		
 		movd eax, %1
 		and eax, 0FFh
-		and edx,[ebx + eax * 4]
-		movd %1, edx
+		or edx,[ebx + eax * 4]
+		movd %3, edx
+		movss %1, %3
 		
 		pshufb %1, %2	
 	%endrep
@@ -88,20 +95,38 @@ generarPlasma:
 continuar:
     xor i, i
 	
+	mov eax, rgb
+	movd xmm0, eax
+	movdqu xmm1, [rep_color]
+	pshufb xmm0, xmm1
+	movdqu [color_fondo],xmm0
+	
 	mov ebx, [screen_pixeles]
 	lea ebx, [ebx]
 	mov [fila_actual], ebx
 	
 	movdqa xmm6, [copiar_sw] ;copia la mask de repeticion registro xmm6
 	
-	movd xmm7, [g_hor1]
+	mov eax, [g_hor1]
+	and eax, 0FFFFh
+	movd xmm0, eax
+	movss xmm7, xmm0
 	pslldq xmm0, 4
-	movd xmm7, [g_hor0]
+	mov eax, [g_hor0]
+	and eax, 0FFFFh
+	movd xmm0, eax
+	movss xmm7, xmm0
 	pslldq xmm0, 4
-	movd xmm7, [g_ver1]
+	mov eax, [g_ver1]
+	and eax, 0FFFFh
+	movd xmm0, eax
+	movss xmm7, xmm0
 	pslldq xmm0, 4
-	movd xmm7, [g_ver0]
-	movdqu [ctes] ,xmm7
+	mov eax, [g_ver0]
+	and eax, 0FFFFh
+	movd xmm0, eax
+	movss xmm7, xmm0
+	movdqu xmm0 ,xmm7
 	
 loop_i:
 
@@ -158,6 +183,7 @@ indices_loop:
 	paddw xmm0, xmm3				;sumo g_ver0 a c/word
 	pand xmm0, xmm4					;hago modulo 512 de c/word
 	traer_colores_w xmm0			;traigo los 8 colores calculados de memoria
+		
 	paddw xmm0, xmm2				;sumo a cada resultado el res parcial de i
 	psrlw xmm0, 4					; >> 4, a cada index
 	
@@ -178,7 +204,7 @@ indices_loop:
 	movdqu xmm4, xmm5
 	movdqu xmm3, xmm1
 	
-	psllw xmm2,2
+	psllw xmm3,2
 	psllw xmm4,2
 	
 	packuswb xmm5, xmm1				;tengo los 16 index en xmm5
@@ -272,22 +298,38 @@ pixels_loop:
 	
 	lea ebx, [j + j * 2]
 	add ebx, [fila_actual]
-	lea eax, [ecx + ecx * 4]
-	movdqu [ebx + eax], xmm4
+	
+	movdqu xmm1, [color_fondo]		;en xmm1 esta la mask con los pixels a utilizar
+	movdqu xmm0, [ebx + ecx]		;en xmm0 estan los pixels leidos de pantalla
+	pcmpeqb xmm1, xmm0				
+	movdqu xmm2, [mask_origen]
+	pand xmm2, xmm1					;elimino el byte del extremo del registro de la mascara
+	
+	movdqu xmm4, [unos]
+		
+	pand xmm4, xmm2
+	
+	movdqu xmm2, [unos]
+	pxor xmm1, xmm2					;dejo en xmm1, la mask negada
+	pand xmm0, xmm1
+	
+	por xmm4, xmm0
+	
+	movdqu [ebx + ecx], xmm4
 	
 	movdqu xmm4, [bindexiz2]
 	
 	psrldq xmm5, 5
 	psrldq xmm4, 5
-	psrldq xmm3, 5
+	psrldq xmm7, 5
 	psrldq xmm3, 5
 	
-	inc ecx
-	cmp ecx, 3 
+	add ecx, 15		; 15 bytes
+	cmp ecx, 15 * 3
 	jne pixels_loop
     
-    add j, 15
-    cmp j, SCREEN_W - 5
+    add j, 15	; 15 pixels
+    cmp j, SCREEN_W
     jl loop_j
 	
 	mov ebx, [fila_actual]
@@ -295,7 +337,7 @@ pixels_loop:
 	mov [fila_actual], ebx
 
     inc i
-    cmp i, SCREEN_H
+    cmp i, SCREEN_H - 1
     jl loop_i
 
     add word [g_ver0], 9
