@@ -11,6 +11,8 @@
 #include <kern/monitor.h>
 #include <kern/kdebug.h>
 
+extern uint32_t bootstacktop;
+
 #define CMDBUF_SIZE	80	// enough for one VGA text line
 
 
@@ -66,14 +68,20 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 
 	cprintf("Stack backtrace:\n");
 
-    uint32_t ebp = read_ebp();
-    while (ebp > bootstacktop) { 
+    uint32_t *ebp = (uint32_t *)read_ebp();
+    while (ebp < bootstacktop) { 
 
-        uint32_t eip = ebp + 4;
-        uint32_t arg0 = ebp + 8;
+        uint32_t eip = *(ebp + 1);
 
-        cprintf("\t ebp %s\t eip %s\t args %s %s %s %s %s", ebp, eip, arg0,
-            arg0 + 4, arg0 + 8, arg0 + 12, arg0 + 16);
+        cprintf("\t ebp %x\t eip %x\t args ", ebp, eip);
+
+        int i;
+        for (i = 2; i <= 6; i++)
+            cprintf("%x ", *(ebp + i));
+
+        cprintf("\n");
+
+        ebp = (uint32_t *)*(ebp);
 
     }
 
@@ -117,10 +125,12 @@ runcmd(char *buf, struct Trapframe *tf)
 	// Lookup and invoke the command
 	if (argc == 0)
 		return 0;
-	for (i = 0; i < NCOMMANDS; i++) {
-		if (strcmp(argv[0], commands[i].name) == 0)
-			return commands[i].func(argc, argv, tf);
-	}
+
+    for (i = 0; i < NCOMMANDS; i++) {
+        if (strcmp(argv[0], commands[i].name) == 0)
+        return commands[i].func(argc, argv, tf);
+    }
+
 	cprintf("Unknown command '%s'\n", argv[0]);
 	return 0;
 }
