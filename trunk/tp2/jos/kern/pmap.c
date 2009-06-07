@@ -488,8 +488,11 @@ page_alloc(struct Page **pp_store)
     if (!LIST_EMPTY(&page_free_list)) {
         Page *p = LIST_FIRST(&page_free_list); 
 
+        Page *p_n = LIST_NEXT(p, pp_link);
         // XXX: Esto anda con el primero? Revisar.
         LIST_REMOVE(p, pplink);
+
+        LIST_FIRST(&page_free_list) = p_n;
 
         page_initpp(p);
 
