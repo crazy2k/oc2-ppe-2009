@@ -489,7 +489,7 @@ page_alloc(struct Page **pp_store)
         Page *p = LIST_FIRST(&page_free_list); 
 
         LIST_REMOVE(p, pplink);
-        page_initpp(p);
+        page_initpp(p); //TODO: que pasa con el list entry en pp_link?
         *pp_store = p;
 
         return 0;
