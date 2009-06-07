@@ -485,6 +485,20 @@ page_alloc(struct Page **pp_store)
 {
 	// Fill this function in
 
+    if (!LIST_EMPTY(&page_free_list)) {
+        Page *p = LIST_FIRST(&page_free_list); 
+
+        // XXX: Esto anda con el primero? Revisar.
+        LIST_REMOVE(p, pplink);
+
+        page_initpp(p);
+
+        *pp_store = p;
+
+        return 0;
+    }
+
+    return -E_NO_MEM;
 }
 
 //
