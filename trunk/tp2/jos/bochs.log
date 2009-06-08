@@ -1,0 +1,2 @@
+00000000000p[MEM0 ] >>PANIC<< ROM: couldn't open ROM image file '/opt/bochs-2.4/share/bochs/BIOS-bochs-latest'.
+00000000000p[MEM0 ] >>PANIC<< ROM: couldn't open ROM image file '/opt/bochs-2.4/share/bochs/VGABIOS-elpin-2.40'.

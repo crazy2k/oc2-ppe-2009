@@ -535,8 +535,30 @@ page_decref(struct Page* pp)
 int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
-	// Fill this function in
-
+	pde_t *pgdir = boot_pgdir;					//Directorio de paginas	
+	pde_t pd = pdgdir[PDX(va)];
+	uint32_t idx = PTX(va);					//Posicion dentro de la tabla de pag para esa va
+	
+	//TODO: Chequear el bit present?
+	if (pd & PTE_P) {
+		//TODO: Es la virtual address correspondiente?
+		pte_t* pgtab = KADDR(PTE_ADDR(pd));			//Direccion virtual de la Tabla de Paginas para esa va
+		*pte_store = pgtab + idx;				//Setear pte_store a la pos del entry en la tabla
+		return 0;
+	} else {
+		Page* npage;
+		if (create && page_alloc(npage)) {
+			physaddr_t pepa = page2pa(npage);
+			pte_t* pgtab = KADDR(PTE_ADDR(pepa));			//Direccion virtual de la Tabla de Paginas para esa va
+			memset(pgtab, 0, PGSIZE); 				
+			pgtab[idx] = PTE_ADDR(pepa)|PTE_W|PTE_P;
+			*pte_store = pgtab + idx;						//Setear pte_store a la pos del entry en la tabla
+			return 0;
+		} else {
+			*pte_store = 0;
+			return -E_NO_MEM;
+		}
+	}
 }
 
 //
