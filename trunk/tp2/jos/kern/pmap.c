@@ -548,6 +548,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 	} else {
 		Page* npage;
 		if (create && page_alloc(npage)) {
+			npage->pp_ref = 1;
 			physaddr_t pepa = page2pa(npage);
 			pte_t* pgtab = KADDR(PTE_ADDR(pepa));			//Direccion virtual de la Tabla de Paginas para esa va
 			memset(pgtab, 0, PGSIZE); 				
