@@ -483,13 +483,12 @@ page_initpp(struct Page *pp)
 int
 page_alloc(struct Page **pp_store)
 {
-	// Fill this function in
 
     if (!LIST_EMPTY(&page_free_list)) {
-        Page *p = LIST_FIRST(&page_free_list); 
+        struct Page *p = LIST_FIRST(&page_free_list); 
 
-        LIST_REMOVE(p, pplink);
-        page_initpp(p); //TODO: que pasa con el list entry en pp_link?
+        LIST_REMOVE(p, pp_link);
+        page_initpp(p);
         *pp_store = p;
 
         return 0;
@@ -505,8 +504,7 @@ page_alloc(struct Page **pp_store)
 void
 page_free(struct Page *pp)
 {
-	// Fill this function in
-
+	LIST_INSERT_HEAD(&page_free_list,pp, pp_link);
 }
 
 //
