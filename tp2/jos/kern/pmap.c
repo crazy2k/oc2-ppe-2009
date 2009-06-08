@@ -535,8 +535,7 @@ page_decref(struct Page* pp)
 int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
-	pde_t *pgdir = boot_pgdir;					//Directorio de paginas	
-	pde_t pd = pdgdir[PDX(va)];
+	pde_t pd = pgdir[PDX(va)];
 	uint32_t idx = PTX(va);					//Posicion dentro de la tabla de pag para esa va
 	
 	//TODO: Chequear el bit present?
@@ -546,10 +545,10 @@ pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 		*pte_store = pgtab + idx;				//Setear pte_store a la pos del entry en la tabla
 		return 0;
 	} else {
-		Page* npage;
-		if (create && page_alloc(npage) == 0) {
-			npage->pp_ref = 1;
-			physaddr_t pepa = page2pa(npage);
+		struct Page* tpage;
+		if (create && page_alloc(tpage) == 0) {
+			tpage->pp_ref = 1;
+			physaddr_t pepa = page2pa(tpage);
 			pte_t* pgtab = KADDR(PTE_ADDR(pepa));			//Direccion virtual de la Tabla de Paginas para esa va
 			memset(pgtab, 0, PGSIZE); 				
 			pgtab[idx] = PTE_ADDR(pepa)|PTE_W|PTE_P;
