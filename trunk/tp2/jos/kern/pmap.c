@@ -535,9 +535,8 @@ page_decref(struct Page* pp)
 int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
-	void *la  = PADDR(va); 						//la es la direccion lineal de la va, que se pasa por param
-	pde_t pd = pgdir[PDX(la)];
-	uint32_t idx = PTX(la);						//Posicion dentro de la tabla de pag para esa va
+	pde_t pd = pgdir[PDX(va)];
+	uint32_t idx = PTX(va);						//Posicion dentro de la tabla de pag para esa va
 	
 	if (pd & PTE_P) {
 		pte_t* pgtab = KADDR(PTE_ADDR(pd));		//Direccion virtual de la Tabla de Paginas para esa va
