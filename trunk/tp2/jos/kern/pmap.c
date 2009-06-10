@@ -535,13 +535,12 @@ page_decref(struct Page* pp)
 int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
-	pde_t pd = pgdir[PDX(va)];
-	uint32_t idx = PTX(va);					//Posicion dentro de la tabla de pag para esa va
+	void *la  = PADDR(va); 						//la es la direccion lineal de la va, que se pasa por param
+	pde_t pd = pgdir[PDX(la)];
+	uint32_t idx = PTX(la);						//Posicion dentro de la tabla de pag para esa va
 	
-	//TODO: Chequear el bit present?
 	if (pd & PTE_P) {
-		//TODO: Es la virtual address correspondiente?
-		pte_t* pgtab = KADDR(PTE_ADDR(pd));			//Direccion virtual de la Tabla de Paginas para esa va
+		pte_t* pgtab = KADDR(PTE_ADDR(pd));		//Direccion virtual de la Tabla de Paginas para esa va
 		*pte_store = pgtab + idx;				//Setear pte_store a la pos del entry en la tabla
 		return 0;
 	} else {
