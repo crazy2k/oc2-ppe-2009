@@ -580,6 +580,7 @@ int
 page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm) 
 {
 	// Fill this function in
+	//TODO: Podria pp, estar en la lista de paginas libres?
 
 }
 
@@ -596,7 +597,10 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 struct Page *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
-	// Fill this function in
+	if (pgdir_walk(pgdir, va, 0,pte_store) == 0) {
+		return pa2page(PTE_ADDR(**pte_store));
+	} 
+	else return 0;
 
 }
 
