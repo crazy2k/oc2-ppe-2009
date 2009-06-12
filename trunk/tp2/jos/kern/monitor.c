@@ -11,7 +11,7 @@
 #include <kern/monitor.h>
 #include <kern/kdebug.h>
 
-extern uint32_t bootstacktop;
+extern char bootstacktop[];
 
 #define CMDBUF_SIZE	80	// enough for one VGA text line
 
@@ -70,7 +70,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 	/* bootstacktop es el simbolo q respresenta la posicion de la base del stack, 
 	 * por lo q una lectura de su valor solo nos da los primeros 4 bytes del stack
 	*/
-    while (ebp < &bootstacktop) {
+    while (ebp < bootstacktop) {
 
         uint32_t eip = *(ebp + 1);
 
