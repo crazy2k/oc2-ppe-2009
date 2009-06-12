@@ -483,7 +483,6 @@ page_initpp(struct Page *pp)
 int
 page_alloc(struct Page **pp_store)
 {
-
     if (!LIST_EMPTY(&page_free_list)) {
         struct Page *p = LIST_FIRST(&page_free_list); 
 
@@ -536,7 +535,8 @@ int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
 	pde_t* pde = &pgdir[PDX(va)];
-	pte_t* pgtab = PGADDR(PDX(VPT),PDX(va),0);	//Direccion virtual de la Tabla de Paginas para esa va
+	//pte_t* pgtab = PGADDR(PDX(VPT),PDX(va),0);	//Direccion virtual de la Tabla de Paginas para esa va
+/**/pte_t* pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));	//Direccion virtual de la Tabla de Paginas para esa va
 	*pte_store = pgtab + PTX(va);			//Setear pte_store a la pos del entry en la tabla
 	
 	if (!(*pde & PTE_P)) {
@@ -545,12 +545,29 @@ pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 			tpage->pp_ref = 1;
 			physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
 			*pde = PTE_ADDR(pepa)|PTE_W|PTE_P;		//Seteo el pde correspondiente a la direccion fisica
+			
+/**/		pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));	//Direccion virtual de la Tabla de Paginas para esa va
+/**/		*pte_store = pgtab + PTX(va);			//Setear pte_store a la pos del entry en la tabla
+			
 			memset(pgtab, 0, PGSIZE);				//Inicializo la pag con ceros
 		} else {
 			*pte_store = 0;
 			return -E_NO_MEM;
 		}
 	}
+	
+/*	if (!(**pte_store & PTE_P)) {
+		struct Page* tpage;
+		if (create && page_alloc(&tpage) == 0) {
+			tpage->pp_ref = 1;
+			physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
+			**pte_store = PTE_ADDR(pepa)|PTE_W|PTE_P;		//Seteo el pde correspondiente a la direccion fisica
+		} else {
+			*pte_store = 0;
+			return -E_NO_MEM;
+		}
+	}
+*/	
 	return 0;
 }
 
@@ -576,16 +593,18 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 {
 	pte_t * pte;
 	if (pgdir_walk(pgdir,va, 1 /* create */, &pte) == 0) {
-		if (*pte & PTE_P) 
-			page_remove(pgdir,va);
-			
-		pp->pp_ref++;						//Incremento el contador de referencias de la pag
+		if (*pte & PTE_P) {
+			if (page2pa(pp) != PTE_ADDR(*pte)) {
+				page_remove(pgdir,va);
+				pp->pp_ref++;						//Incremento el contador de referencias de la pag
+			}
+		} else pp->pp_ref++;
+		
 		physaddr_t ppag = page2pa(pp);			//Obtengo la phisical addr de la tabla pags
 		*pte = PTE_ADDR(ppag)|perm|PTE_P; 
 		return 0;
 	
 	} else return -E_NO_MEM;
-
 }
 
 //
@@ -601,8 +620,10 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 struct Page *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
-	if (pgdir_walk(pgdir, va, 0,pte_store) == 0) {
-		return pa2page(PTE_ADDR(**pte_store));
+	pte_t **dummy_pte_store; 
+	pte_t ***pte_store_ptr = (pte_store == 0 ? &dummy_pte_store : &pte_store);
+	if (pgdir_walk(pgdir, va, 0, *pte_store_ptr) == 0) {
+		return pa2page(PTE_ADDR(***pte_store_ptr));
 	} 
 	else return 0;
 
@@ -629,7 +650,6 @@ page_remove(pde_t *pgdir, void *va)
 	struct Page* pp = page_lookup(pgdir,va,&pte);
 	if (*pte & PTE_P)  {
 		page_decref(pp);
-		if (pp->pp_ref == 0) page_free(pp);
 		*pte = 0;
 		tlb_invalidate(pgdir,va);
 	}
