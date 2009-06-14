@@ -70,7 +70,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 	/* bootstacktop es el simbolo q respresenta la posicion de la base del stack, 
 	 * por lo q una lectura de su valor solo nos da los primeros 4 bytes del stack
 	*/
-    while (ebp < bootstacktop) {
+    while ((void*) ebp < (void*) bootstacktop) {
 
         uint32_t eip = *(ebp + 1);
 
@@ -78,11 +78,11 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 
         int i;
         for (i = 2; i <= 6; i++)
-            cprintf("%x ", *(ebp + i));
+            cprintf("%x ", *(ebp + 1));
 
         cprintf("\n");
 
-        ebp = (uint32_t *)*(ebp);
+        ebp += 1 + 1 + 5 ; // ebp + eip + params
 
     }
 
