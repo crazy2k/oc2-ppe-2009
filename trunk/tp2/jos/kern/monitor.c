@@ -66,12 +66,13 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
 	cprintf("Stack backtrace:\n");
 
-    uint32_t *ebp = (uint32_t *)read_ebp();
+    uint32_t *ebp;
 	/* bootstacktop es el simbolo q respresenta la posicion de la base del stack, 
 	 * por lo q una lectura de su valor solo nos da los primeros 4 bytes del stack
 	*/
 	cprintf("\t ebp: %x\t stacktop: %x\n", ebp, bootstacktop);
-    while(1) {
+
+    for (ebp = (uint32_t)read_ebp(); ebp + 8 <= bootstacktop; ebp = (uint32_t *) *ebp) {
         uint32_t eip = *(ebp + 1);
 
         cprintf("\t ebp %x\t eip %x\t args ", ebp, eip);
@@ -82,9 +83,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 
         cprintf("\n");
 		
-		if ((void*) ebp + 8 >= ((void*) bootstacktop)) break;
 
-        ebp = (uint32_t *) *ebp;
 
     }
 
