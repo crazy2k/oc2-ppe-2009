@@ -361,7 +361,540 @@ Stack backtrace
 \end_layout
 
 \begin_layout Standard
-Pending.
+Examinemos un fragmento de código en C, y cuál sería un posible 
+\emph on
+assembly
+\emph default
+ de x86 resultante luego de su compilación:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},breaklines=true,language=C,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void a() {
+\end_layout
+
+\begin_layout Plain Layout
+	
+int x = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	b(1);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void b(int y) {
+\end_layout
+
+\begin_layout Plain Layout
+
+	int z = y;
+\end_layout
+
+\begin_layout Plain Layout
+
+    // breakpoint
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},breaklines=true,language={[x86masm]Assembler},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+a:
+\end_layout
+
+\begin_layout Plain Layout
+
+    push ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+    mov ebp, esp
+\end_layout
+
+\begin_layout Plain Layout
+
+    sub esp, 4
+\end_layout
+
+\begin_layout Plain Layout
+
+    mov [ebp-4], 0
+\end_layout
+
+\begin_layout Plain Layout
+
+    push 1
+\end_layout
+
+\begin_layout Plain Layout
+
+    call b
+\end_layout
+
+\begin_layout Plain Layout
+
+    add esp, 8
+\end_layout
+
+\begin_layout Plain Layout
+
+    pop ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+    ret
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+b:
+\end_layout
+
+\begin_layout Plain Layout
+
+    push ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+    mov ebp, esp
+\end_layout
+
+\begin_layout Plain Layout
+
+    sub esp, 4
+\end_layout
+
+\begin_layout Plain Layout
+
+    mov ecx, [ebp+8]
+\end_layout
+
+\begin_layout Plain Layout
+
+    mov [ebp-4], ecx
+\end_layout
+
+\begin_layout Plain Layout
+
+    ; breakpoint
+\end_layout
+
+\begin_layout Plain Layout
+
+    add esp, 4
+\end_layout
+
+\begin_layout Plain Layout
+
+    pop ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+    ret
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si hiciéramos una llamada a la función 
+\family typewriter
+a()
+\family default
+, y nos detuviéramos a observar el estado del 
+\emph on
+stack
+\emph default
+ en ese instante, encontraríamos lo siguiente:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+...
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\leftarrow$
+\end_inset
+
+ variables locales de la función
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $D_{1}\rightarrow$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\leftarrow$
+\end_inset
+
+ parámetros para la función a llamar
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+eip
+\family default
+ (
+\family typewriter
+ret
+\family default
+ de 
+\family typewriter
+a
+\family default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\leftarrow$
+\end_inset
+
+ dirección de retorno a la función
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+ebp
+\family default
+ de a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\leftarrow$
+\end_inset
+
+ 
+\family typewriter
+ebp
+\family default
+ de la función llamada
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[
+\begin_inset Formula $D_{1}$
+\end_inset
+
+] == 1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\leftarrow$
+\end_inset
+
+ variables locales de la función llamada
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+...
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Es decir, si se respeta la convención de llamadas del lenguaje C, puede
+ interpretarse al stack como una secuencia de 
+\emph on
+stack frames
+\emph default
+ de las funciones, conformados, cada uno de ellos, por:
+\end_layout
+
+\begin_layout Itemize
+el
+\family typewriter
+ ebp 
+\family default
+correspondiente a la función
+\end_layout
+
+\begin_layout Itemize
+las variables locales de la función (si las hay)
+\end_layout
+
+\begin_layout Itemize
+los parámetros para la función que se llamará (si se requieren)
+\end_layout
+
+\begin_layout Itemize
+la dirección de retorno, que será el valor de 
+\family typewriter
+eip
+\family default
+ una vez que retorne la función llamada (si es que se llama a una función)
+\end_layout
+
+\begin_layout Standard
+Se pedía escribir la implementación de una de las funciones faltantes, que
+ se puede invocar desde el 
+\emph on
+kernel monitor
+\emph default
+, llamada 
+\family typewriter
+mon_backtrace()
+\family default
+.
+ Esta función se encarga de realizar un 
+\emph on
+stack backtrace
+\emph default
+, es decir, mostrar la secuencia...
 \end_layout
 
 \begin_layout Subsection
