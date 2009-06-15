@@ -1,0 +1,750 @@
+#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\date{}
+\setcounter{page}{-1}
+\end_preamble
+\use_default_options false
+\language spanish
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+\shape smallcaps
+Organización del Computador II
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
+\size large
+Departamento de Computación,
+\begin_inset Newline newline
+\end_inset
+
+ Facultad de Ciencias Exactas y Naturales,
+\begin_inset Newline newline
+\end_inset
+
+Universidad de Buenos Aires
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace vfill
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\shape smallcaps
+\size larger
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features>
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape smallcaps
+\size larger
+Trabajo Práctico 2: System Programming
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\shape italic
+Primer Cuatrimestre de 2009
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+Grupo "UNPCKHPD"
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Pablo Antonio
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+290/08
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pabloa@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Pablo Herrero
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+332/07
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pablodherrero@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Estefanía Porta
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+451/04
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+estef.barbara@gmail.com
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introducción
+\end_layout
+
+\begin_layout Standard
+Los procesadores de la 
+\emph on
+arquitectura IA-32
+\emph default
+ proveen soporte, estructuras y mecanismos, para la implementación de:
+\end_layout
+
+\begin_layout Itemize
+ciertas técnicas para el manejo de memoria,
+\end_layout
+
+\begin_layout Itemize
+un sistema de administración de tareas,
+\end_layout
+
+\begin_layout Itemize
+la atención de interrupciones y excepciones,
+\end_layout
+
+\begin_layout Itemize
+entre otras.
+\end_layout
+
+\begin_layout Standard
+Los sistemas operativos que se escriban para esta arquitectura pueden, entonces,
+ sacar provecho del soporte que provee el procesador.
+ Es el caso del sistema operativo 
+\emph on
+JOS
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+El presente trabajo práctico se basa en 
+\emph on
+completar ciertas funciones faltantes
+\emph default
+ en una versión del sistema operativo JOS provista por la cátedra.
+ Dichas funciones se orientan a:
+\end_layout
+
+\begin_layout Itemize
+generar un 
+\emph on
+stack backtrace
+\emph default
+, el cual podrá ser invocado mediante un comando en el 
+\emph on
+kernel monitor
+\emph default
+ (la parte interactiva del kernel que provee una línea de comandos)
+\end_layout
+
+\begin_layout Itemize
+proveer cierta funcionalidad necesaria para 
+\emph on
+administrar el sistema de paginación
+\emph default
+ que utiliza el sistema operativo
+\end_layout
+
+\begin_layout Subsection
+
+\emph on
+Stack backtrace
+\end_layout
+
+\begin_layout Standard
+Pending.
+\end_layout
+
+\begin_layout Subsection
+Administración de memoria: Segmentación
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+administración de memoria mediante segmentación
+\emph default
+ se implementó desde hace mucho tiempo atrás en la familia de procesadores
+ de Intel.
+ En los 8086 de Intel (que vieron el mercado en 1978), la segmentación,
+ no obstante, fue implementada de una manera rudimentaria, únicamente con
+ los fines de acceder a posiciones de memoria cuya dirección no cabía en
+ los registros del procesador.
+ Por esos tiempos, no se utilizaba la segmentación como un mecanismo para
+ proteger espacios de memoria.
+\end_layout
+
+\begin_layout Standard
+Con la aparición del procesador 80286 (1982) -- inclusión del 
+\emph on
+modo protegido
+\emph default
+ -- se hizo posible la definición de los tamaños y privilegios asignados
+ a cada uno de los segmentos.
+ Así, la segmentación pudo utilizarse para realizar protección de memoria,
+ es decir, restringir el acceso de determinadas tareas a ciertos sectores
+ de la memoria, logrando así, por ejemplo, que las aplicaciones no puedan
+ acceder o modificar datos pertenecientes al sistema operativo.
+\end_layout
+
+\begin_layout Standard
+Sin embargo, en una gran cantidad de sistemas operativos modernos (también
+ es el caso de JOS), la segmentación fue dejada de lado como mecanismo de
+ protección de memoria.
+ Se utiliza, para esto, únicamente la 
+\emph on
+paginación
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+No obstante, la segmentación no puede ser desactivada en la arquitectura
+ IA-32, en ninguno de sus modos.
+ ¿Cómo hacen entonces los sistemas operativos modernos (que no precisan
+ de la segmentación) para desactivarla? En realidad, no lo hacen.
+ Utilizan algo llamado 
+\begin_inset Quotes eld
+\end_inset
+
+Modelo flat de segmentación
+\begin_inset Quotes erd
+\end_inset
+
+, que consiste en ubicar a todos los segmentos ocupando todo el espacio
+ que se pretende direccionar, desde la dirección cero.
+ De este modo, la dirección (la parte del offset específicamente) virtual
+ (la utilizada en el código) coincide con la dirección lineal (la que toma
+ como entrada el módulo de paginación).
+\end_layout
+
+\begin_layout Subsection
+Administración de memoria: Paginación
+\end_layout
+
+\begin_layout Standard
+La verdadera protección de memoria en JOS (y en muchos sistemas operativos
+ modernos) se da gracias al 
+\emph on
+mecanismo de paginación
+\emph default
+.
+ La paginación se caracteriza por organizar la memoria física en bloques
+ de tamaño fijo, no solapados, llamados 
+\emph on
+marcos de página
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Observemos las distintas etapas por las cuales pasa una 
+\emph on
+dirección virtual
+\emph default
+ hasta que se convierte en una 
+\emph on
+dirección física
+\emph default
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="5">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+dirección virtual
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Longrightarrow_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+dirección lineal
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Longrightarrow_{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+dirección física
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La primer traducción (1) la realiza la 
+\emph on
+unidad de segmentación
+\emph default
+, mientras que la segunda traducción (2) es realizada por la 
+\emph on
+unidad de paginación
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+En la arquitectura IA-32 la paginación puede activarse
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+escribiendo el valor 1 en el bit 31 del registro de control 
+\family typewriter
+CR0
+\end_layout
+
+\end_inset
+
+ una vez hecho el cambio a modo protegido.
+ Cuando se encuentra activada, y se utilizan páginas
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+En el código fuente del sistema operativo JOS, se llama páginas a los marcos
+ de página.
+\end_layout
+
+\end_inset
+
+ de 4KB, la dirección lineal es dividida en tres partes por la unidad de
+ paginación:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+índice en el directorio de páginas
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+índice en la tabla de páginas
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\emph on
+offset
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(10 bits)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(10 bits)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(12 bits)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El primero de los tres campos representa un índice en el 
+\emph on
+directorio de páginas
+\emph default
+.
+ El directorio de páginas es una tabla que contiene 
+\begin_inset Formula $2^{10}$
+\end_inset
+
+ entradas (una por cada índice posible).
+ Cada entrada, además de varios atributos, contiene la dirección física
+ de una 
+\emph on
+tabla de páginas
+\emph default
+.
+ El sistema de paginación utiliza el primer campo para seleccionar una de
+ las entradas en el directorio de páginas.
+ Consecuentemente, se obtendrá la dirección física de la tabla de páginas
+ asociada a dicha entrada.
+\end_layout
+
+\begin_layout Standard
+El segundo campo es utilizado, entonces, para elegir una de las 
+\begin_inset Formula $2^{10}$
+\end_inset
+
+ entradas de la tabla de páginas mencionada.
+ Las entradas en la tabla de páginas contienen, además de varios atributos,
+ la dirección física de una página en memoria.
+ El 
+\emph on
+offset
+\emph default
+ es utilizado para seleccionar uno de los bytes en dicha página.
+\end_layout
+
+\begin_layout Section
+Desarrollo
+\end_layout
+
+\begin_layout Section
+Conclusiones
+\end_layout
+
+\begin_layout Section*
+Referencias
+\end_layout
+
+\begin_layout Itemize
+Intel 64 and IA-32 Architectures Software 1: Basic Architecture
+\end_layout
+
+\begin_layout Itemize
+Intel 64 and IA-32 Architectures Software 2A: Instruction Set Reference,
+ A-M
+\end_layout
+
+\begin_layout Itemize
+Intel 64 and IA-32 Architectures Software 2B: Instruction Set Reference,
+ N-Z
+\end_layout
+
+\begin_layout Itemize
+Documentación del NASM: http://www.nasm.us/doc/
+\end_layout
+
+\begin_layout Itemize
+http://en.wikipedia.org/wiki/Instruction_prefetch
+\end_layout
+
+\begin_layout Itemize
+Intel 64 and IA-32 Architectures Optimization Reference Manual 
+\end_layout
+
+\end_body
+\end_document
