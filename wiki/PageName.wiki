@@ -44,6 +44,7 @@ Cuando el valor de pte_store es 0, se le asigna a esta variable un puntero a una
 
 En el caso de q la funcion 'pgdir_walk', retorne un codigo de error, page_lookup devuelve 0.
 
+
 == page_remove ==
 
 Esta funcion llama a 'page_lookup', para obtener la estructura de la pagina correspondiente a la direccion virtual especificada en 'va'.
