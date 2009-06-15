@@ -1,0 +1,19 @@
+#summary One-sentence summary of this page.
+
+= Idioteces para el informe =
+
+
+= pgdir_walk =
+
+Como se usa un modelo flat para la segmentacion la direccion linea de 'va' es identica a la virtual.
+De forma que pueden obtenerse los indices sobre el directorio y la tabla de paginas utilizando directamente las macros PDX y PTX sobre 'va'.
+El primer paso es obtener la entrada del directorio correspondiente a la tabla de paginas pertinentes, la cual se obtiene facilmente direccionando sobre pgdir, y utilizando PDX(va), como indice.
+
+Luego si la tabla de paginas estaba presente, simplemente direccionamos sobre la misma utilizando, PTX(va), y guardamos un puntero a la entry obtenida en pte_store.
+
+Si la tabla no esta presente, devolvemos un error; a menos q el parametro 'create' sea igual a 1. En tal caso procedemos a reservar memoria fisica para la misma.
+
+Como primer paso obtenemos una pagina libre llamando a la funcion page_alloc, si esta no posee mas memoria disponible, retornamos error.
+Si la llamada tiene exito, obtenemos su direccion fisica mediante, page2pa. Y escribimos en la entry del directorio obtenida anteriormente; cual es la direccion fisica correspondiente, y que los campos presente (P) y de escritura (W) estan activos.
+Finalmente usando esta direccion fisica, calculamos su direccion virtual mediante KADDR, y le sumamos el valor de PTX(va), para obtener la direccion virtual del entry en la pagina de tablas. Valor q luego se guarda en pte_store.
+Por ultimo seteamos en 0 todos los bytes de la tabla, mediante memset, indicando que ninguna de las paginas de la misma se encuentra presente en memoria fisica.
