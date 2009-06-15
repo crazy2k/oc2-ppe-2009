@@ -31,3 +31,23 @@ Si esto es asi, revisa q la pagina q estaba presente no sea la misma que la que 
 Luego para todos los casos donde la pagina que se agrega no era la misma que estaba ya presente se incrementa el contador de referencias de la misma en 1.
 
 Finalemente, se escribe en el entry correspondiente a la tabla de paginas para esa direccion vitual, la direccion fisica de la pagina nueva, y se activan los bits de presente y los especificados en el parametro 'perm'.
+
+
+== page_lookup ==
+
+Esta funcion obtiene la estructura de pagina, correspondiente a la pagina fisica mapeada con la direccion virtual especificada en 'va'.
+En el caso de que el parametro pte_store sea distinto de 0, (cuando se invoca la funcion desde remove), se guarda en este parametro, un puntero al entry de la tabla de paginas, donde estaba mapeada la pagina.
+
+Se obtiene la direccion fisica de la pagina, simplemente llamando a 'pgdir_walk', y mediante una llamada a 'pa2page', se obtiene la estructura de la misma, a partir de su direccion fisica. Esta se encuentra en los primeros 20 bits, del puntero a entry de pagina, que devuelve 'pgdir_walk' por el parametro pte_store. Este valor es el devuelto por la funcion.
+
+Cuando el valor de pte_store es 0, se le asigna a esta variable un puntero a una variable local, para poder llamar a 'pgdir_walk', sin que esta genere errores.
+
+En el caso de q la funcion 'pgdir_walk', retorne un codigo de error, page_lookup devuelve 0.
+
+== page_remove ==
+
+Esta funcion llama a 'page_lookup', para obtener la estructura de la pagina correspondiente a la direccion virtual especificada en 'va'.
+
+Revisa el entry de la misma, obtindo en 'page_lookup', y si el bit presente, se encuetra activo. Setea el valor del entry obtenido en 0 (indicando q esa direccion virtual ya no posee soporte fisico). Y llama a 'page_decref', la cual descuenta en uno el valor del contador y si esta alcanza el 0, vuelve a colocar la pagina en la lista de paginas libres.
+
+Por ultimo invalida el TBL (translation lookaside buffer), debido a que ya no hay ninguna pagina fisica que corresponda con 'va'.
