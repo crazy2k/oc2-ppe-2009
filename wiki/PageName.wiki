@@ -20,8 +20,14 @@ Por ultimo seteamos en 0 todos los bytes de la tabla, mediante memset, indicando
 = page_insert = 
 
 page_insert mapea una direccion virtual, a una pagina fisica de la memoria principal.
-El procedimiente q sigue es el siguiente: Primero obtiene el entry correspondiente a la direccion virtual especificada en 'va', mediante una llamada a pgdir_walk, si esta no finaliza satisfactoriamente, la funcion retorna con un error.
+
+El procedimiente que se sigue es el siguiente:
+
+Primero obtiene el entry correspondiente a la direccion virtual especificada en 'va', mediante una llamada a pgdir_walk, si esta no finaliza satisfactoriamente, la funcion retorna con un error.
+
 A continuacion revisa si el entry de la tabla de paginas, para esa 'va', se encuentra ya configurada para una pagina fisica presente. 
 Si esto es asi, revisa q la pagina q estaba presente no sea la misma que la que se esta agregando, y en caso de ser una diferente la libera invocando a page_remove. Esto sea hace comparando la direccion fisica de la pagina q se quiere mapear con la que estaba presente.
+
 Luego para todos los casos donde la pagina que se agrega no era la misma que estaba ya presente se incrementa el contador de referencias de la misma en 1.
-Finalemente, simplemente se escribe en el entry correspondiente a la tabla de paginas para esa direccion vitual, la direccion fisica de la pagina nueva, y se activan los bits de presente y los especificados en el parametro 'perm'.
+
+Finalemente, se escribe en el entry correspondiente a la tabla de paginas para esa direccion vitual, la direccion fisica de la pagina nueva, y se activan los bits de presente y los especificados en el parametro 'perm'.
