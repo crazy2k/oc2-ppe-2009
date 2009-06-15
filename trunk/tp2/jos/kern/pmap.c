@@ -543,8 +543,8 @@ pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 		struct Page* tpage;
 		if (create && page_alloc(&tpage) == 0) {
 			tpage->pp_ref = 1;
-			physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
-			*pde = PTE_ADDR(pepa)|PTE_W|PTE_P;		//Seteo el pde correspondiente a la direccion fisica
+			//physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
+			*pde = PTE_ADDR(page2pa(tpage))|PTE_W|PTE_P;//Seteo el pde correspondiente a la direccion fisica
 			
 /**/		pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));	//Direccion virtual de la Tabla de Paginas para esa va
 /**/		*pte_store = pgtab + PTX(va);			//Setear pte_store a la pos del entry en la tabla
@@ -555,19 +555,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 			return -E_NO_MEM;
 		}
 	}
-	
-/*	if (!(**pte_store & PTE_P)) {
-		struct Page* tpage;
-		if (create && page_alloc(&tpage) == 0) {
-			tpage->pp_ref = 1;
-			physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
-			**pte_store = PTE_ADDR(pepa)|PTE_W|PTE_P;		//Seteo el pde correspondiente a la direccion fisica
-		} else {
-			*pte_store = 0;
-			return -E_NO_MEM;
-		}
-	}
-*/	
+		
 	return 0;
 }
 
@@ -620,10 +608,10 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 struct Page *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
-	pte_t **dummy_pte_store; 
-	pte_t ***pte_store_ptr = (pte_store == 0 ? &dummy_pte_store : &pte_store);
-	if (pgdir_walk(pgdir, va, 0, *pte_store_ptr) == 0) {
-		return pa2page(PTE_ADDR(***pte_store_ptr));
+	pte_t *dummy_pte_store; 
+	if (pte_store == 0) pte_store = &dummy_pte_store;
+	if (pgdir_walk(pgdir, va, 0, pte_store) == 0) {
+		return pa2page(PTE_ADDR(**pte_store));
 	} 
 	else return 0;
 
