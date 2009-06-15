@@ -2,7 +2,7 @@
 
 == page_alloc ==
 
-Si quedan paginas fiscas disponibles, caso contrario devuelve un codigo de error, se obtiene la primera pagina de la lista page_free_list, haciendo uso de la conveniente macro LIST_FIRST, y luego se la elimina de la lista mediadiante una llamada a LIST_REMOVE.
+Si quedan paginas fiscas disponibles, caso contrario devuelve un codigo de error, 'page_alloc' se obtiene la primera pagina de la lista page_free_list, haciendo uso de la conveniente macro LIST_FIRST, y luego se la elimina de la lista mediadiante una llamada a LIST_REMOVE.
 Luego la direccion de memoria de la pagina obtenida se guarda en el variable refenciada por el parametro pp_store.
 
 
