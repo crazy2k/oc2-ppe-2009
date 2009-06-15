@@ -1,5 +1,15 @@
 = Idioteces para el informe =
 
+== page_alloc ==
+
+Si quedan paginas fiscas disponibles, caso contrario devuelve un codigo de error, se obtiene la primera pagina de la lista page_free_list, haciendo uso de la conveniente macro LIST_FIRST, y luego se la elimina de la lista mediadiante una llamada a LIST_REMOVE.
+Luego la direccion de memoria de la pagina obtenida se guarda en el variable refenciada por el parametro pp_store.
+
+
+== page_free ==
+
+Esta funcion vuelve a ubicar la pagina 'pp', en la lista 'page_free_list', simplemente llamando a la macro LIST_INSERT_HEAD, que ubica a la pagina al principio de la lista.
+
 
 = pgdir_walk =
 
