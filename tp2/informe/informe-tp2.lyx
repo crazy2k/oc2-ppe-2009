@@ -1365,6 +1365,192 @@ Funciones desarrolladas
 \end_layout
 
 \begin_layout Subsubsection
+Función mon_backtrace
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+int mon_backtrace(int argc, char **argv, struct Trapframe *tf);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+No se usan.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/monitor.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+El siguiente pseudocódigo describe el funcionamiento de 
+\family typewriter
+mon_backtrace
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},breaklines=true,language=C,numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ebp = valor actual del registro ebp
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+eip = M[ebp + 1] // el eip (la dirección de retorno de la función) se halla
+ una posición más atrás en la pila
+\end_layout
+
+\begin_layout Plain Layout
+
+arg0 = M[ebp + 2]
+\end_layout
+
+\begin_layout Plain Layout
+
+arg1 = M[ebp + 3]
+\end_layout
+
+\begin_layout Plain Layout
+
+arg2 = M[ebp + 4]
+\end_layout
+
+\begin_layout Plain Layout
+
+arg3 = M[ebp + 5]
+\end_layout
+
+\begin_layout Plain Layout
+
+arg4 = M[ebp + 6] // los parámetros se hallan detrás del eip en la pila
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+imprimir el ebp, el eip y los parámetros
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+si ebp == bootstacktop - 8:
+\end_layout
+
+\begin_layout Plain Layout
+
+    retornar
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ebp = M[ebp] // pasar al stack frame anterior en la cadena de llamadas (en
+ la posición de memoria ebp se encuentra el ebp de la función anterior)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ir a 3.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El 
+\emph on
+backtrace
+\emph default
+ finaliza cuando se alcanza el 
+\emph on
+stack frame
+\emph default
+ correspondiente a la función 
+\family typewriter
+i386_init,
+\family default
+ que tiene a 
+\family typewriter
+bootstacktop - 8 
+\family default
+como valor en el 
+\family typewriter
+ebp
+\family default
+.
+ Dicha función es la primera función escrita en C a la que llama el código
+ del 
+\emph on
+kernel
+\emph default
+.
+\end_layout
+
+\begin_layout Subsubsection
 Función 
 \family typewriter
 page_alloc
@@ -1477,7 +1663,7 @@ status open
 \begin_layout Plain Layout
 
 \family typewriter
-void page_free(struct Page *pp) 
+void page_free(struct Page *pp);
 \end_layout
 
 \end_inset
@@ -1518,7 +1704,7 @@ Descripción:
 \end_layout
 
 \begin_layout Standard
-Esta función vuelve a ubicar la pagina apuntada por 
+Esta función vuelve a ubicar la página apuntada por 
 \family typewriter
 pp
 \family default
@@ -1555,7 +1741,7 @@ status open
 \begin_layout Plain Layout
 
 \family typewriter
-int pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
+int pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store);
 \end_layout
 
 \end_inset
@@ -1680,36 +1866,510 @@ PDX(va)
 \end_layout
 
 \begin_layout Standard
-sdsdsd ME QUEDÉ ACÁ
+Luego, si la tabla de páginas está presente, simplemente direccionamos sobre
+ la misma utilizando 
+\family typewriter
+PTX(va)
+\family default
+, y guardamos un puntero a la entrada (PTE) obtenida en la posición apuntada
+ por 
+\family typewriter
+pte_store
+\family default
+.
 \end_layout
 
 \begin_layout Standard
-Luego si la tabla de paginas estaba presente, simplemente direccionamos
- sobre la misma utilizando, PTX(va), y guardamos un puntero a la entry obtenida
- en pte_store.
-\end_layout
-
-\begin_layout Standard
-Si la tabla no esta presente, devolvemos un error; a menos q el parametro
- 'create' sea igual a 1.
- En tal caso procedemos a reservar memoria fisica para la misma.
-\end_layout
-
-\begin_layout Standard
-Como primer paso obtenemos una pagina libre llamando a la funcion page_alloc,
- si esta no posee mas memoria disponible, retornamos error.
- Si la llamada tiene exito, obtenemos su direccion fisica mediante, page2pa.
- Y escribimos en la entry del directorio obtenida anteriormente; cual es
- la direccion fisica correspondiente, y que los campos presente (P) y de
- escritura (W) estan activos.
- Finalmente usando esta direccion fisica, calculamos su direccion virtual
- mediante KADDR, y le sumamos el valor de PTX(va), para obtener la direccion
- virtual del entry en la pagina de tablas.
- Valor q luego se guarda en pte_store.
- Por ultimo seteamos en 0 todos los bytes de la tabla, mediante memset,
- indicando que ninguna de las paginas de la misma se encuentra presente
- en memoria fisica.
+Si la tabla no está presente, devolvemos un error; a menos que el parametro
  
+\family typewriter
+create
+\family default
+ sea igual a 1.
+ En tal caso, procedemos a reservar memoria física para la misma.
+\end_layout
+
+\begin_layout Standard
+Para ello, intentamos obtener una página libre llamando a la función 
+\family typewriter
+page_alloc
+\family default
+; si esta no posee más memoria disponible, retornamos error.
+ Si la llamada tiene éxito, obtenemos la dirección física de la página mediante
+ 
+\family typewriter
+page2pa
+\family default
+, y escribimos en la PDE obtenida anteriormente la direccion física correspondie
+nte, y ponemos los campos de presencia (
+\family typewriter
+P
+\family default
+) y de escritura (
+\family typewriter
+W
+\family default
+) como activos.
+\end_layout
+
+\begin_layout Standard
+Finalmente, usando esta dirección física, calculamos su dirección virtual
+ mediante 
+\family typewriter
+KADDR
+\family default
+, y le sumamos el valor de 
+\family typewriter
+PTX(va)
+\family default
+ para obtener la dirección virtual de la PDE
+\family typewriter
+;
+\family default
+ valor que luego se guarda en el puntero al que referencia 
+\family typewriter
+pte_store
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Por último, ponemos en 0 todos los bytes de la tabla, mediante 
+\family typewriter
+memset
+\family default
+, indicando que ninguna de las páginas de la misma se encuentra presente
+ en memoria física.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+page_insert
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+int page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pgdir
+\family default
+ es un puntero a un directorio de páginas (en realidad, a su primera entrada),
+ el cual se utilizará para hallar la dirección física de la tabla de páginas
+ asociada a la dirección 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pp
+\family default
+ es un puntero a una página, la cual será asignada a la dirección virtual
+ 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+va
+\family default
+ es la dirección virtual/lineal a la cual se le asignará la página apuntada
+ por 
+\family typewriter
+pp
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+perm
+\family default
+ se utilizará para asignarle ciertos permisos a la PTE que apunte a la página.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+page_insert
+\family default
+ mapea una dirección virtual a una página física de la memoria principal.
+ El procedimiente que se sigue es el descripto a continuación.
+\end_layout
+
+\begin_layout Standard
+Primero se obtiene el PTE correspondiente a la dirección virtual especificada
+ en 
+\family typewriter
+va
+\family default
+ mediante una llamada a 
+\family typewriter
+pgdir_walk
+\family default
+.
+ Si esta no finaliza satisfactoriamente, la función retorna con un error.
+\end_layout
+
+\begin_layout Standard
+A continuación, se revisa si la PTE, para esa dirección 
+\family typewriter
+va
+\family default
+, se encuentra ya configurada para apuntar a una página física presente.
+ Si esto es así, se revisa que la página que estaba presente no sea la misma
+ que la que se está agregando --- esto se hace comparando la dirección física
+ de la página que se quiere mapear (resultado de 
+\family typewriter
+pagetopa()
+\family default
+), con la que estaba presente --- y, en caso de ser una diferente, se la
+ libera invocando a 
+\family typewriter
+page_remove
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Luego, para todos los casos donde la página que se agrega no era la misma
+ que estaba ya presente, se incrementa el contador de referencias de la
+ misma en 1.
+\end_layout
+
+\begin_layout Standard
+Finalmente, se escribe en la PTE correspondiente a esa dirección virtual,
+ la dirección física de la página nueva, y se activan los bits de presente
+ y los especificados en el parámetro 
+\family typewriter
+perm
+\family default
+.
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+page_lookup
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+struct Page * page_lookup(pde_t *pgdir, void *va, pte_t **pte_store);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pgdir
+\family default
+ es un puntero a un directorio de páginas (en realidad, a su primera entrada),
+ el cual se utilizará para hallar la dirección física de la tabla de páginas
+ asociada a la dirección 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+va
+\family default
+ es la dirección virtual/lineal correspondiente a la página que quiere ser
+ obtenida.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pte_store
+\family default
+ es un puntero a un puntero a una PTE.
+ En el puntero al que hace referencia, se guardará la dirección de la PTE
+ correspondiente a la dirección virtual/lineal 
+\family typewriter
+va
+\family default
+, si el valor de 
+\family typewriter
+pte_store
+\family default
+ al llamar a la función era distinto de cero.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+Esta función obtiene la estructura 
+\family typewriter
+Page
+\family default
+ correspondiente a la página física mapeada con la dirección virtual especificad
+a en 
+\family typewriter
+va
+\family default
+.
+ En el caso de que el parámetro 
+\family typewriter
+pte_store
+\family default
+ sea distinto de 0 (cuando se invoca la función desde 
+\family typewriter
+page_remove
+\family default
+), se guarda, en el puntero al que referencia este mismo parámetro, la dirección
+ de la PTE donde estaba mapeada la página.
+\end_layout
+
+\begin_layout Standard
+Para obtener la página, primero se llama a 
+\family typewriter
+pgdir_walk
+\family default
+ para obtener la PTE correspondiente a la dirección.
+ Luego, a partir de esta PTE, se obtiene la dirección física de la página
+ y, mediante una llamada a 
+\family typewriter
+pa2page
+\family default
+, se obtiene la estructura de la misma a partir de su direccion fisica.
+ La dirección de esta estructura es la devuelta por la función.
+\end_layout
+
+\begin_layout Standard
+Cuando el valor de 
+\family typewriter
+pte_store
+\family default
+ es 0, se le asigna a esta variable la dirección de una variable local para
+ poder llamar a 
+\family typewriter
+pgdir_walk
+\family default
+ sin que esta genere errores.
+\end_layout
+
+\begin_layout Standard
+En el caso de que la funcion 
+\family typewriter
+pgdir_walk
+\family default
+ retorne un código de error, 
+\family typewriter
+page_lookup
+\family default
+ devuelve 0.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+page_remove
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+void page_remove(pde_t *pgdir, void *va);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pgdir
+\family default
+ es un puntero a un directorio de páginas (en realidad, a su primera entrada),
+ el cual se utilizará para hallar la dirección física de la tabla de páginas
+ asociada a la dirección 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+va
+\family default
+ es la dirección virtual/lineal correspondiente a la página que será liberada.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+Esta función llama a 
+\family typewriter
+page_lookup
+\family default
+ para obtener la estructura de la página y la PTE correspondientes a la
+ dirección virtual especificada en 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Luego, revisa la PTE asociada a la misma, y, si el bit presente se encuentra
+ activo en ella, establece el valor de la PTE obtenida en 0 (indicando que
+ esa dirección virtual ya no posee soporte físico) y llama a 
+\family typewriter
+page_decref
+\family default
+, la cual descuenta en uno el valor del contador de referencias de la página
+ y, si este alcanza el valor cero, vuelve a colocar la página en la lista
+ de páginas libres.
+ Por último, invalida el TLB (
+\emph on
+Translation Lookaside Buffer
+\emph default
+), debido a que ya no hay ninguna página fisica que corresponda a la dirección
+ 
+\family typewriter
+va
+\family default
+.
 \end_layout
 
 \begin_layout Section
