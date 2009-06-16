@@ -535,21 +535,31 @@ int
 pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
 {
 	pde_t* pde = &pgdir[PDX(va)];
-	//pte_t* pgtab = PGADDR(PDX(VPT),PDX(va),0);	//Direccion virtual de la Tabla de Paginas para esa va
-/**/pte_t* pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));	//Direccion virtual de la Tabla de Paginas para esa va
-	*pte_store = pgtab + PTX(va);			//Setear pte_store a la pos del entry en la tabla
+	//Direccion virtual de la Tabla de Paginas para esa va
+	//pte_t* pgtab = PGADDR(PDX(VPT),PDX(va),0);
+	
+	//Direccion virtual de la Tabla de Paginas para esa va
+	pte_t* pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));
+	//Setear pte_store a la pos del entry en la tabla
+	*pte_store = pgtab + PTX(va);
 	
 	if (!(*pde & PTE_P)) {
 		struct Page* tpage;
 		if (create && page_alloc(&tpage) == 0) {
 			tpage->pp_ref = 1;
-			//physaddr_t pepa = page2pa(tpage);		//Obtengo la phisical addr de la tabla pags
-			*pde = PTE_ADDR(page2pa(tpage))|PTE_W|PTE_P;//Seteo el pde correspondiente a la direccion fisica
+			//Obtengo la phisical addr de la tabla pags
+			//physaddr_t pepa = page2pa(tpage);
 			
-/**/		pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));	//Direccion virtual de la Tabla de Paginas para esa va
-/**/		*pte_store = pgtab + PTX(va);			//Setear pte_store a la pos del entry en la tabla
+			//Seteo el pde correspondiente a la direccion fisica
+			*pde = PTE_ADDR(page2pa(tpage))|PTE_W|PTE_P;
 			
-			memset(pgtab, 0, PGSIZE);				//Inicializo la pag con ceros
+			//Direccion virtual de la Tabla de Paginas para esa va
+			pgtab = (pte_t*) KADDR(PTE_ADDR(*pde));
+			//Setear pte_store a la pos del entry en la tabla
+			*pte_store = pgtab + PTX(va);
+			
+			//Inicializo la pag con ceros
+			memset(pgtab, 0, PGSIZE);
 		} else {
 			*pte_store = 0;
 			return -E_NO_MEM;
@@ -584,11 +594,13 @@ page_insert(pde_t *pgdir, struct Page *pp, void *va, int perm)
 		if (*pte & PTE_P) {
 			if (page2pa(pp) != PTE_ADDR(*pte)) {
 				page_remove(pgdir,va);
-				pp->pp_ref++;						//Incremento el contador de referencias de la pag
+				//Incremento el contador de referencias de la pag
+				pp->pp_ref++;
 			}
 		} else pp->pp_ref++;
 		
-		physaddr_t ppag = page2pa(pp);			//Obtengo la phisical addr de la tabla pags
+		//Obtengo la phisical addr de la tabla pags
+		physaddr_t ppag = page2pa(pp);
 		*pte = PTE_ADDR(ppag)|perm|PTE_P; 
 		return 0;
 	

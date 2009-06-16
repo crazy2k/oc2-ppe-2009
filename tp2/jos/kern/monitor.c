@@ -67,9 +67,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 	cprintf("Stack backtrace:\n");
 
     uint32_t *ebp = (uint32_t *)read_ebp();
-	/* bootstacktop es el simbolo q respresenta la posicion de la base del stack, 
-	 * por lo q una lectura de su valor solo nos da los primeros 4 bytes del stack
-	*/
+
     while (1) {
         uint32_t eip = *(ebp + 1);
 
