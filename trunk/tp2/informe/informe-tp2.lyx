@@ -133,7 +133,7 @@ Grupo "UNPCKHPD"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="3" columns="3">
+<lyxtabular version="3" rows="2" columns="3">
 <features>
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
@@ -191,35 +191,6 @@ Pablo Herrero
 
 \begin_layout Plain Layout
 pablodherrero@gmail.com
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topspace="default">
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Estefanía Porta
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-451/04
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-estef.barbara@gmail.com
 \end_layout
 
 \end_inset
@@ -876,15 +847,27 @@ correspondiente a la función
 \end_layout
 
 \begin_layout Itemize
-las variables locales de la función (si las hay)
+las 
+\emph on
+variables locales
+\emph default
+ de la función (si las hay)
 \end_layout
 
 \begin_layout Itemize
-los parámetros para la función que se llamará (si se requieren)
+los 
+\emph on
+parámetros
+\emph default
+ para la función que se llamará (si se requieren)
 \end_layout
 
 \begin_layout Itemize
-la dirección de retorno, que será el valor de 
+la 
+\emph on
+dirección de retorno
+\emph default
+, que será el valor de 
 \family typewriter
 eip
 \family default
@@ -1365,7 +1348,9 @@ Funciones desarrolladas
 \end_layout
 
 \begin_layout Subsubsection
-Función mon_backtrace
+Función 
+\family typewriter
+mon_backtrace
 \end_layout
 
 \begin_layout Standard
@@ -2376,34 +2361,66 @@ va
 Conclusiones
 \end_layout
 
+\begin_layout Standard
+Las conclusiones a las que llegamos, al finalizar el trabajo, son las siguientes
+:
+\end_layout
+
+\begin_layout Itemize
+La programación de algunas de las partes de un sistema operativo requiere
+ cierto grado de conocimiento acerca del hardware en el que este se desenvolverá.
+ Por ejemplo, para implementar las funciones que sacan provecho del soporte
+ que proveen los procesadores de la arquitectura IA-32 para realizar paginación
+ de memoria --- y esto es casi obligado si se quiere usar paginación en
+ esta arquitectura---, hace falta conocer las distintas etapas de indirección
+ que posee el mecanismo de accesos a memoria en estos procesadores.
+\end_layout
+
+\begin_layout Itemize
+La programación a nivel del sistema operativo está inmersa en un ambiente
+ muy distinto al de la programación a nivel de usuario.
+ La primera cuenta con muchas menos facilidades que la segunda; por ejemplo,
+ no se cuenta con grandes bibliotecas (como la biblioteca de C).
+ Además, puesto que, por lo general, no existe protección de memoria para
+ el código del 
+\emph on
+kernel
+\emph default
+, los errores en el sistema operativo pueden pagarse bastante más caros
+ que los errores en espacio de usuario.
+\end_layout
+
+\begin_layout Itemize
+Si se decide programar un sistema operativo, se debe tener en cuenta, entre
+ otras cosas, que la ubicación de todas las estructuras de este en memoria
+ (tanto física como virtual) corre completamente por parte del programador,
+ ya que, por lo general, no se cuenta con un servicio o facilidad que se
+ haga cargo de ello.
+\end_layout
+
 \begin_layout Section*
 Referencias
 \end_layout
 
 \begin_layout Itemize
-Intel 64 and IA-32 Architectures Software 1: Basic Architecture
+Intel 64 and IA-32 Architectures Software Developer's Manual Volume 3A:
+ System Programming Guide
 \end_layout
 
 \begin_layout Itemize
-Intel 64 and IA-32 Architectures Software 2A: Instruction Set Reference,
- A-M
+http://www.scs.stanford.edu/05au-cs240c/lab/lab1.html
 \end_layout
 
 \begin_layout Itemize
-Intel 64 and IA-32 Architectures Software 2B: Instruction Set Reference,
- N-Z
+http://en.wikipedia.org/wiki/Segmentation_(memory)
 \end_layout
 
 \begin_layout Itemize
-Documentación del NASM: http://www.nasm.us/doc/
+http://en.wikipedia.org/wiki/Memory_protection
 \end_layout
 
 \begin_layout Itemize
-http://en.wikipedia.org/wiki/Instruction_prefetch
-\end_layout
-
-\begin_layout Itemize
-Intel 64 and IA-32 Architectures Optimization Reference Manual 
+http://en.wikipedia.org/wiki/Paging
 \end_layout
 
 \end_body
