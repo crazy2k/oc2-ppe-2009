@@ -364,6 +364,16 @@ Stack backtrace
 Examinemos un fragmento de código en C, y cuál sería un posible 
 \emph on
 assembly
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+(en el dialecto de Intel)
+\end_layout
+
+\end_inset
+
+
 \emph default
  de x86 resultante luego de su compilación:
 \end_layout
@@ -391,8 +401,8 @@ void a() {
 \end_layout
 
 \begin_layout Plain Layout
-	
-int x = 0;
+
+	int x = 0;
 \end_layout
 
 \begin_layout Plain Layout
@@ -583,15 +593,30 @@ a()
 \emph on
 stack
 \emph default
- en ese instante, encontraríamos lo siguiente:
+ inmediatamente después de ejecutar la instrucción anterior al 
+\emph on
+breakpoint
+\emph default
+, encontraríamos lo siguiente
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+En la figura, las direcciones menores son las que se encuentran ubicadas
+ más abajo.
+\end_layout
+
+\end_inset
+
+:
 \end_layout
 
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="7" columns="3">
+<lyxtabular version="3" rows="6" columns="3">
 <features>
-<column alignment="center" valignment="top" width="0">
+<column alignment="right" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
 <row>
@@ -642,11 +667,11 @@ stack
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\leftarrow$
+\begin_inset Formula $\}$
 \end_inset
 
  variables locales de la función
@@ -677,11 +702,11 @@ stack
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\leftarrow$
+\begin_inset Formula $\}$
 \end_inset
 
  parámetros para la función a llamar
@@ -721,11 +746,11 @@ a
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\leftarrow$
+\begin_inset Formula $\}$
 \end_inset
 
  dirección de retorno a la función
@@ -739,6 +764,14 @@ a
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\family typewriter
+ebp
+\family default
+ 
+\begin_inset Formula $\rightarrow$
+\end_inset
+
 
 \end_layout
 
@@ -757,11 +790,11 @@ ebp
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\leftarrow$
+\begin_inset Formula $\}$
 \end_inset
 
  
@@ -780,11 +813,19 @@ ebp
 
 \begin_layout Plain Layout
 
+\family typewriter
+esp
+\family default
+ 
+\begin_inset Formula $\rightarrow$
+\end_inset
+
+
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -797,43 +838,14 @@ ebp
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\leftarrow$
+\begin_inset Formula $\}$
 \end_inset
 
  variables locales de la función llamada
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-...
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \end_inset
@@ -894,7 +906,64 @@ mon_backtrace()
 \emph on
 stack backtrace
 \emph default
-, es decir, mostrar la secuencia...
+, es decir, mostrar la secuencia de los 
+\emph on
+stack frames
+\emph default
+ de una manera específica.
+ Para cada función, deben mostrarse:
+\end_layout
+
+\begin_layout Enumerate
+el 
+\family typewriter
+ebp
+\family default
+ correspondiente a la función
+\end_layout
+
+\begin_layout Enumerate
+la dirección a la cual retornará la función
+\end_layout
+
+\begin_layout Enumerate
+cinco 
+\begin_inset Quotes eld
+\end_inset
+
+parámetros
+\begin_inset Quotes erd
+\end_inset
+
+ que recibió la función al ser llamada
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+En realidad, se imprimen cinco valores que son los primeros cinco parámetros
+ de la función 
+\emph on
+si esta recibe cinco o más parámetros
+\emph default
+.
+ Si la función recibe menos de cinco parámetros, algunos de los valores
+ no serán útiles (no son parámetros de la función).
+\end_layout
+
+\begin_layout Plain Layout
+Podría observarse, si existiera, la información de 
+\emph on
+debugging 
+\emph default
+correspondiente a la función para conocer el número de parámetros que esta
+ recibe, y así poder mostrar exactamente (ni más ni menos) todos los parámetros
+ de la función.
+ Sin embargo, esto no se pide.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -912,16 +981,16 @@ administración de memoria mediante segmentación
  no obstante, fue implementada de una manera rudimentaria, únicamente con
  los fines de acceder a posiciones de memoria cuya dirección no cabía en
  los registros del procesador.
- Por esos tiempos, no se utilizaba la segmentación como un mecanismo para
- proteger espacios de memoria.
+ Por esos tiempos, en la arquitectura de Intel, no se utilizaba la segmentación
+ como un mecanismo para proteger espacios de memoria.
 \end_layout
 
 \begin_layout Standard
-Con la aparición del procesador 80286 (1982) -- inclusión del 
+Con la aparición del procesador 80286 (1982) --- inclusión del 
 \emph on
 modo protegido
 \emph default
- -- se hizo posible la definición de los tamaños y privilegios asignados
+ --- se hizo posible la definición de los tamaños y privilegios asignados
  a cada uno de los segmentos.
  Así, la segmentación pudo utilizarse para realizar protección de memoria,
  es decir, restringir el acceso de determinadas tareas a ciertos sectores
@@ -944,7 +1013,7 @@ paginación
 No obstante, la segmentación no puede ser desactivada en la arquitectura
  IA-32, en ninguno de sus modos.
  ¿Cómo hacen entonces los sistemas operativos modernos (que no precisan
- de la segmentación) para desactivarla? En realidad, no lo hacen.
+ de la segmentación) para desactivarla? En realidad, no la desactivan.
  Utilizan algo llamado 
 \begin_inset Quotes eld
 \end_inset
@@ -955,7 +1024,7 @@ Modelo flat de segmentación
 
 , que consiste en ubicar a todos los segmentos ocupando todo el espacio
  que se pretende direccionar, desde la dirección cero.
- De este modo, la dirección (la parte del offset específicamente) virtual
+ De este modo, la dirección (la parte del offset, específicamente) virtual
  (la utilizada en el código) coincide con la dirección lineal (la que toma
  como entrada el módulo de paginación).
 \end_layout
@@ -1092,9 +1161,10 @@ En la arquitectura IA-32 la paginación puede activarse
 status collapsed
 
 \begin_layout Plain Layout
-escribiendo el valor 1 en el bit 31 del registro de control 
+Esto se hace escribiendo el valor 1 en el bit 31 del registro de control
+ 
 \family typewriter
-CR0
+CR0.
 \end_layout
 
 \end_inset
@@ -1102,11 +1172,11 @@ CR0
  una vez hecho el cambio a modo protegido.
  Cuando se encuentra activada, y se utilizan páginas
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
-En el código fuente del sistema operativo JOS, se llama páginas a los marcos
- de página.
+En el código fuente del sistema operativo JOS, y también aquí, se llama
+ páginas a los marcos de página.
 \end_layout
 
 \end_inset
@@ -1221,7 +1291,23 @@ tabla de páginas
 \emph default
 .
  El sistema de paginación utiliza el primer campo para seleccionar una de
- las entradas en el directorio de páginas.
+ las entradas en el directorio de páginas (
+\emph on
+PDE
+\emph default
+s
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Page Directory Entry
+\end_layout
+
+\end_inset
+
+).
  Consecuentemente, se obtendrá la dirección física de la tabla de páginas
  asociada a dicha entrada.
 \end_layout
@@ -1232,8 +1318,24 @@ El segundo campo es utilizado, entonces, para elegir una de las
 \end_inset
 
  entradas de la tabla de páginas mencionada.
- Las entradas en la tabla de páginas contienen, además de varios atributos,
- la dirección física de una página en memoria.
+ Las entradas en la tabla de páginas (
+\emph on
+PTEs
+\emph default
+
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Page Table Entry
+\end_layout
+
+\end_inset
+
+) contienen, además de varios atributos, la dirección física de una página
+ en memoria.
  El 
 \emph on
 offset
@@ -1243,6 +1345,371 @@ offset
 
 \begin_layout Section
 Desarrollo
+\end_layout
+
+\begin_layout Subsection
+Estructuras importantes
+\end_layout
+
+\begin_layout Standard
+El sistema operativo JOS asigna a cada marco de página de 4KB en memoria
+ física, una instancia de la estructura 
+\family typewriter
+Page
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+Funciones desarrolladas
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+page_alloc
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+int page_alloc(struct Page **pp_store);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pp_store
+\family default
+ es un puntero a un puntero a una página.
+ En el puntero que este referencia se alojará la dirección en memoria de
+ la página obtenida.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+Si quedan páginas físicas disponibles (caso contrario, devuelve un código
+ de error), 
+\family typewriter
+page_alloc
+\family default
+ obtiene la primera página de la lista 
+\family typewriter
+page_free_list
+\family default
+ (la lista que contiene las páginas libres), haciendo uso de la conveniente
+ macro 
+\family typewriter
+LIST_FIRST
+\family default
+, y luego la elimina de dicha lista mediante 
+\family typewriter
+LIST_REMOVE
+\family default
+.
+ Finalmente, la dirección de memoria de la página obtenida se guarda en
+ el puntero refenciado por el parámetro 
+\family typewriter
+pp_store
+\family default
+.
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+page_free
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+void page_free(struct Page *pp) 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pp
+\family default
+ es un puntero a la página que se quiere volver a insertar en la lista de
+ páginas disponibles.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+Esta función vuelve a ubicar la pagina apuntada por 
+\family typewriter
+pp
+\family default
+ en la lista 
+\family typewriter
+page_free_list
+\family default
+, simplemente llamando a la macro 
+\family typewriter
+LIST_INSERT_HEAD
+\family default
+, que ubica la página al principio de la lista.
+\end_layout
+
+\begin_layout Subsubsection
+Función 
+\family typewriter
+pgdir_walk
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+int pgdir_walk(pde_t *pgdir, const void *va, int create, pte_t **pte_store)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+
+\series bold
+Parámetros:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pgdir
+\family default
+ es un puntero a un directorio de páginas (en realidad, a su primera entrada),
+ el cual se utilizará para hallar la dirección física de la tabla de páginas
+ asociada a la dirección 
+\family typewriter
+va
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+va
+\family default
+ es la dirección virtual/lineal cuya PTE asociada (en realidad, la dirección
+ de esta) se quiere obtener.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+create
+\family default
+ indica si debe crearse la página asociada a la dirección en caso de que
+ esta no esté presente.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pte_store
+\family default
+ es un puntero a un puntero a una PTE.
+ En el puntero que este referencia se alojará la dirección de la PTE asociada
+ a la dirección.
+\end_layout
+
+\begin_layout Paragraph*
+Archivo en el que se halla la función: 
+\family typewriter
+kern/pmap.c
+\end_layout
+
+\begin_layout Paragraph*
+Descripción:
+\end_layout
+
+\begin_layout Standard
+Como se usa un 
+\emph on
+modelo flat para la segmentación
+\emph default
+, la dirección lineal de 
+\family typewriter
+va
+\family default
+ es idéntica a la virtual.
+ De este modo, pueden obtenerse los índices sobre el directorio y la tabla
+ de páginas utilizando directamente las macros 
+\family typewriter
+PDX
+\family default
+ y 
+\family typewriter
+PTX
+\family default
+ sobre 
+\family typewriter
+va
+\family default
+.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Estas macros obtienen el índice en el directorio de páginas y en la tabla
+ de páginas respectivamente, a partir de la dirección que se les pasa.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El primer paso es obtener la entrada del directorio (PDE) correspondiente
+ a la tabla de páginas asociada a la dirección.
+ Esta se obtiene fácilmente direccionando sobre 
+\family typewriter
+pgdir
+\family default
+ y utilizando 
+\family typewriter
+PDX(va)
+\family default
+ como índice.
+\end_layout
+
+\begin_layout Standard
+sdsdsd ME QUEDÉ ACÁ
+\end_layout
+
+\begin_layout Standard
+Luego si la tabla de paginas estaba presente, simplemente direccionamos
+ sobre la misma utilizando, PTX(va), y guardamos un puntero a la entry obtenida
+ en pte_store.
+\end_layout
+
+\begin_layout Standard
+Si la tabla no esta presente, devolvemos un error; a menos q el parametro
+ 'create' sea igual a 1.
+ En tal caso procedemos a reservar memoria fisica para la misma.
+\end_layout
+
+\begin_layout Standard
+Como primer paso obtenemos una pagina libre llamando a la funcion page_alloc,
+ si esta no posee mas memoria disponible, retornamos error.
+ Si la llamada tiene exito, obtenemos su direccion fisica mediante, page2pa.
+ Y escribimos en la entry del directorio obtenida anteriormente; cual es
+ la direccion fisica correspondiente, y que los campos presente (P) y de
+ escritura (W) estan activos.
+ Finalmente usando esta direccion fisica, calculamos su direccion virtual
+ mediante KADDR, y le sumamos el valor de PTX(va), para obtener la direccion
+ virtual del entry en la pagina de tablas.
+ Valor q luego se guarda en pte_store.
+ Por ultimo seteamos en 0 todos los bytes de la tabla, mediante memset,
+ indicando que ninguna de las paginas de la misma se encuentra presente
+ en memoria fisica.
+ 
 \end_layout
 
 \begin_layout Section
